@@ -101,44 +101,15 @@ namespace gashlang {
   /**
    * Language level classes
    */
-  class scope;
-  class symbol;
-  class ast;
-  class flow;
-  class symref;
-  class symasgn;
-  class l_return;   // Language return
-  class vardef;
-  class vardef_list;
-  class dir;
-  class num_list;
-
-  /**
-   * Function: symbol lookup
-   */
-  symbol* lookup(char* name);
-  symbol* lookup(string name);
-
-  /**
-   * Look up symbol with name 'name' of version 'version' in scope store (i.e. global scope).
-   *
-   * @param name
-   * @param version
-   *
-   * @return
-   */
-  symbol* lookup(string name, u32 version);
-
-  /**
-   * Look up symbol with 'name' of version 'version' in scope 'scope'.
-   *
-   * @param name
-   * @param version
-   * @param scope
-   *
-   * @return
-   */
-  symbol* lookup(string name, u32 version, scope* scope);
+  class Ast;
+  class Flow;
+  class Symref;
+  class Symasgn;
+  class LangReturn;   // Language return
+  class Vardef;
+  class VardefList;
+  class Dir;           // Directive
+  class NumList;
 
 
 

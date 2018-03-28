@@ -17,6 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef GASH_COMMON_H
+#define GASH_COMMON_H
+
 #include <stdlib.h>
 #include <iostream>
 #include <stdarg.h>
@@ -32,6 +35,7 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <stack>
 
 #define WARNING(str)                                  \
   std::cerr << str << std::endl
@@ -65,3 +69,5 @@ namespace gashlang {
   } Op;
 
 }  // gashlang
+
+#endif
