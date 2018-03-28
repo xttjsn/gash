@@ -137,5 +137,81 @@ namespace gashlang {
     }
   }
 
+  Symbol* SymbolStore::new_symbol(Symbol* sym_old) {
+
+    // If the old symbol is not even in the store.
+    if (!has_symbol_for_name(sym_old->m_name)) {
+      FATAL("Old symbol is not in symbol store. Creating raw symbol by hand is forbidden, use new_symbol");
+    }
+    Symbol* sym;
+    switch(sym_old->m_type) {
+    case NUM:
+      sym = (Symbol*) new NumSymbol(*static_cast<NumSymbol*>(sym_old));
+      break;
+    case ARRAY:
+      sym = (Symbol*) new ArraySymbol(*static_cast<ArraySymbol*>(sym_old));
+      break;
+    case FUNC:
+      sym = (Symbol*) new FuncSymbol(*static_cast<FuncSymbol*>(sym_old));
+      break;
+    }
+    sym->gets_older();
+    m_symbols.find(sym->m_name)->second.push_back(sym);
+  }
+
+  /**
+   * Scope
+   */
+
+  bool Scope::has_symbol_for_name(string name) {
+    return m_symbols.find(name) != m_symbols.end();
+  }
+
+  void Scope::add_symbol(Symbol* sym) {
+    if (has_symbol_for_name(sym->m_name)) {
+      m_symbols.find(sym->m_name)->second.push_back(sym);
+    } else {
+      vector<Symbol*> sym_list({sym});
+      m_symbols.insert(make_pair(sym->m_name, sym_list));
+    }
+  }
+
+  Symbol* Scope::new_symbol(string name, SymbolType type) {
+    Symbol* sym = get_symbol_store().new_symbol(name, type);
+    add_symbol(sym);
+    return sym;
+  }
+
+  Symbol* Scope::new_symbol(Symbol* sym_old) {
+    Symbol* sym = get_symbol_store().new_symbol(sym_old);
+    add_symbol(sym);
+    return sym;
+  }
+
+  Symbol* Scope::get_symbol_for_name(string name) {
+    Scope* scope = this;
+    while (!scope->has_symbol_for_name(name)) {
+      scope = scope->m_parent_scope;
+      if (!scope)
+        return NULL;
+    }
+    Symbol* sym = scope->m_symbols.find(name)->second.back();
+    return sym;
+  }
+
+  Symbol* Scope::get_return_symbol() {
+    return get_symbol_for_name("__RETURN__");
+  }
+
+  /**
+   * Lookup functions
+   */
+  // Symbol* lookup(char* c_name, ) {
+  //   string name(c_name);
+  //   Scope* top_scope = get_scope_stack().top();
+  //   if (!top_scope->get_symbol_for_name(name)) {
+  //     Symbol* sym = top_scope->new_symbol()
+  //   }
+  // }
 
 }  // gashlang

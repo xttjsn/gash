@@ -89,9 +89,21 @@ namespace gashlang {
   class SymbolStore {
     /// Store all the symbols in a single compilation
     NameSymbolsMap m_symbols;
+    SymbolStore() {}
   public:
 
-    SymbolStore() {}
+    /**
+     * Make SymbolStore Singleton
+     *
+     * @return
+     */
+    static SymbolStore& instance() {
+      static SymbolStore instance;
+      return instance;
+    }
+
+    SymbolStore(SymbolStore const&)     = delete;
+    void operator=(SymbolStore const&)  = delete;
 
     /**
      * Check whether there's a symbol associated with that name
@@ -159,7 +171,7 @@ namespace gashlang {
      *
      * @return
      */
-    Symbol* new_symbol(Symbol* old_sym);
+    Symbol* new_symbol(Symbol* sym_old);
 
   };
 
@@ -180,17 +192,21 @@ namespace gashlang {
 
     void add_symbol(Symbol* sym);
 
-    Symbol* new_symbol(string name);
+    Symbol* new_symbol(string name, SymbolType type);
 
     Symbol* new_symbol(Symbol* sym_old);
 
+    /**
+     * Get a symbol by searching from this scope downwards.
+     * Will return NULL if nothing is found.
+     *
+     * @param name
+     *
+     * @return
+     */
     Symbol* get_symbol_for_name(string name);
 
     Symbol* get_return_symbol();
-
-    u32 get_newest_version_for_name(string name);
-
-    Symbol* get_symbol_for_id_and_version(string name, u32 version);
   };
 
   /**
@@ -253,32 +269,13 @@ namespace gashlang {
 #define current_scope()                         \
   get_scope_stack().top()
 
+#define get_symbol_store()                      \
+  SymbolStore::instance()
+
   /**
    * Function: symbol lookup from the most recent scope.
    */
   Symbol* lookup(char* name);
-  Symbol* lookup(string name);
-
-  /**
-   * Look up symbol with name 'name' of version 'version' in scope store (i.e. global scope).
-   *
-   * @param name
-   * @param version
-   *
-   * @return
-   */
-  Symbol* lookup(string name, u32 version);
-
-  /**
-   * Look up symbol with 'name' of version 'version' in scope 'scope'.
-   *
-   * @param name
-   * @param version
-   * @param scope
-   *
-   * @return
-   */
-  Symbol* lookup(string name, u32 version, Scope* scope);
 
 }  // gashlang
 
