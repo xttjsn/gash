@@ -177,7 +177,9 @@ namespace gashlang {
 
   enum ScopeType {
     FUNCTION,
-    BLOCK
+    BLOCK,
+    NONE // reserved for lexer when there's no pending scope type and it wants
+         // to call look up
   };
 
   class Scope {
@@ -257,25 +259,55 @@ namespace gashlang {
     }
   };
 
-#define get_scope_stack()                       \
-  ScopeStack::instance()
 
-#define push_scope(scope)                       \
-  get_scope_stack().push(scope)
-
-#define pop_scope()                             \
-  get_scope_stack().pop()
-
-#define current_scope()                         \
-  get_scope_stack().top()
-
-#define get_symbol_store()                      \
-  SymbolStore::instance()
 
   /**
-   * Function: symbol lookup from the most recent scope.
+   * Functions exposed to lexer.
    */
-  Symbol* lookup(char* name);
+
+  /**
+   *
+   * Symbol lookup from the most recent scope.
+   * @param name
+   * @param type
+   *
+   * @return
+   */
+  Symbol* lookup(char* name, ScopeType type);
+
+  ScopeStack& get_scope_stack() {
+    return ScopeStack::instance();
+  }
+
+  /**
+   * Create a new scope and put it on the top of the scope stack.
+   *
+   */
+  void push_scope() {
+    Scope* new_scope = new Scope;
+    get_scope_stack().push(new_scope);
+  }
+
+  /**
+   * Pop the top most scope
+   *
+   */
+  void pop_scope() {
+    get_scope_stack().pop();
+  }
+
+  /**
+   * Return the top most scope
+   *
+   * @return
+   */
+  Scope* current_scope() {
+    get_scope_stack().top();
+  }
+
+  SymbolStore& get_symbol_store() {
+    return SymbolStore::instance();
+  }
 
 }  // gashlang
 
