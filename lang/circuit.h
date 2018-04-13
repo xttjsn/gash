@@ -33,18 +33,30 @@ namespace gashlang {
   class Gate;
   class GateList;
   class Circuit;
+
+  /**
+   * Typedef a bunch of helper classes
+   *
+   */
   typedef map<u32, u32> WireIdValueMap;
   typedef map<u32, u32> WireIdWireIdMap;
   typedef map<Wire*, Wire*> WireWireMap;
   typedef map<u32, Wire*> WireIdWireMap;
   typedef vector<u32> Bits;
 
+  /**
+   * The wire class
+   *
+   */
   class Wire {
   public:
     u32 m_id = 0;
-    i32 m_v = -1;     // v should be set only when its a constant wire
+
+    //// v should be set only when its a constant wire
+    i32 m_v = -1;
     Gate* m_parent_gate;
     vector<Gate*> m_children_gates;
+
     /// Used for inverting duplicated wire
     bool m_used_once = false;
 
@@ -303,14 +315,35 @@ namespace gashlang {
      */
     int set_invert_wire(Wire* w, Wire* w_inv);
 
+    /**
+     * Set the circuit's output stream
+     *
+     * @param outstream
+     */
     inline void set_circ_outstream(ostream& outstream) {
       m_circ_stream = &outstream;
     }
 
+    /**
+     * Set the circuit's data output stream
+     *
+     * @param outstream
+     */
     inline void set_data_outstream(ostream& outstream) {
       m_data_stream = &outstream;
     }
   };
+
+  /* Wire-level evaluation function */
+  Wire* evalFADD(Wire* in0, Wire* in1, Wire** cin);
+
+  Wire* evalFSUB(Wire* in0, Wire* in1, Wire* prev_bout, Wire** bout);
+
+  Wire* evalAND(Wire* in0, Wire* in1);
+
+  Wire* evalOR(Wire* in0, Wire* in1);
+
+  Wire* evalXOR(Wire* )
 
 }  // gashlang
 

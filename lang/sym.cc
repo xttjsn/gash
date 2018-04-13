@@ -115,6 +115,8 @@ namespace gashlang {
       case FUNC:
         sym = (Symbol*) new FuncSymbol(*static_cast<FuncSymbol*>(sym_old));
         break;
+      default:
+        FATAL("Cannot create symbol of NONE type.");
       }
       sym->gets_older();
       m_symbols.find(sym->m_name)->second.push_back(sym);
@@ -131,6 +133,8 @@ namespace gashlang {
       case FUNC:
         sym = (Symbol*) new FuncSymbol(name, 0);
         break;
+      default:
+        FATAL("Cannot create symbol of NONE type.");
       }
       vector<Symbol*> symbol_list({sym});
       m_symbols.insert(make_pair(name, symbol_list));
@@ -204,14 +208,59 @@ namespace gashlang {
   }
 
   /**
-   * Lookup functions
+   * Functions exposed to lexer
    */
-  // Symbol* lookup(char* c_name, ) {
-  //   string name(c_name);
-  //   Scope* top_scope = get_scope_stack().top();
-  //   if (!top_scope->get_symbol_for_name(name)) {
-  //     Symbol* sym = top_scope->new_symbol()
-  //   }
-  // }
 
-}  // gashlang
+  void push_scope() {
+    Scope* new_scope = new Scope;
+    get_scope_stack().push(new_scope);
+  }
+
+  ScopeStack& get_scope_stack() {
+    return ScopeStack::instance();
+  }
+
+  void pop_scope() {
+    get_scope_stack().pop();
+  }
+
+  Scope* current_scope() {
+    get_scope_stack().top();
+  }
+
+  SymbolStore& get_symbol_store() {
+    return SymbolStore::instance();
+  }
+
+  void set_pending_symbol_type(SymbolType type) {
+    get_symbol_store().m_pending_symbol_type = type;
+  }
+
+  SymbolType get_pending_symbol_type() {
+    SymbolType type = get_symbol_store().m_pending_symbol_type;
+    get_symbol_store().m_pending_symbol_type = NONE;
+    return type;
+  }
+
+  Symbol* lookup(char* name, SymbolType type) {
+
+    Scope* top_scope = get_scope_stack().top();
+    Symbol* sym = top_scope->get_symbol_for_name(name);
+    if (!sym) {
+      if (type == NONE)
+        FATAL("Cannot find symbol for name: " << name << ", but also cannot\
+        create new symbol of type NONE.");
+
+      sym = top_scope->new_symbol(name, type);
+    } else {
+      if (type != NONE)
+        FATAL("Found symbol for name: " << name << ", but type is not NONE\
+        , I guess you are trying to override other local variables, but it's not supported yet.");
+
+      sym = top_scope->get_symbol_for_name(name);
+    }
+    return sym;
+  }
+
+}
+// gashlang
