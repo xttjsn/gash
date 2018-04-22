@@ -44,6 +44,13 @@
   std::cerr << str << std::endl;                      \
   abort()
 
+#define REQUIRE_NOT_NULL(expr)                                          \
+  do {
+    if (expr == NULL) {                                                 \
+      FATAL(__FILE__ << ":" << __LINE__ << ":" << #expr << "is NULL");  \
+    }                                                                   \
+  } while (0)
+
 
 using std::vector;
 using std::map;
