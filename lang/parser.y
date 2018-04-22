@@ -1,7 +1,6 @@
 /* Parser of gashlang */
 
 %{
-gq
   #include <stdio.h>
   #include <stdlib.h>
   #include "gash_lang.h"

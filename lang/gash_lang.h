@@ -454,8 +454,8 @@ namespace gashlang {
   /**
    * Execute the circuit using Yao's protocol
    *
-   * @param exectx
+   * @param exectx The execution context
    */
-  void execute(ExeCtx& exectx);
+  void exec(ExeCtx& exectx);
 }
 #endif

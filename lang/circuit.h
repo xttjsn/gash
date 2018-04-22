@@ -335,15 +335,86 @@ namespace gashlang {
   };
 
   /* Wire-level evaluation function */
+
+  /**
+   * Evaluate a full adder
+   *
+   * @param in0
+   * @param in1
+   * @param cin
+   *
+   * @return
+   */
   Wire* evalFADD(Wire* in0, Wire* in1, Wire** cin);
 
+  /**
+   * Evaluate a full subtractor
+   *
+   * @param in0
+   * @param in1
+   * @param prev_bout
+   * @param bout
+   *
+   * @return
+   */
   Wire* evalFSUB(Wire* in0, Wire* in1, Wire* prev_bout, Wire** bout);
 
+  /**
+   * Evaluate bitwise AND
+   *
+   * @param in0
+   * @param in1
+   *
+   * @return
+   */
   Wire* evalAND(Wire* in0, Wire* in1);
 
+  /**
+   * Evaluate bitwise OR
+   *
+   * @param in0
+   * @param in1
+   *
+   * @return
+   */
   Wire* evalOR(Wire* in0, Wire* in1);
 
-  Wire* evalXOR(Wire* )
+  /**
+   * Evaluate bitwise XOR
+   *
+   *
+   * @return
+   */
+  Wire* evalXOR(Wire* in0, Wire* in1);
+
+  /**
+   * Evaluate bitwise invert
+   *
+   * @param in0
+   *
+   * @return
+   */
+  Wire* evalINV(Wire* in0);
+
+  /**
+   * Evaluate bitwise left shift
+   *
+   * @param in0
+   * @param n
+   *
+   * @return
+   */
+  Wire* evalSHL(Wire* in0, u32 n);
+
+  /**
+   * Evaluate bitwise right shift
+   *
+   * @param in0
+   * @param n
+   *
+   * @return
+   */
+  Wire* evalSHR(Wire* in0, u32 n);
 
 }  // gashlang
 
