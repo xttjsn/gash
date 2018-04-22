@@ -68,8 +68,8 @@ namespace gashlang {
     /* Arithmetic operations */
     nAOP,
 
-    /* Logical/boolean operations */
-    nLOP,
+    /* Comparison/logical/boolean operations */
+    nCOP,
 
     /* Bitwise operations */
     nBOP,   // AND, OR, XOR, or Invert, left shift or right shift
@@ -145,10 +145,10 @@ namespace gashlang {
   };
 
   /**
-   * Logical/boolean operation;
+   * Comparison/logical/boolean operation;
    *
    */
-  class Lop : public Op {
+  class Cop : public Op {
   };
 
   /**
@@ -157,12 +157,13 @@ namespace gashlang {
    */
   class If {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nIF;
     Ast* m_cond_ast;  // The ast for the condition
     Ast* m_then_ast;  // The ast of code that's executed if condition is true
     Ast* m_else_ast;  // The ast of code that's executed if condition is false
     Scope* m_then_scope;
     Scope* m_else_scope;
+    Scope* m_prev_scope;
   };
 
   /**
@@ -170,11 +171,13 @@ namespace gashlang {
    * Note that `init`, `inc`, `cond` is not executed using circuit evaluation but using normal evaluation
    */
   class For {
-    NodeType m_nodetype;
+    NodeType m_nodetype = nFOR;
     Ast* m_init_ast;  // The ast for initialization, it only gets to run once
     Ast* m_inc_ast;   // The ast for increment, it gets to run if cond is true
     Ast* m_cond_ast;  // The ast for condition, it gets to run once `do` finishes
     Ast* m_do_ast;    // The ast for doing the actual job, it's evaluated using circuit evaluation
+    Scope* m_for_scope;
+    Scope* m_prev_scope;
   };
 
   /**
@@ -183,7 +186,7 @@ namespace gashlang {
    */
   class Num {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nNUM;
     i64 m_val;
   };
 
@@ -193,7 +196,7 @@ namespace gashlang {
    */
   class Ref {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nREF;
     RefType m_reftype;
     Symbol* m_sym;
   };
@@ -220,7 +223,7 @@ namespace gashlang {
    */
   class Asgn {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nASGN;
     Ast* m_left;          // m_left can be a ref or a vardef
     Ast* m_right;         // m_right can be a number, or a ref
   };
@@ -231,7 +234,7 @@ namespace gashlang {
    */
   class Ret {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nRET;
     Ast* m_ret;          // m_ret can be a number, a ref or some expression
   };
 
@@ -242,8 +245,9 @@ namespace gashlang {
   class Vardef {
   public:
     NodeType m_nodetype;
-    u32 m_bitlen;
+    Symbol* m_sym;
     i64 m_val;
+    u32 m_intlen;
   };
 
   /**
@@ -252,7 +256,7 @@ namespace gashlang {
    */
   class Func {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nFUNC;
     char* m_funcname;
     Ast* m_vardef_list;
     Ast* m_do;
@@ -394,15 +398,15 @@ namespace gashlang {
    * Create an if flow
    *
    * @param cond
-   * @param then
-   * @param else
+   * @param then_do
+   * @param else_do
    * @param then_scope
    * @param else_scope
    * @param prev_scope
    *
    * @return
    */
-  Ast* new_if(Ast* cond, Ast* then, Ast* else, Scope* then_scope, Scope* else_scope, Scope* prev_scope);
+  Ast* new_if(Ast* cond, Ast* then_do, Ast* else_do, Scope* then_scope, Scope* else_scope, Scope* prev_scope);
 
   /**
    * Create a for loop

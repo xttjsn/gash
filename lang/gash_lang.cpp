@@ -39,4 +39,98 @@ namespace gashlang {
     return (Ast*) aop;
   }
 
+  Ast* new_bop(int bop, Ast* left, Ast* right) {
+    Bop* bop = new Bop;
+    REQUIRE_NOT_NULL(bop);
+    bop->m_nodetype = nBOP;
+    bop->m_left = left;
+    bop->m_right = right;
+    return (Ast*) bop;
+  }
+
+  Ast* new_cop(int cop, Ast* left, Ast* right) {
+    Cop* cop = new Cop;
+    REQUIRE_NOT_NULL(cop);
+    cop->m_nodetype = nCOP;
+    cop->m_left = left;
+    cop->m_right = right;
+    return (Ast*) cop;
+  }
+
+  Ast* new_func(char* name, Ast* vardef_list, Ast* todo) {
+    Func* func = new Func;
+    func->m_funcname = name;
+    func->m_vardef_list = vardef_list;
+    func->m_do = todo;
+    return (Ast*)func;
+  }
+
+  Ast* new_ref_int(Symbol* sym) {
+    IntRef* ref = new IntRef;
+    ref->m_reftype = rINT;
+    ref->m_sym = sym;
+    return (Ast*) ref;
+  }
+
+  Ast* new_ref_bit(Symbol* sym, u32 bit_idx) {
+    BitRef* ref = new BitRef;
+    ref->m_reftype = rBIT;
+    ref->m_sym = sym;
+    ref->m_bit_idx = bit_idx;
+    return (Ast*) ref;
+  }
+
+  Ast* new_asgn(Ast* left, Ast* right) {
+    Asgn* asgn = new Asgn;
+    asgn->m_left = left;
+    asgn->m_right = right;
+    return (Ast*) asgn;
+  }
+
+  Ast* new_num(i64 val) {
+    Num* num = new Num;
+    num->m_val = val;
+    return (Ast*) num;
+  }
+
+  Ast* new_if(Ast* cond, Ast* then_do, Ast* else_do, Scope* then_scope, Scope* else_scope, Scope* prev_scope) {
+    If* aif = new If;
+    aif->m_cond_ast = cond;
+    aif->m_then_ast = then_do;
+    aif->m_else_ast = else_do;
+    aif->m_then_scope = then_scope;
+    aif->m_else_scope = else_scope;
+    aif->m_prev_scope = prev_scope;
+    return (Ast*) aif;
+  }
+
+  Ast* new_for(Ast* init, Ast* cond, Ast* inc, Ast* todo, Scope* for_scope, Scope* prev_scope) {
+    For* afor = new For;
+    afor->m_init_ast = init;
+    afor->m_inc_ast = inc;
+    afor->m_cond_ast = cond;
+    afor->m_do_ast = todo;
+    afor->m_for_scope = for_scope;
+    afor->m_prev_scope = prev_scope;
+    return (Ast*) afor;
+  }
+
+  Ast* new_ret(Ast* ret) {
+    Ret* aret = new Ret;
+    aret->m_ret = ret;
+    return (Ast*) aret;
+  }
+
+  Ast* new_vardef(Symbol* sym, i64 val, u32 intlen) {
+    Vardef* vardef = new Vardef;
+    vardef->m_sym = sym;
+    vardef->m_val = val;
+    vardef->m_intlen = intlen;
+    return (Ast*) vardef;
+  }
+
+  void dir_input(Symbol* sym, i64 val) {
+
+  }
+
 }
