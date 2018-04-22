@@ -66,29 +66,28 @@ namespace gashlang {
    */
   typedef enum {
     /* Arithmetic operations */
-    aARITH,
+    nAOP,
 
-    /* Comparison operations */
-    aCMP,
+    /* Logical/boolean operations */
+    nLOP,
 
     /* Bitwise operations */
-    aAOXI,   // AND, OR, XOR, or Invert
-    aSH,     // Left shift or right shift
+    nBOP,   // AND, OR, XOR, or Invert, left shift or right shift
 
     /* Language structure types */
-    aNAME,  // Name
-    aREF,   // Reference
-    aASGN,  // Assign
-    aNUM,   // Number
-    aRET,   // Return
-    aVARD,  // Variable definition
+    nNAME,  // Name
+    nREF,   // Reference
+    nASGN,  // Assign
+    nNUM,   // Number
+    nRET,   // Return
+    nVARD,  // Variable definition
 
     /* Flow structure */
-    aIF,
-    aFOR,
+    nIF,
+    nFOR,
 
     /* Directives */
-    aDIR,   // Directive
+    nDIR,   // Directive
   } NodeType;
 
   /**
@@ -114,8 +113,42 @@ namespace gashlang {
   class Ast {
   public:
     NodeType m_nodetype;
-    Ast *m_l;
-    Ast *m_r;
+    Ast *m_left;
+    Ast *m_right;
+  };
+
+  /**
+   * Operation base class, refer to op.h for different operation number
+   *
+   */
+  class Op {
+  public:
+    NodeType m_nodetype;
+    u32 m_op;
+    Ast* m_left;
+    Ast* m_right;
+  };
+
+  /**
+   * Arithmetic operations
+   *
+   */
+  class Aop : public Op {
+  };
+
+  /**
+   * Bit-wise operations
+   *
+   * @return
+   */
+  class Bop : public Op {
+  };
+
+  /**
+   * Logical/boolean operation;
+   *
+   */
+  class Lop : public Op {
   };
 
   /**
