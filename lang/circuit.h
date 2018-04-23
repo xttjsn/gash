@@ -99,6 +99,7 @@ namespace gashlang {
   class Bundle {
   public:
     vector<Wire*> m_wires;
+    map<u32, Wire*> m_wires_map;
 
     Bundle() {}
 
@@ -131,6 +132,15 @@ namespace gashlang {
     void add(Wire* w);
 
     /**
+     * Check whether it has a specific wire
+     *
+     * @param i
+     *
+     * @return
+     */
+    bool hasWire(u32 i);
+
+    /**
      * Access the 'i'-th wire in the bundle
      *
      * @param i
@@ -138,6 +148,15 @@ namespace gashlang {
      * @return
      */
     Wire* operator[](u32 i);
+
+    /**
+     * Get the wire with idx `i`
+     *
+     * @param i
+     *
+     * @return
+     */
+    Wire* getWire(u32 i);
 
     /**
      * Size of the bundle.

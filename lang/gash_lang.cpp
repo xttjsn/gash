@@ -21,6 +21,8 @@
 
 namespace gashlang {
 
+  static Circuit mgc;
+
   Ast* new_ast(NodeType ntype, Ast* left, Ast* right) {
     Ast* ast = new Ast;
     REQUIRE_NOT_NULL(ast);
@@ -129,8 +131,27 @@ namespace gashlang {
     return (Ast*) vardef;
   }
 
+  /**
+   * Call this function after m_in has been set up
+   * Will ignore if any wire in the symbol's bundle is not in m_in
+   */
   void dir_input(Symbol* sym, i64 val) {
-
+    if (sym->m_type == NUM) {
+      NumSymbol* nsym = (NumSymbol*) sym;
+      for (u32 i = 0; i < nsym->m_bundle.size(); ++i) {
+        Wire* w = nsym->m_bundle[i];
+        if (!mgc.m_in->hasWire(w->m_id)) {
+          WARNING("Directory symbol is not in input bundle of circuit.");
+          return;
+        }
+        GASSERT(mgc.m_in->getWire(w->m_id) == w);   // Require one pointer to a wire
+        w->m_v = getbit(val, i);
+      }
+    } else if (sym->m_type == ARRAY) {
+      NOT_YET_IMPLEMENTED("dir_input : ARRAY");
+    } else {
+      WARNING("Invalid input type : " <<  sym->m_type);
+    }
   }
 
 }

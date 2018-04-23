@@ -86,6 +86,18 @@ namespace gashlang {
 
   void Bundle::add(Wire* w) {
     m_wires.push_back(w);
+    m_wires_map.insert(make_pair(w->m_id, w));
+  }
+
+  bool Bundle::hasWire(u32 i) {
+    return m_wires_map.find(i) != m_wires_map.end();
+  }
+
+  Wire* Bundle::getWire(u32 i) {
+    if (m_wires_map.find(i) == m_wires_map.end()) {
+      return NULL;
+    }
+    return m_wires_map.find(i)->second;
   }
 
   Wire* Bundle::operator[](u32 i) {

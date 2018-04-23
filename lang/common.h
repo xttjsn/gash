@@ -44,13 +44,29 @@
   std::cerr << str << std::endl;                      \
   abort()
 
-#define REQUIRE_NOT_NULL(expr)                                          \
-  do {
-    if (expr == NULL) {                                                 \
-      FATAL(__FILE__ << ":" << __LINE__ << ":" << #expr << "is NULL");  \
-    }                                                                   \
+#define REQUIRE_NOT_NULL(expr)                                             \
+  do {                                                                     \
+    if (expr == NULL) {                                                    \
+      FATAL(__FILE__ << ": " << __LINE__ << ": " << #expr << " is NULL");  \
+    }                                                                      \
   } while (0)
 
+#define NOT_YET_IMPLEMENTED(f)                        \
+      FATAL("Not yet implemented error:" <<  f)
+
+#define GASSERT(expr)                                                      \
+  do {                                                                     \
+    if (!expr) {                                                           \
+      FATAL(__FILE__ << ": " << __LINE__ << ": " << #expr << " failed");   \
+    }                                                                      \
+  } while (0)
+
+
+/**
+ * Get the n-th bit of v
+ */
+#define getbit(v, n)                                 \
+  v & (1 << n)
 
 using std::vector;
 using std::map;
