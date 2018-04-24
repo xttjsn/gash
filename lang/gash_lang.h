@@ -63,6 +63,7 @@ namespace gashlang {
   /**
    * A enumeration type for Abstract Syntax Tree
    * Each type correspond to a class
+   * TODO: consider remove the nDIR type
    */
   typedef enum {
     /* Arithmetic operations */
@@ -104,6 +105,11 @@ namespace gashlang {
     dPORT,
     dROLE
   } DirType;
+
+  typedef enum {
+    GARBLER,
+    EVALUATOR,
+  } RoleType;
 
   /**
    * Abstract syntax tree definition
@@ -296,7 +302,7 @@ namespace gashlang {
   public:
     int m_role;
     u32 m_port;
-    char* m_ip;
+    char m_ip[16];
     char* m_circ_path;
     char* m_data_path;
   };
@@ -453,12 +459,9 @@ namespace gashlang {
   /**
    * Directive on ip
    *
-   * @param x
-   * @param y
-   * @param w
-   * @param z
+   * @param ip
    */
-  void dir_ip(u8 x, u8 y, u8 w, u8 z);
+  void dir_ip(const char* ip);
 
   /**
    * Directive on port
@@ -468,25 +471,32 @@ namespace gashlang {
   void dir_port(u32 port);
 
   /**
+   * Set the role type of current execution context
+   *
+   * @param role
+   */
+  void dir_role(RoleType role);
+
+  /**
    * The core function of circuit building.
    * It takes a statement and evaluate it one after another (from right to left)
    * recursively.
    *
-   * @param stat The statement that we want to evaluate
+   * @param ast The ast that we want to evaluate
    * @param bundle The return bundle, allocate it on the stack please
    */
-  void evalc(Ast* stat, Bundle& bundle);
+  void evalc(Ast* ast, Bundle& bundle);
 
   /**
    * This is another evaluation function. However, this function has no side
    * effect on circuit building, its only (now) purpose is to serve for loop's
    * init, condition, and increment
    *
-   * @param stat The statement we want to evaluate
+   * @param ast The ast we want to evaluate
    *
    * @return
    */
-  double evaln(Ast* stat);
+  double evaln(Ast* ast);
 
   /**
    * Execute the circuit using Yao's protocol
