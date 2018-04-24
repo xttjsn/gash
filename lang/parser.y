@@ -12,6 +12,7 @@
   using gashlang::Symbol;
   using gashlang::Vardef;
   using gashlang::Scope;
+  using gashlang::RoleType;
 
   using gashlang::new_if;
   using gashlang::new_for;
@@ -45,7 +46,7 @@
   Vardeflist* yy_vardeflist;
   Scope* yy_scope;
   Tuple* yy_arrtuple;
-  char* yy_spec;
+  char* yy_ip;
 }
 
  /*** Declare tokens ***/
@@ -129,12 +130,11 @@ numlist : NUMBER_I64                  { $$ = new_numlist($1, NULL);            }
 ;
 
 
-dir : '#' DEF_INPUT NAME I64          { $$ = new_dir(dINPUT, $3, $4);          }
-| '#' DEF_ROLE GARBLER                { $$ = new_dir(dROLE, GCRole::GARBLER);  }
-| '#' DEF_ROLE EVALUATOR              { $$ = new_dir(dROLE, GCRole::EVALUATOR);}
-| '#' DEF_PORT I64                    { $$ = new_dir(dPORT, $3);               }
-| '#' DEF_IP NUMBER '.' NUMBER '.' NUMBER '.' NUMBER
-                                      { $$ = new_dir(dIP, newip($3, $5, $7, $9)); }
+dir : '#' DEF_INPUT NAME I64          { $$ = dir_input($3, $4);                }
+| '#' DEF_ROLE GARBLER                { $$ = dir_role(GARBLER);                }
+| '#' DEF_ROLE EVALUATOR              { $$ = dir_role(EVALUATOR);              }
+| '#' DEF_PORT I64                    { $$ = dir_port($3);                     }
+| '#' DEF_IP IP                       { $$ = dir_ip($3);                       }
 ;
 
 
