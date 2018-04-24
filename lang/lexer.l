@@ -13,14 +13,10 @@
   // Helper macro for locating line number when error happens.
 #define YY_LOC
   yylloc.first_line = yylineno;                     \
-                                                    \
   yylloc.first_column = yycolumn;                   \
-                                                    \
   yycolumn=yycolumn+yyleng;                         \
-                                                    \
   yylloc.last_column = yycolumn;                    \
-                                                    \
-  yylloc.last_line = yylineno;
+  yylloc.last_line = yylineno
 
   using gashlang::ScopeType;
 
@@ -123,6 +119,10 @@
 "defport"   { YY_LOC; return DEF_PORT;  }
 "GARBLER"   { YY_LOC; return GARBLER;   }
 "EVALUATOR" { YY_LOC; return EVALUATOR; }
+
+[0-9]{1,3}"."[0-9]{1,3}"."[0-9]{1,3}"."[0-9]{1,3}  { YY_LOC;
+                                                     yylval.yy_ip = yytext;
+                                                     return IP;}
 
  /* Comment */
 
