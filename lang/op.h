@@ -20,6 +20,8 @@
 #ifndef GASH_OP_H
 #define GASH_OP_H
 
+#include "circuit.h"
+
 namespace gashlang {
 
   /* Arithmetic operations */
@@ -59,6 +61,286 @@ namespace gashlang {
 #define COP_LEE    0x23  // Less or equal to
 #define COP_EQ     0x24  // Equal
 #define COP_NEQ    0x25  // Not equal
+
+  /* Bundle-level evaluation function */
+  /**
+   * Evaluate a full adder
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evala_ADD(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Evaluate a full subtractor
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evala_SUB(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Evaluate multiplication
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evala_MUL(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Evaluate division
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evala_DIV(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Support function for division
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evala_DVG(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Evaluate ANDs
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalb_AND(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Evaluate ORs
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalb_OR(Bundle& in0, Bundle& in1, Bundle& out);
+
+
+  /**
+   * Evaluate XORs
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalb_XOR(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Invert bundle
+   *
+   * @param in
+   * @param out
+   *
+   * @return
+   */
+  int evalb_INV(Bundle& in, Bundle& out);
+
+  /**
+   * Take the negative of the input bundle
+   *
+   * @param in
+   * @param out
+   *
+   * @return
+   */
+  int evalb_UMINUS(Bundle& in, Bundle& out);
+
+  /**
+   * Evaluate bitwise left shift
+   *
+   * @param in0
+   * @param n
+   *
+   * @return
+   */
+  int evalb_SHL(Bundle& in0, u32 n, Bundle& out);
+
+  /**
+   * Evaluate bitwise right shift
+   *
+   * @param in0
+   * @param n
+   *
+   * @return
+   */
+  int evalb_SHR(Bundle& in0, u32 n, Bundle& out);
+
+  /**
+   * CMP: Larger than
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_LA(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * CMP: Less than
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_LE(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Equal
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_EQ(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Less than or equal to
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_LEEQ(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Large than or equal to
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_LAEQ(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Not equal
+   *
+   * @param in0
+   * @param in1
+   * @param out
+   *
+   * @return
+   */
+  int evalc_NEQ(Bundle& in0, Bundle& in1, Bundle& out);
+
+  /**
+   * Assign then_res/else_res to out conditioned on cond
+   *
+   * @param cond
+   * @param then_res
+   * @param else_res
+   * @param out
+   *
+   * @return
+   */
+  int evalo_ifthenelse(Wire* cond, Bundle& then_res, Bundle& else_res, Bundle& out);
+
+  /**
+   * Write an AND/OR/XOR gate to circuit m_gates
+   *
+   * @param op
+   * @param in0
+   * @param in1
+   * @param out
+   */
+  void write_gate(int op, Wire* in0, Wire* in1, Wire*& out);
+
+  /* Wire-level evaluation function */
+
+  /**
+   * Evaluate a full adder
+   *
+   * @param in0
+   * @param in1
+   * @param cin
+   *
+   * @return
+   */
+  Wire* evalw_FADD(Wire* in0, Wire* in1, Wire** cin);
+
+  /**
+   * Evaluate a full subtractor
+   *
+   * @param in0
+   * @param in1
+   * @param prev_bout
+   * @param bout
+   *
+   * @return
+   */
+  Wire* evalw_FSUB(Wire* in0, Wire* in1, Wire* prev_bout, Wire** bout);
+
+  /**
+   * Evaluate bitwise AND
+   *
+   * @param in0
+   * @param in1
+   *
+   * @return
+   */
+  Wire* evalw_AND(Wire* in0, Wire* in1);
+
+  /**
+   * Evaluate bitwise OR
+   *
+   * @param in0
+   * @param in1
+   *
+   * @return
+   */
+  Wire* evalw_OR(Wire* in0, Wire* in1);
+
+  /**
+   * Evaluate bitwise XOR
+   *
+   *
+   * @return
+   */
+  Wire* evalw_XOR(Wire* in0, Wire* in1);
+
+  /**
+   * Evaluate bitwise invert
+   *
+   * @param in0
+   *
+   * @return
+   */
+  Wire* evalw_INV(Wire* in0);
 
 }
 
