@@ -22,6 +22,7 @@
 
 #include "common.h"
 #include "circuit.h"
+#include "op.h"
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
@@ -148,6 +149,9 @@ namespace gashlang {
    * @return
    */
   class Bop : public Op {
+  public:
+    /// Used for SHL/SHR
+    u32 m_n;
   };
 
   /**
@@ -205,6 +209,8 @@ namespace gashlang {
     NodeType m_nodetype = nREF;
     RefType m_reftype;
     Symbol* m_sym;
+    /// The scope at the time of parsing
+    Scope* m_scope;
   };
 
   /**
@@ -485,7 +491,7 @@ namespace gashlang {
    * @param ast The ast that we want to evaluate
    * @param bundle The return bundle, allocate it on the stack please
    */
-  void evalc(Ast* ast, Bundle& bundle);
+  void evalast(Ast* ast, Bundle& bundle);
 
   /**
    * This is another evaluation function. However, this function has no side
@@ -496,7 +502,7 @@ namespace gashlang {
    *
    * @return
    */
-  double evaln(Ast* ast);
+  double evalast_n(Ast* ast);
 
   /**
    * Execute the circuit using Yao's protocol

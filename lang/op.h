@@ -38,7 +38,7 @@ namespace gashlang {
 #define AOP_SQRT  0x06
 
   /// If piece wise linear approximation is enabled
-#ifdef __PWS_LIN_APPROX__
+#ifdef __PWS_LIN_APPRX__
 
 #define AOP_LOG2  0x07
 #define AOP_LOG10 0x08

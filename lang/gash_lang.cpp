@@ -22,6 +22,7 @@
 namespace gashlang {
 
   static Circuit mgc;
+  static ExeCtx mectx;
 
   Ast* new_ast(NodeType ntype, Ast* left, Ast* right) {
     Ast* ast = new Ast;
@@ -154,4 +155,200 @@ namespace gashlang {
     }
   }
 
+  void dir_ip(const char* ip) {
+    strcpy_s(mectx.m_ip, 16, ip);   // Use safe strcpy
+  }
+
+  void dir_port(u32 port) {
+    mectx.m_port = port;
+  }
+
+  void dir_role(RoleType role) {
+    mectx.m_role = role;
+  }
+
+  void evalast(Ast* ast, Bundle& bret) {
+    REQUIRE_NOT_NULL(ast);
+
+    switch (ast->m_nodetype) {
+    case nAOP:
+      Aop* aop = (Aop*) ast;
+      evalast_aop(aop, bret);
+      break;
+    case nBOP:
+      Bop* bop = (Bop*) ast;
+      evalast_bop(bop, bret);
+      break;
+    case nCOP:
+      Cop* cop = (Cop*) ast;
+      evalast_cop(cop, bret);
+      break;
+    case nNAME:
+      FATAL("nNAME should never be evaluated, REF should have handled it.");
+      break;
+    case nREF:
+      Ref* ref = (Ref*) ast;
+      evalast_ref(ref, bret);
+      break;
+    case nASGN:
+      Asgn* asgn = (Asgn*) ast;
+      evalast_asgn(asgn, bret);
+      break;
+    case nNUM:
+      Num* num = (Num*) ast;
+      evalast_num(num, bret);
+      break;
+    case nRET:
+      break;
+    case nVARD:
+      break;
+    case nIF:
+      break;
+    case nFOR:
+      break;
+    case nDIR:
+      break;
+    }
+  }
+
+  void evalast_aop(Aop* aop, Bundle& bret) {
+      Bundle bleft;
+      Bundle bright;
+      switch (aop->m_op) {
+      case AOP_PLUS:
+        evalast(aop->m_left, bleft);
+        evalast(aop->m_right, bright);
+        evala_ADD(bleft, bright, bret);
+        break;
+      case AOP_MINUS:
+        evalast(aop->m_left, bleft);
+        evalast(aop->m_right, bright);
+        evala_MINUS(bleft, bright, bret);
+        break;
+      case AOP_UMINUS:
+        evalast(aop->m_left, bleft);
+        evala_UMINUS(bleft, bret);
+        break;
+      case AOP_MUL:
+        evalast(aop->m_left, bleft);
+        evalast(aop->m_right, bright);
+        evala_MUL(bleft, bright, bret);
+        break;
+      case AOP_DIV:
+        evalast(aop->m_left, bleft);
+        evalast(aop->m_right, bright);
+        evala_DIV(bleft, bright, bret);
+        break;
+#ifdef __ADV_ARITH__
+      case AOP_SQR:
+        NOT_YET_IMPLEMENTED("evalc : AOP_SQR");
+        break;
+      case AOP_SQRT:
+        NOT_YET_IMPLEMENTED("evalc : AOP_SQRT");
+        break;
+#ifdef __PWS_LIN_APPRX__
+      case AOP_LOG2:
+        NOT_YET_IMPLEMENTED("evalc : AOP_LOG10");
+        break;
+      case AOP_LOG10:
+        NOT_YET_IMPLEMENTED("evalc : AOP_LOG10");
+        break;
+#endif
+#endif
+      }
+  }
+
+  void evalast_bop(Bop* bop, Bundle& bret) {
+    Bundle bleft;
+    Bundle bright;
+    switch (bop->m_op) {
+    case BOP_OR:
+      evalast(bop->m_left, bleft);
+      evalast(bop->m_right, bright);
+      evalb_OR(bleft, bright, bret);
+      break;
+    case BOP_AND:
+      evalast(bop->m_left, bleft);
+      evalast(bop->m_right, bright);
+      evalb_AND(bleft, bright, bret);
+      break;
+    case BOP_XOR:
+      evalast(bop->m_left, bleft);
+      evalast(bop->m_right, bright);
+      evalb_XOR(bleft, bright, bret);
+      break;
+    case BOP_INV:
+      evalast(bop->m_left, bleft);
+      evalb_INV(bleft, bret);
+      break;
+    case BOP_SHL:
+      evalast(bop->m_left, bleft);
+      evalb_SHL(bleft, bop->m_n, bret);
+      break;
+    case BOP_SHR:
+      evalast(bop->m_left, bleft);
+      evalb_SHR(bleft, bop->m_n, bret);
+      break;
+    }
+  }
+
+  void evalast_cop(Cop* cop, Bundle& bret) {
+    Bundle bleft;
+    Bundle bright;
+    switch (cop->m_op) {
+    case COP_LA:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_LA(bleft, bright, bret);
+      break;
+    case COP_LE:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_LE(bleft, bright, bret);
+      break;
+    case COP_LAE:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_LAE(bleft, bright, bret);
+      break;
+    case COP_LEE:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_LEE(bleft, bright, bret);
+      break;
+    case COP_EQ:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_EQ(bleft, bright, bret);
+      break;
+    case COP_NEQ:
+      evalast(cop->m_left, bleft);
+      evalast(cop->m_right, bright);
+      evalc_NEQ(bleft, bright, bret);
+      break;
+    }
+  }
+
+  void evalast_ref(Ref* ref, Bundle& bret) {
+    if (ref->m_reftype == rNORMAL) {
+      bret = ref->m_sym->m_bundle;
+    } else if (ref->m_reftype == rBIT) {
+      bret.clear();
+      bret.add(ref->m_sym->m_bundle[ref->m_bit_idx]);
+    }
+  }
+
+  void evalast_asgn(Asgn* asgn, Bundle& bret) {
+    Bundle bleft;
+    Bundle bright;
+    evalast(asgn->m_left, bleft);
+    evalast(asgn->m_right, bright);
+    GASSERT(bleft.size() == bright.size());   // Must have same size
+    bleft.copyfrom(bright, 0, 0, bright.size());
+    bret = Bundle(ONE);
+  }
+
+  void evalast_num(Num* num, Bundle& bret) {
+    num2bundle(num->m_val, bret);
+  }
 }

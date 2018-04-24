@@ -21,6 +21,8 @@
 
 namespace gashlang {
 
+  static u32 wid = 0;
+
   /**
    * Several helper functions for Wire
    *
@@ -63,6 +65,16 @@ namespace gashlang {
     } else {
       this->set_id_odd();
     }
+  }
+
+  void wput(Wire* w) {
+    if (--w->m_refcount == 0) {
+      delete w;
+    }
+  }
+
+  void wref(Wire* w) {
+    ++w->m_refcount;
   }
 
   /**
@@ -123,10 +135,31 @@ namespace gashlang {
     return 0;
   }
 
+  void Bundle::clear() {
+    while (this->m_wires.size() > 0) {
+      Wire* w = this->m_wires.back();
+      this->m_wires.pop_back();
+      this->m_wires_map.erase(w->m_id);
+      wput(w);
+    }
+  }
+
   void Bundle::clear_val() {
     for (auto it = this->m_wires.begin(); it != this->m_wires.end(); ++it) {
       (*it)->m_v = -1;
     }
+  }
+
+  void num2bundle_n(i64 v, Bundle& bret, u32 n) {
+    u32 i = 0;
+    bret.clear();
+    while (i < 64 && i < n) {
+      bret.add(getbit(v, i) == 1 ? W_ONE : W_ZERO);
+    }
+  }
+
+  void num2bundle(i64 v, Bundle& bret) {
+    num2bundle_n(v, bret, 64);
   }
 
   /**

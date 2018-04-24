@@ -24,6 +24,9 @@
 
 namespace gashlang {
 
+#define W_ONE new Wire(++(++wid), 1)
+#define W_ZERO new Wire(++(++wid), 0)
+
   /**
    * Circuit level classes
    */
@@ -52,6 +55,7 @@ namespace gashlang {
   public:
     u32 m_id = 0;
 
+    u32 m_refcount = 0;
     //// v should be set only when its a constant wire
     i32 m_v = -1;
     Gate* m_parent_gate;
@@ -60,7 +64,7 @@ namespace gashlang {
     /// Used for inverting duplicated wire
     bool m_used_once = false;
 
-    Wire() {}
+    Wire() : {}
     Wire(u32 id) : m_id(id) {}
     Wire(u32 id, i32 v) : m_id(id), m_v(v) {}
 
@@ -178,6 +182,12 @@ namespace gashlang {
     int copyfrom(Bundle& src, u32 start, u32 src_start, u32 size);
 
     /**
+     * Remove all wire from bundle, decrease refcount of each wire by 1
+     *
+     */
+    void clear();
+
+    /**
      * Set the value of all wires in this bundle to 0.
      *
      */
@@ -190,6 +200,23 @@ namespace gashlang {
      */
     void emit(ostream& outstream);
   };
+
+  /**
+   * Convert integer to bundle, with specified size n
+   *
+   * @param v
+   * @param bundle
+   * @param n
+   */
+  void num2bundle_n(i64 v, Bundle& bundle, u32 n);
+
+  /**
+   * Convert 64-bit value to bundle
+   *
+   * @param v
+   * @param bundle
+   */
+  void num2bundle(i64 v, Bundle& bundle);
 
   /**
    * Prologue is responsible for writing the first line of the output circuit.

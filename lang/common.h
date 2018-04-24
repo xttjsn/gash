@@ -66,7 +66,7 @@
  * Get the n-th bit of v
  */
 #define getbit(v, n)                                 \
-  v & (1 << n)
+  (v & (1 << n))
 
 using std::vector;
 using std::map;

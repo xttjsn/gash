@@ -21,6 +21,8 @@
   using gashlang::new_dir;
   using gashlang::new_ret;
   using gashlang::get_current_scope;
+
+#define gcs get_current_scope
 %}
 
 /* Enable tracing. Disable it in release version. */
