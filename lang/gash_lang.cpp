@@ -21,7 +21,7 @@
 
 namespace gashlang {
 
-  static Circuit mgc;
+  static Circuit m_gc;
   static ExeCtx mectx;
 
   Ast* new_ast(NodeType ntype, Ast* left, Ast* right) {
@@ -96,15 +96,24 @@ namespace gashlang {
     return (Ast*) num;
   }
 
-  Ast* new_if(Ast* cond, Ast* then_do, Ast* else_do, Scope* then_scope, Scope* else_scope, Scope* prev_scope) {
+  Ast* new_if(Ast* cond, Ast* if_ast, Scope* if_scope, Scope* prev_scope) {
     If* aif = new If;
     aif->m_cond_ast = cond;
-    aif->m_then_ast = then_do;
-    aif->m_else_ast = else_do;
-    aif->m_then_scope = then_scope;
-    aif->m_else_scope = else_scope;
+    aif->m_if_ast = if_ast;
+    aif->m_if_scope = if_scope;
     aif->m_prev_scope = prev_scope;
     return (Ast*) aif;
+  }
+
+  Ast* new_ifelse(Ast* cond, Ast* if_ast, Ast* else_ast, Scope* if_scope, Scope* else_scope, Scope* prev_scope) {
+    Ifel* aifel = new Ifel;
+    aifel->m_cond_ast = cond;
+    aifel->m_if_ast = if_ast;
+    aifel->m_else_ast = else_ast;
+    aifel->m_if_scope = then_scope;
+    aifel->m_else_scope = else_scope;
+    aifel->m_prev_scope = prev_scope;
+    return (Ast*) aifel;
   }
 
   Ast* new_for(Ast* init, Ast* cond, Ast* inc, Ast* todo, Scope* for_scope, Scope* prev_scope) {
@@ -141,11 +150,11 @@ namespace gashlang {
       NumSymbol* nsym = (NumSymbol*) sym;
       for (u32 i = 0; i < nsym->m_bundle.size(); ++i) {
         Wire* w = nsym->m_bundle[i];
-        if (!mgc.m_in->hasWire(w->m_id)) {
+        if (!m_gc.m_in->hasWire(w->m_id)) {
           WARNING("Directory symbol is not in input bundle of circuit.");
           return;
         }
-        GASSERT(mgc.m_in->getWire(w->m_id) == w);   // Require one pointer to a wire
+        GASSERT(m_gc.m_in->getWire(w->m_id) == w);   // Require one pointer to a wire
         w->m_v = getbit(val, i);
       }
     } else if (sym->m_type == ARRAY) {
@@ -168,7 +177,7 @@ namespace gashlang {
   }
 
   void evalast(Ast* ast, Bundle& bret) {
-    REQUIRE_NOT_NULL(ast);
+    if (!ast) return;
 
     switch (ast->m_nodetype) {
     case nAOP:
@@ -199,14 +208,26 @@ namespace gashlang {
       evalast_num(num, bret);
       break;
     case nRET:
+      Ret* ret = (Ret*) ast;
+      evalast_ret(ret, bret);
       break;
     case nVARD:
+      Vardef* vdf = (Vardef*) ast;
+      evalast_vdf(vdf, bret);
       break;
     case nIF:
+      If* aif = (If*) ast;
+      evalast_if(aif, bret);
       break;
+    case nIFEL:
+      Ifel* aifel = (Ifel*) ast;
+      evalast_ifel(aifel, bret);
     case nFOR:
+      For* afor = (For*) ast;
+      evalast_for(afor, bret);
       break;
-    case nDIR:
+    default:
+      FATAL("Unsupported nodetype : " << ast->m_nodetype);
       break;
     }
   }
@@ -343,12 +364,157 @@ namespace gashlang {
     Bundle bright;
     evalast(asgn->m_left, bleft);
     evalast(asgn->m_right, bright);
-    GASSERT(bleft.size() == bright.size());   // Must have same size
+
+    // Left and right must have same size
+    GASSERT(bleft.size() == bright.size());
+
+    // Copy right to left
     bleft.copyfrom(bright, 0, 0, bright.size());
+
+    // one represents success
     bret = Bundle(ONE);
   }
 
   void evalast_num(Num* num, Bundle& bret) {
     num2bundle(num->m_val, bret);
+  }
+
+  void evalast_ret(Ret* ret, Bundle& bret) {
+    bret = evalast(ret->m_ret);
+    m_gc->m_out = bret;
+  }
+
+  void evalast_vdf(Vardef* vdf, Bundle& bret) {
+    num2bundle_n(vdf->m_val, vdf->m_sym->m_bundle, vdf->m_intlen);
+  }
+
+  void evalast_if(If* aif, Bundle& bret) {
+    Bundle bcond;
+    Bundle bif;
+    Scope* if_scope = aif->m_if_scope;
+    Scope* prev_scope = aif->m_prev_scope;
+
+    // Evaluate cond
+    evalast(aif->m_cond_ast, bcond);
+
+    // Condition bundle should have size 1
+    GASSERT(bcond.size() == 1);
+
+    // Evaluate if statement
+    evalast(aif->m_if_ast, bif);
+
+    // For each symbol in if_scope that's also in prev_scope, create a new symbol in prev_scope
+    // And copy the bundle of either if_scope's symbol or prev_scope's symbol to the new symbol,
+    // conditioned on cond.
+    for(auto it = if_scope->m_symbols.begin(); it != if_scope->m_symbols.end(); ++it) {
+      string sym_name = it->first;
+      Symbol* if_sym = if_scope->get_symbol_for_name(sym_name);
+
+      // If this symbol was in prev_scope or its ancestor
+      if (prev_scope->has_symbol_for_name(sym_name)) {
+        Symbol* prev_sym = prev_scope->get_symbol_for_name(sym_name);
+
+        // Create a new symbol
+        Symbol* new_sym = prev_scope->new_symbol(prev_sym);
+
+        // Assign bundle conditioned on bcond
+        evalo_if(bcond[0], if_sym->m_bundle, prev_sym->m_bundle, new_sym->m_bundle);
+      }
+    }
+
+    // one represents success
+    bret = Bundle(ONE);
+  }
+
+  void evalast_ifel(Ifel* aifel, Bundle& bret) {
+    Bundle bcond;
+    Bundle bif;
+    Bundle belse;
+    Scope* if_scope = aifel->m_if_scope;
+    Scope* else_scope = aifel->m_else_scope;
+    Scope* prev_scope = aifel->m_prev_scope;
+
+    // Evaluate cond
+    evalast(aifel->m_cond_ast, bcond);
+
+    // Condition bundle should have size 1
+    GASSERT(bcond.size() == 1);
+
+    // Evaluate if statement
+    evalast(aifel->m_if_ast, bif);
+
+    // Evaluate else statement
+    evalast(aifel->m_else_ast, belse);
+
+    // For each symbol in if_scope, else_scope and prev_scope, create a new symbol in prev_scope,
+    // and copy the bundle of either if_scope's symbol or else_scope's symbol to the new symbol,
+    // conditioned on cond.
+    for (auto it = if_scope->m_symbols.begin(); it != if_scope->m_symbols.end(); ++it) {
+      string sym_name = it->first;
+      Symbol* if_sym = if_scope->get_symbol_for_name(sym_name);
+
+      // If this symbol was in prev_scope
+      if (prev_scope->has_symbol_for_name(sym_name)) {
+
+        // Get the symbol from prev_scope
+        Symbol* prev_sym = prev_scope->get_symbol_for_name(sym_name);
+
+        // Create a new symbol
+        Symbol* new_sym = prev_scope->new_symbol(prev_sym);
+
+        // If this symbol was in else_scope
+        if (else_scope->has_symbol_for_name(sym_name)) {
+
+          Symbol* else_sym = else_scope->get_symbol_for_name(sym_name);
+
+          evalo_if(bcond[0], if_sym->m_bundle, else_sym->m_bundle, new_sym->m_bundle);
+
+        } else {  // If this symbol was not in else_scope
+
+          evalo_if(bcond[0], if_sym->m_bundle, prev_sym->m_bundle, new_sym->m_bundle);
+
+        }
+      }
+    }
+
+    // Now that we handled symbols in if x else x prev, if x prev, we should handle symbols
+    // in else x prev
+    for (auto it = else_scope->m_symbols.begin(); it != else_scope->m_symbols.end(); ++it) {
+      string sym_name = it->first;
+      Symbol* else_sym = else_scope->get_symbol_for_name(sym_name);
+
+      // If this symbol was in prev_scope
+      if (prev_scope->has_symbol_for_name(sym_name)) {
+
+        // Get the symbol from prev_scope
+        Symbol* prev_sym = prev_scope->get_symbol_for_name(sym_name);
+
+        // If this symbols was NOT in if_scope
+        if (!if_scope->has_symbol_for_name(sym_name)) {
+
+          Symbol* new_sym = prev_scope->new_symbol(prev_sym);
+          evalo_if(bcond[0], else_sym->m_bundle, prev_sym->m_bundle, new_sym->m_bundle);
+
+        } else {
+          // Already handled in last for loop
+          // Do nothing
+        }
+      }
+    }
+  }
+
+  void evalast_for(For* afor, Bundle& bret) {
+    // Evaluate init ast in numeric mode. All bundles will be ignored
+    evalast_n(afor->m_init_ast);
+
+    // Execute the for loop in a while loop
+    while (evalast_n(afor->m_cond_ast)) {
+
+      // Evaluate do in normal mode
+      evalast(afor->m_do_ast);
+
+      // Evaluate increment ast in numeric mode
+      evalast_n(afor->m_inc_ast);
+    }
   }
 }

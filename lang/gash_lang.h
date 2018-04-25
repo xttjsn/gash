@@ -86,10 +86,8 @@ namespace gashlang {
 
     /* Flow structure */
     nIF,
+    nIFEL,  // If else
     nFOR,
-
-    /* Directives */
-    nDIR,   // Directive
   } NodeType;
 
   /**
@@ -168,10 +166,23 @@ namespace gashlang {
   class If {
   public:
     NodeType m_nodetype = nIF;
+    Ast* m_cond_ast;
+    Ast* m_if_ast;
+    Scope* m_if_scope;
+    Scope* m_prev_scope;
+  };
+
+  /**
+   * If else flow class
+   *
+   */
+  class Ifel {
+  public:
+    NodeType m_nodetype = nIFEL;
     Ast* m_cond_ast;  // The ast for the condition
-    Ast* m_then_ast;  // The ast of code that's executed if condition is true
+    Ast* m_if_ast;  // The ast of code that's executed if condition is true
     Ast* m_else_ast;  // The ast of code that's executed if condition is false
-    Scope* m_then_scope;
+    Scope* m_if_scope;
     Scope* m_else_scope;
     Scope* m_prev_scope;
   };
@@ -248,6 +259,7 @@ namespace gashlang {
   public:
     NodeType m_nodetype = nRET;
     Ast* m_ret;          // m_ret can be a number, a ref or some expression
+    Func* m_func;        // The function
   };
 
   /**
@@ -410,15 +422,27 @@ namespace gashlang {
    * Create an if flow
    *
    * @param cond
-   * @param then_do
-   * @param else_do
-   * @param then_scope
+   * @param if_ast
+   * @param if_scope
+   * @param prev_scope
+   *
+   * @return
+   */
+  Ast* new_if(Ast* cond, Ast* if_ast, Scope* if_scope, Scope* prev_scope);
+
+  /**
+   * Create an if else flow
+   *
+   * @param cond
+   * @param if_ast
+   * @param else_ast
+   * @param if_scope
    * @param else_scope
    * @param prev_scope
    *
    * @return
    */
-  Ast* new_if(Ast* cond, Ast* then_do, Ast* else_do, Scope* then_scope, Scope* else_scope, Scope* prev_scope);
+  Ast* new_ifelse(Ast* cond, Ast* if_ast, Ast* else_ast, Scope* if_scope, Scope* else_scope, Scope* prev_scope);
 
   /**
    * Create a for loop
@@ -502,7 +526,7 @@ namespace gashlang {
    *
    * @return
    */
-  double evalast_n(Ast* ast);
+  i64 evalast_n(Ast* ast);
 
   /**
    * Execute the circuit using Yao's protocol
