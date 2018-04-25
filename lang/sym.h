@@ -46,7 +46,7 @@ namespace gashlang {
   class Symbol {
   public:
     string m_name;
-    u64 m_value = -1;
+    i64 m_value = -1;
     u32 m_version;
     SymbolType m_type;
 
@@ -86,7 +86,7 @@ namespace gashlang {
     FuncSymbol(FuncSymbol& rhs);
   };
 
-  typedef vector<string, vector<Symbol*> > NameSymbolsMap;
+  typedef map<string, vector<Symbol*> > NameSymbolsMap;
 
   class SymbolStore {
     /// Store all the symbols in a single compilation
@@ -185,8 +185,8 @@ namespace gashlang {
   };
 
   class Scope {
-    NameSymbolsMap m_symbols;
   public:
+    NameSymbolsMap m_symbols;
     Scope* m_parent_scope;
     ScopeType m_type;
 

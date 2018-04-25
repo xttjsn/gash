@@ -158,6 +158,8 @@ namespace gashlang {
     case FUNC:
       sym = (Symbol*) new FuncSymbol(*static_cast<FuncSymbol*>(sym_old));
       break;
+    default:
+      break;
     }
     sym->gets_older();
     m_symbols.find(sym->m_name)->second.push_back(sym);

@@ -268,7 +268,7 @@ namespace gashlang {
    *
    * @return
    */
-  int evalo_ifthenelse(Wire* cond, Bundle& then_res, Bundle& else_res, Bundle& out);
+  int evalo_if(Wire* cond, Bundle& then_res, Bundle& else_res, Bundle& out);
 
   /**
    * Write an AND/OR/XOR gate to circuit m_gates
