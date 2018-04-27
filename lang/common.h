@@ -56,7 +56,7 @@
 
 #define GASSERT(expr)                                                      \
   do {                                                                     \
-    if (!expr) {                                                           \
+    if (!( expr )) {                                                           \
       FATAL(__FILE__ << ": " << __LINE__ << ": " << #expr << " failed");   \
     }                                                                      \
   } while (0)
@@ -84,15 +84,6 @@ namespace gashlang {
   typedef uint64_t u64;
   typedef int32_t i32;
   typedef int64_t i64;
-
-  typedef enum {
-    AND = 8,
-    OR = 14,
-    XOR = 6,
-    DFF = 16
-  } Op;
-
-  typedef vector<u64> Tuple;
 
 }  // gashlang
 

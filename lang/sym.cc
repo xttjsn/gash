@@ -45,6 +45,10 @@ namespace gashlang {
     }
   }
 
+  void ArraySymbol::get_bundle(Bundle& bret) {
+    NOT_YET_IMPLEMENTED("ArraySymbol::get_bundle");
+  }
+
   FuncSymbol::FuncSymbol(string name, u32 version) : Symbol(name, version) {
     m_type = FUNC;
   }
@@ -69,8 +73,8 @@ namespace gashlang {
   bool SymbolStore::version_consistency_check() {
     for (auto it = m_symbols.begin(); it != m_symbols.end(); ++it) {
       u32 version = 0;
-      for (auto jt = *it.begin(); jt != *it.end(); ++jt) {
-        if (*jt->m_version != version++)
+      for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
+        if ((*jt)->m_version != version++)
           return false;
       }
     }
@@ -81,20 +85,21 @@ namespace gashlang {
     require_has_symbol_for_name(name);
     auto it = this->m_symbols.find(name);
     u32 version = 0;
-    for (auto jt = *it.begin(); jt != *it.end(); ++jt) {
-      if (*jt->m_version != version++)
+    for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
+      if ((*jt)->m_version != version++)
         return false;
     }
+    return true;
   }
 
   u32 SymbolStore::get_newest_version_for_name(string name) {
     require_has_symbol_for_name(name);
-    return m_symbols.find(name)->second->back()->m_id;
+    return m_symbols.find(name)->second.back()->m_version;
   }
 
   Symbol* SymbolStore::get_symbol_for_name(string name) {
     require_has_symbol_for_name(name);
-    return m_symbols.find(name)->second()->back();
+    return m_symbols.find(name)->second.back();
   }
 
   Symbol* SymbolStore::new_symbol(string name, SymbolType type) {
@@ -226,7 +231,7 @@ namespace gashlang {
     get_scope_stack().pop();
   }
 
-  Scope* current_scope() {
+  Scope* get_current_scope() {
     get_scope_stack().top();
   }
 

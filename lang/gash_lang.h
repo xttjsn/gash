@@ -22,6 +22,7 @@
 
 #include "common.h"
 #include "circuit.h"
+#include "sym.h"
 #include "op.h"
 
 #include <boost/program_options.hpp>
@@ -62,19 +63,30 @@ namespace gashlang {
   class Num;
 
   /**
+   * Symbol related classes declarations
+   */
+  class Scope;
+  class Symbol;
+  class NumSymbol;
+  class FuncSymbol;
+
+  /**
    * A enumeration type for Abstract Syntax Tree
    * Each type correspond to a class
    * TODO: consider remove the nDIR type
    */
   typedef enum {
+    /* List */
+    nLIST,
+
     /* Arithmetic operations */
     nAOP,
 
-    /* Comparison/logical/boolean operations */
-    nCOP,
-
     /* Bitwise operations */
     nBOP,   // AND, OR, XOR, or Invert, left shift or right shift
+
+    /* Comparison/logical/boolean operations */
+    nCOP,
 
     /* Language structure types */
     nNAME,  // Name
@@ -82,12 +94,18 @@ namespace gashlang {
     nASGN,  // Assign
     nNUM,   // Number
     nRET,   // Return
-    nVARD,  // Variable definition
+    nVDF,   // Variable definition
 
     /* Flow structure */
     nIF,
     nIFEL,  // If else
     nFOR,
+
+    /* Function */
+    nFUNC,
+
+    /* Directive */
+    nDIR,
   } NodeType;
 
   /**
@@ -106,8 +124,8 @@ namespace gashlang {
   } DirType;
 
   typedef enum {
-    GARBLER,
-    EVALUATOR,
+    rGARBLER,
+    rEVALUATOR,
   } RoleType;
 
   /**
@@ -117,7 +135,7 @@ namespace gashlang {
    */
   class Ast {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nLIST;
     Ast *m_left;
     Ast *m_right;
   };
@@ -149,7 +167,7 @@ namespace gashlang {
   class Bop : public Op {
   public:
     /// Used for SHL/SHR
-    u32 m_n;
+    Ast* m_n_ast;
   };
 
   /**
@@ -192,6 +210,7 @@ namespace gashlang {
    * Note that `init`, `inc`, `cond` is not executed using circuit evaluation but using normal evaluation
    */
   class For {
+  public:
     NodeType m_nodetype = nFOR;
     Ast* m_init_ast;  // The ast for initialization, it only gets to run once
     Ast* m_inc_ast;   // The ast for increment, it gets to run if cond is true
@@ -237,7 +256,7 @@ namespace gashlang {
    */
   class BitRef : public Ref {
   public:
-    u32 m_bit_idx;
+    Ast* m_bit_idx_ast;
   };
 
   /**
@@ -268,10 +287,8 @@ namespace gashlang {
    */
   class Vardef {
   public:
-    NodeType m_nodetype;
+    NodeType m_nodetype = nVDF;
     Symbol* m_sym;
-    i64 m_val;
-    u32 m_intlen;
   };
 
   /**
@@ -281,19 +298,18 @@ namespace gashlang {
   class Func {
   public:
     NodeType m_nodetype = nFUNC;
-    char* m_funcname;
-    Ast* m_vardef_list;
-    Ast* m_do;
+    FuncSymbol* m_fsym;
+    Ast* m_vdf_ast;
+    Ast* m_do_ast;
   };
 
   /**
    * Directive
-   *
+   * NOTE: only used for input directive
    */
   class Dir {
   public:
-    NodeType m_nodetype;
-    DirType m_dirtype;
+    NodeType m_nodetype = nDIR;
 
     /// The symbol that this directive is going to provide input. Could be NULL
     /// if the directive does not use it
@@ -301,15 +317,6 @@ namespace gashlang {
 
     /// The value that this directive provides, used with m_sym
     i64 m_val;
-
-    //// Ip for dIP
-    char* m_ip;
-
-    //// Port for dPORT
-    char* m_port;
-
-    //// Role
-    int m_role;
   };
 
   /**
@@ -326,6 +333,18 @@ namespace gashlang {
   };
 
   /**
+   * Define a function
+   *
+   * @param sym
+   * @param vdf_ast
+   * @param do_ast
+   *
+   * @return
+   */
+  Func* defun(Symbol* sym, Ast* vdf_ast, Ast* do_ast);
+
+
+  /**
    * Create a new Ast from left Ast and right Ast
    *
    * @param nodetype
@@ -334,7 +353,7 @@ namespace gashlang {
    *
    * @return
    */
-  Ast* new_ast(NodeType nodetype, Ast* left, Ast* right);
+  Ast* new_ast(Ast* left, Ast* right);
 
   /**
    * Create a new arithmetic operation
@@ -393,11 +412,11 @@ namespace gashlang {
    * Create new bit reference
    *
    * @param sym
-   * @param bit_idx
+   * @param bit_idx_ast
    *
    * @return
    */
-  Ast* new_ref_bit(Symbol* sym, u32 bit_idx);
+  Ast* new_ref_bit(Symbol* sym, Ast* bit_idx_ast);
 
   /**
    * Create new assignment
@@ -472,11 +491,10 @@ namespace gashlang {
    *
    * @param sym
    * @param intlen
-   * @param val
    *
    * @return
    */
-  Ast* new_vardef(Symbol* sym, u32 intlen, i64 val);
+  Ast* new_vdf(Symbol* sym, u32 intlen);
 
   /**
    * Directive on input
@@ -484,7 +502,7 @@ namespace gashlang {
    * @param sym
    * @param val
    */
-  void dir_input(Symbol* sym, i64 val);
+  Ast* new_dir_input(Symbol* sym, i64 val);
 
   /**
    * Directive on ip
@@ -534,5 +552,23 @@ namespace gashlang {
    * @param exectx The execution context
    */
   void exec(ExeCtx& exectx);
+
+  /**
+   * Write the built-up circuit to file
+   *
+   */
+  void write_circuit();
+
+  /**
+   * Write the input data to data file
+   *
+   */
+  void write_data();
+
+  /**
+   * Clean up all dynamic allocated memory
+   *
+   */
+  void cleanup();
 }
 #endif

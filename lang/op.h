@@ -26,7 +26,7 @@ namespace gashlang {
 
   /* Arithmetic operations */
 #define AOP_PLUS   0x00
-#define AOP_MINUS  0x01
+#define AOP_SUB  0x01
 #define AOP_UMINUS 0x02
 #define AOP_MUL    0x03
 #define AOP_DIV    0x04
@@ -61,6 +61,12 @@ namespace gashlang {
 #define COP_LEE    0x23  // Less or equal to
 #define COP_EQ     0x24  // Equal
 #define COP_NEQ    0x25  // Not equal
+
+
+  /* Gate type */
+#define AND 8
+#define OR 14
+#define XOR 6
 
   /* Bundle-level evaluation function */
   /**
@@ -116,7 +122,17 @@ namespace gashlang {
    *
    * @return
    */
-  int evala_DVG(Bundle& in0, Bundle& in1, Bundle& out);
+  int evala_DVG(Bundle& in0, Bundle& in1, Bundle& out, Wire*& ret);
+
+  /**
+   * Uminus
+   *
+   * @param in
+   * @param out
+   *
+   * @return
+   */
+  int evala_UMINUS(Bundle& in, Bundle& out);
 
   /**
    * Evaluate ANDs
@@ -161,16 +177,6 @@ namespace gashlang {
    * @return
    */
   int evalb_INV(Bundle& in, Bundle& out);
-
-  /**
-   * Take the negative of the input bundle
-   *
-   * @param in
-   * @param out
-   *
-   * @return
-   */
-  int evalb_UMINUS(Bundle& in, Bundle& out);
 
   /**
    * Evaluate bitwise left shift
@@ -234,7 +240,7 @@ namespace gashlang {
    *
    * @return
    */
-  int evalc_LEEQ(Bundle& in0, Bundle& in1, Bundle& out);
+  int evalc_LEE(Bundle& in0, Bundle& in1, Bundle& out);
 
   /**
    * Large than or equal to
@@ -245,7 +251,7 @@ namespace gashlang {
    *
    * @return
    */
-  int evalc_LAEQ(Bundle& in0, Bundle& in1, Bundle& out);
+  int evalc_LAE(Bundle& in0, Bundle& in1, Bundle& out);
 
   /**
    * Not equal
@@ -291,7 +297,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_FADD(Wire* in0, Wire* in1, Wire** cin);
+  int evalw_FADD(Wire* in0, Wire* in1, Wire*& cin, Wire*& ret);
 
   /**
    * Evaluate a full subtractor
@@ -303,7 +309,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_FSUB(Wire* in0, Wire* in1, Wire* prev_bout, Wire** bout);
+  int evalw_FSUB(Wire* in0, Wire* in1, Wire*& bout, Wire*& ret);
 
   /**
    * Evaluate bitwise AND
@@ -313,7 +319,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_AND(Wire* in0, Wire* in1);
+  int evalw_AND(Wire* in0, Wire* in1, Wire*& ret);
 
   /**
    * Evaluate bitwise OR
@@ -323,7 +329,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_OR(Wire* in0, Wire* in1);
+  int evalw_OR(Wire* in0, Wire* in1, Wire*& ret);
 
   /**
    * Evaluate bitwise XOR
@@ -331,7 +337,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_XOR(Wire* in0, Wire* in1);
+  int evalw_XOR(Wire* in0, Wire* in1, Wire*& ret);
 
   /**
    * Evaluate bitwise invert
@@ -340,7 +346,7 @@ namespace gashlang {
    *
    * @return
    */
-  Wire* evalw_INV(Wire* in0);
+  int evalw_INV(Wire* in0, Wire*& ret);
 
 }
 

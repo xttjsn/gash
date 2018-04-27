@@ -22,6 +22,7 @@
 
 #include "common.h"
 #include "circuit.h"
+#include "gash_lang.h"
 
 namespace gashlang {
 
@@ -29,6 +30,7 @@ namespace gashlang {
   class SymbolStore;
   class Scope;
   class ScopeStack;
+  class Ast;
 
 
   /**
@@ -62,6 +64,7 @@ namespace gashlang {
   class NumSymbol : public Symbol {
   public:
     Bundle m_bundle;
+    u32 m_len;
     NumSymbol(string name, u32 version);
     NumSymbol(NumSymbol& rhs);
   };
@@ -72,8 +75,11 @@ namespace gashlang {
   class ArraySymbol : public Symbol {
   public:
     vector<Bundle> m_bundles;
+    u32 m_len;
+    u32 m_arrlen;
     ArraySymbol(string name, u32 version);
     ArraySymbol(ArraySymbol& rhs);
+    void get_bundle(Bundle& bret);
   };
 
   /**
@@ -81,7 +87,7 @@ namespace gashlang {
    */
   class FuncSymbol : public Symbol {
   public:
-    ast* m_func;
+    Ast* m_func;
     FuncSymbol(string name, u32 version);
     FuncSymbol(FuncSymbol& rhs);
   };
@@ -262,7 +268,6 @@ namespace gashlang {
   };
 
 
-
   /**
    * Functions exposed to lexer.
    */
@@ -287,7 +292,7 @@ namespace gashlang {
    *
    * @return
    */
-  Scope* current_scope();
+  Scope* get_current_scope();
 
   /**
    * Get the global symbol store
