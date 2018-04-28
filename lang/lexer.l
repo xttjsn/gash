@@ -29,6 +29,7 @@
   using gashlang::i64;
   using gashlang::u32;
   using gashlang::u64;
+  using gashlang::yyerror;
 
   using gashlang::lookup;
   using gashlang::push_scope;

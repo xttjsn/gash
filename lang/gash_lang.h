@@ -30,15 +30,12 @@ namespace po = boost::program_options;
 
 /* External: interface to the lexer */
 extern int yylineno;    /* from lexer */
-extern "C" void yyerror(const char *s, ...);
 extern "C" int yyparse(void);
 
-/* External: interface to the parser */
+/* External: interface to parser */
 struct YYLTYPE;
 extern "C" YYLTYPE yylloc;
 
-/* External: counting */
-extern int wcount;
 extern int numIN;
 extern int numOUT;
 extern int numAND;
@@ -157,6 +154,8 @@ namespace gashlang {
    *
    */
   class Aop : public Op {
+  public:
+    NodeType m_nodetype = nAOP;
   };
 
   /**
@@ -166,6 +165,7 @@ namespace gashlang {
    */
   class Bop : public Op {
   public:
+    NodeType m_nodetype = nBOP;
     /// Used for SHL/SHR
     Ast* m_n_ast;
   };
@@ -175,6 +175,7 @@ namespace gashlang {
    *
    */
   class Cop : public Op {
+    NodeType m_nodetype = nCOP;
   };
 
   /**
@@ -570,5 +571,12 @@ namespace gashlang {
    *
    */
   void cleanup();
+
+  /**
+   * Error printing
+   *
+   * @param s
+   */
+  void yyerror(const char *s, ...);
 }
 #endif

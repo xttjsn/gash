@@ -21,11 +21,9 @@
 #define GASH_CIRCUIT_H
 
 #include "common.h"
+#include "op.h"
 
 namespace gashlang {
-
-#define W_ONE new Wire(++(++wid), 1)
-#define W_ZERO new Wire(++(++wid), 0)
 
   /**
    * Circuit level classes
@@ -58,13 +56,13 @@ namespace gashlang {
     u32 m_refcount = 0;
     //// v should be set only when its a constant wire
     i32 m_v = -1;
-    Gate* m_parent_gate;
+    Gate* m_parent_gate = NULL;
     vector<Gate*> m_children_gates;
 
     /// Used for inverting duplicated wire
     bool m_used_once = false;
 
-    Wire() : {}
+    Wire() {}
     Wire(u32 id) : m_id(id) {}
     Wire(u32 id, i32 v) : m_id(id), m_v(v) {}
 
@@ -78,7 +76,7 @@ namespace gashlang {
     void set_id_odd();
 
     /**
-     * Make this wire an exact duplicate of another wire, except that the values are always inverted.
+     * Make this wire an exact duplicate of another wire, except that the oddness of id are always inverted.
      *
      * @param w
      */
@@ -99,6 +97,12 @@ namespace gashlang {
       return m_used_once;
     }
   };
+
+  Wire* onewire();
+
+  Wire* zerowire();
+
+  Wire* nextwire();
 
   class Bundle {
   public:
@@ -129,11 +133,19 @@ namespace gashlang {
     Bundle(u32 len);
 
     /**
-     * Add wire into the bundle
+     * Add wire into the bundle (at the end)
      *
      * @param w
      */
     void add(Wire* w);
+
+    /**
+     * Add wire to position `i`, `i` must be less than or equal to size()
+     *
+     * @param w
+     * @param i
+     */
+    void add(Wire* w, u32 i);
 
     /**
      * Check whether it has a specific wire
@@ -152,6 +164,23 @@ namespace gashlang {
      * @return
      */
     Wire* operator[](u32 i);
+
+    /**
+     * Return the last wire
+     *
+     *
+     * @return
+     */
+    Wire* back();
+
+    /**
+     * Remove wire at index `i`
+     *
+     * @param i
+     *
+     * @return
+     */
+    int remove(u32 i);
 
     /**
      * Get the wire with idx `i`
@@ -194,11 +223,12 @@ namespace gashlang {
     void clear_val();
 
     /**
-     * Write the wire to output stream.
+     * Emit one wire per line
      *
-     * @param outstream
+     * @param outsteam
      */
-    void emit(ostream& outstream);
+    void emit(ostream& outsteam);
+
   };
 
   /**
@@ -224,6 +254,7 @@ namespace gashlang {
    */
   class Prologue {
   public:
+    u32 numVAR;
     u32 numIN;
     u32 numOUT;
     u32 numAND;
@@ -240,17 +271,18 @@ namespace gashlang {
 
   class Gate {
   public:
-    /// Output wire
-    Wire* m_out;
-    Op m_op;
+    // AND/OR/XOR
+    int m_op;
     /// First input wire
     Wire* m_in0;
     /// Second input wire
     Wire* m_in1;
+    /// Output wire
+    Wire* m_out;
 
     Gate() {}
 
-    Gate(Wire* out, Op op, Wire* in0, Wire* in1);
+  Gate(int op, Wire* in0, Wire* in1, Wire* out) : m_out(out), m_op(op), m_in0(in0), m_in1(in1) {}
 
     void emit(ostream &outstream);
   };
@@ -259,6 +291,7 @@ namespace gashlang {
   public:
     vector<Gate*> m_gates;
     void emit(ostream& outstream);
+    void add(Gate* g) {m_gates.push_back(g);}
   };
 
   class Circuit {
@@ -272,9 +305,10 @@ namespace gashlang {
     WireIdValueMap m_input_data;
     WireIdWireIdMap m_input_duplicates;
     WireIdWireIdMap m_wire_inverts;
-    ostream* m_circ_stream;
-    ostream* m_data_stream;
+    ostream* m_circ_stream = NULL;
+    ostream* m_data_stream = NULL;
 
+    Circuit() {}
     Circuit(ostream& circ_stream, ostream& data_stream);
 
     /**
@@ -378,6 +412,16 @@ namespace gashlang {
     inline void set_data_outstream(ostream& outstream) {
       m_data_stream = &outstream;
     }
+
+    /**
+     * Add a gate to circuit
+     *
+     * @param op
+     * @param in0
+     * @param in1
+     * @param out
+     */
+    void addGate(int op, Wire* in0, Wire* in1, Wire* out);
   };
 
 }  // gashlang

@@ -62,11 +62,16 @@ namespace gashlang {
 #define COP_EQ     0x24  // Equal
 #define COP_NEQ    0x25  // Not equal
 
-
   /* Gate type */
-#define AND 8
-#define OR 14
-#define XOR 6
+#define opAND 8
+#define opOR 14
+#define opXOR 6
+#define opDFF 17
+
+  class Wire;
+  class Bundle;
+  class Gate;
+  class Circuit;
 
   /* Bundle-level evaluation function */
   /**
@@ -347,6 +352,17 @@ namespace gashlang {
    * @return
    */
   int evalw_INV(Wire* in0, Wire*& ret);
+
+  /**
+   * Evaluate a bit operation
+   *
+   * @param op
+   * @param v0
+   * @param v1
+   *
+   * @return
+   */
+  int evalbit(int op, int v0, int v1);
 
 }
 

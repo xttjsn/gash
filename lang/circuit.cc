@@ -21,6 +21,7 @@
 
 namespace gashlang {
 
+
   static u32 wid = 0;
 
   /**
@@ -77,6 +78,18 @@ namespace gashlang {
     ++w->m_refcount;
   }
 
+  Wire* onewire() {
+    return new Wire(++(++wid), 1);
+  }
+
+  Wire* zerowire() {
+    return new Wire(++(++wid), 0);
+  }
+
+  Wire* nextwire() {
+    return new Wire(++(++wid));
+  }
+
   /**
    * Bunble related functions
    */
@@ -99,6 +112,16 @@ namespace gashlang {
   void Bundle::add(Wire* w) {
     m_wires.push_back(w);
     m_wires_map.insert(make_pair(w->m_id, w));
+    wref(w);
+  }
+
+  void Bundle::add(Wire* w, u32 i) {
+    GASSERT(i <= size());
+    // Cannot add duplicate wire
+    GASSERT(m_wires_map.find(w->m_id) == m_wires_map.end());
+    m_wires.insert(m_wires.begin() + i, w);
+    m_wires_map.insert(make_pair(w->m_id, w));
+    wref(w);
   }
 
   bool Bundle::hasWire(u32 i) {
@@ -112,8 +135,23 @@ namespace gashlang {
     return m_wires_map.find(i)->second;
   }
 
+  Wire* Bundle::back() {
+    return m_wires.back();
+  }
+
   Wire* Bundle::operator[](u32 i) {
     return m_wires[i];
+  }
+
+  int Bundle::remove(u32 i) {
+    if (i >= size()) {
+      return -EINVAL;
+    }
+    Wire* w = m_wires[i];
+    m_wires.erase(m_wires.begin() + i);
+    m_wires_map.erase(w->m_id);
+    wput(w);
+    return 0;
   }
 
   u32 Bundle::size() {
@@ -150,16 +188,63 @@ namespace gashlang {
     }
   }
 
+  void Bundle::emit(ostream& outstream) {
+    for (auto it = this->m_wires.begin(); it != this->m_wires.end(); ++it) {
+      Wire* w = *it;
+      if (w->m_v >= 0) {
+        outstream << evenify(w->m_id) << '(' << w->m_v << ')' << endl;
+      } else {
+        outstream << evenify(w->m_id) << endl;
+      }
+    }
+  }
+
   void num2bundle_n(i64 v, Bundle& bret, u32 n) {
     u32 i = 0;
     bret.clear();
     while (i < 64 && i < n) {
-      bret.add(getbit(v, i) == 1 ? W_ONE : W_ZERO);
+      bret.add(getbit(v, i) == 1 ? onewire() : zerowire());
     }
   }
 
   void num2bundle(i64 v, Bundle& bret) {
     num2bundle_n(v, bret, 64);
+  }
+
+  void Prologue::emit(ostream& outstream) {
+    outstream << "circ" << ' ' << numVAR << ' ' << numIN << ' ' << numOUT << ' '
+        << numAND << ' ' << numOR  << ' ' << numXOR << ' ' << numDFF << endl;
+  }
+
+  void Gate::emit(ostream& outstream) {
+
+    if (m_in0->m_v >= 0) {    // A constant wire
+      if (m_in1->m_v >= 0) {
+        outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' <<
+          m_in0->m_id << '(' << m_in0->m_v << ')' << ' ' <<
+          m_in1->m_id << '(' << m_in1->m_v << ')' << ' ' << std::endl;
+      } else {
+        outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' <<
+          m_in0->m_id << '(' << m_in0->m_v << ')' << ' ' <<
+          m_in1->m_id << ' ' << std::endl;
+      }
+    } else {
+      if (m_in1->m_v >= 0) {
+        outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' <<
+          m_in0->m_id << ' ' <<
+          m_in1->m_id << '(' << m_in1->m_v << ')' << ' ' << std::endl;
+      } else {
+        outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' <<
+          m_in0->m_id << ' ' <<
+          m_in1->m_id << ' ' << std::endl;
+      }
+    }
+  }
+
+  void GateList::emit(ostream& outstream) {
+    for(auto it = m_gates.begin(); it != m_gates.end(); it++) {
+      (*it)->emit(outstream);
+    }
   }
 
   /**
@@ -286,5 +371,23 @@ namespace gashlang {
     m_wire_inverts.insert(make_pair(w->m_id, w_inv->m_id));
   }
 
+  void Circuit::addGate(int op, Wire* in0, Wire* in1, Wire* out) {
+    Gate* g = new Gate(op, in0, in1, out);
+    m_gates.add(g);
+    switch (op) {
+    case opAND:
+      m_prologue.numAND++;
+      break;
+    case opOR:
+      m_prologue.numOR++;
+      break;
+    case opXOR:
+      m_prologue.numXOR++;
+      break;
+    case opDFF:
+      m_prologue.numDFF++;
+      break;
+    }
+  }
 
 } // gashlang
