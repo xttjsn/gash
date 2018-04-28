@@ -37,13 +37,15 @@ $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 	@ echo "$(CXX) $(CXXFLAGS) -c $< -o $@"
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 
-cscope: 
+cscope:
 	@ find . -name "*.[ch]" > cscope.files
 	@ find . -name "*.cc" >> cscope.files
 	@ cscope -b -q -k
 
 clang-format:
-	@ $(CLANG-FORMAT) -style=.clang-format -i $(SRCS)
+	@ echo "Doing clang-format"
+	@ $(foreach src,$(SRC),$(CLANG-FORMAT) -i -style=file $(src);)
+	@ echo "Format finished"
 
 clean:
 	@ rm -f $(OBJS)
