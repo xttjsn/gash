@@ -20,13 +20,14 @@
 #ifndef GASH_LANG_H
 #define GASH_LANG_H
 
+#include <fstream>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
 #include "common.h"
 #include "circuit.h"
 #include "sym.h"
 #include "op.h"
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
 
 /* External: interface to the lexer */
 extern int yylineno;    /* from lexer */
@@ -42,6 +43,8 @@ extern int numAND;
 extern int numOR;
 extern int numXOR;
 extern int numDFF;
+
+using std::ofstream;
 
 namespace gashlang {
 
@@ -578,5 +581,19 @@ namespace gashlang {
    * @param s
    */
   void yyerror(const char *s, ...);
+
+  /**
+   * Execute the circuit with the parameters
+   *
+   * @param circ_file
+   * @param data_file
+   * @param circ_out
+   * @param data_out
+   * @param input
+   * @param mode
+   */
+  void run(ofstream& circ_file, ofstream& data_file,
+           const char* circ_out, const char* data_out,
+           const char* input, const char* mode);
 }
 #endif
