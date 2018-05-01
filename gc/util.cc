@@ -165,8 +165,55 @@ namespace gashgc {
     FATAL("Buffer overflow for block2dec()");
   }
 
-  // u32 eval_gate(int a, int b, int func) {
+  u32 eval_gate(int a, int b, int func) {
 
+    return getbit(func, a + (b << 1));
 
-  // }
+  }
+
+  u32 eval_gate(int a, int b, int func, int inv) {
+
+    return inv ? eval_gate(a, b, func) ^ 1 : eval_gate(a, b, func);
+    
+  }
+
+  block new_tweak(u32& id) {
+
+    return _mm_set_epi64x((u64)g, (u64)g);
+
+  }
+
+  int get_lbl_smtc(u32 id, IdLabelsMap& outMap, block& lbl) {
+
+    if (outMap.find(id) == outMap.end()) {
+
+      WARNING("Cannot find labels corresponding to id:" << id);
+      return -EEXIST;
+
+    }
+
+    auto it = outMap.find(id)->second;
+    block lbl0 = it.first;
+    block lbl1 = it.second;
+
+    if (block_eq(lbl0, lbl)) {
+
+      return 0;
+
+    } else if (block_eq(lbl1, lbl)) {
+
+      return 1;
+
+    } else {
+
+      WARNING("Label does not match either semantics. \nId:" << id 
+      << "\n lbl:"  << block2hex(lbl)
+      << "\n lbl0:" << block2hex(lbl0)
+      << "\n lbl1:" << block2hex(lbl1));
+
+      return -ENOENT;
+
+    }
+  }
+
 }

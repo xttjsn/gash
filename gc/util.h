@@ -25,6 +25,8 @@
 
 namespace gashgc {
 
+  #define is_odd(n) (!(n % 2 == 0))
+
   /**
    * Event
    *
@@ -57,7 +59,7 @@ namespace gashgc {
 
     timespec m_last_time;
 
-    timespace m_curr_time;
+    timespec m_curr_time;
 
     const char* m_curr_name;
 
@@ -157,15 +159,6 @@ namespace gashgc {
 
 
   /**
-   * Test if input is odd
-   *
-   * @param n
-   *
-   * @return
-   */
-  int is_odd(int n);
-
-  /**
    * Get least significant bit
    * Endianness does not matter as long as we use this function consistently
    *
@@ -174,6 +167,7 @@ namespace gashgc {
    * @return
    */
   inline int get_lsb(block& label) {
+    // TODO: test whether get_lsb and set_lsb is correct
 
     u8 *var = (u8 *) &label;
 
@@ -252,7 +246,7 @@ namespace gashgc {
    *
    * @return
    */
-  int get_lbl_smtc(u32 id, IdLabelsMap& outMap, block& label);
+  int get_lbl_smtc(u32 id, IdLabelsMap& outMap, block& lbl);
 }
 
 #endif
