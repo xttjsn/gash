@@ -17,10 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GASH_CIRCUIT_H
-#define GASH_CIRCUIT_H
+#ifndef GASH_LANG_CIRCUIT_H
+#define GASH_LANG_CIRCUIT_H
 
-#include "common.h"
+#include "../include/common.h"
 #include "op.h"
 
 namespace gashlang {

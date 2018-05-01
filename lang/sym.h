@@ -20,7 +20,7 @@
 #ifndef GASH_SYM_H
 #define GASH_SYM_H
 
-#include "common.h"
+#include "../include/common.h"
 #include "circuit.h"
 #include "gash_lang.h"
 

@@ -35,6 +35,7 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <set>
 #include <stack>
 
 #define WARNING(str)                                  \
@@ -68,6 +69,9 @@
 #define getbit(v, n)                                 \
   (v & (1 << n))
 
+#define clearbit(v, n)                               \
+  (v &= ~(1 << n))
+
 using std::vector;
 using std::map;
 using std::unordered_map;
@@ -77,6 +81,8 @@ using std::endl;
 using std::string;
 using std::ostream;
 using std::make_pair;
+using std::set;
+using std::pair;
 
 namespace gashlang {
 
@@ -86,5 +92,32 @@ namespace gashlang {
   typedef int64_t i64;
 
 }  // gashlang
+
+
+#define RSA_bits 2048
+#define LABELSIZE 16                        // 16 bytes = 128 bits
+// #define GASH_DEBUG true                  // Comment this to toggle debug messages
+#define GASH_NO_OT                          // Uncomment to use IKNP OT
+#define GASH_TIMER 1                        // Comment this to toggle timer
+#define GASH_GC_GRR                         // Enable garbled row reduction
+#define getZEROblock() _mm_setzero_si128()
+
+
+#define EEXIST                             0x1
+#define ENOENT                             0x2
+
+#define TABx1                              "    "
+#define TABx2                              "        "
+
+
+namespace gashgc {
+
+  typedef uint32_t u32;
+  typedef uint64_t u64;
+  typedef int32_t i32;
+  typedef int64_t i64;
+  typedef __m128i block;
+
+}  // gashgc
 
 #endif

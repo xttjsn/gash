@@ -1,0 +1,5 @@
+lexer.cc
+parser.cc
+parser.tab.h
+cscope.files
+cscope.out

@@ -7,7 +7,6 @@ parser_HEAD    := $(addsuffix .tab.h,$(basename $(parser_SRC)))
 HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.h)
 SRC            := $(parser_CSRC) $(lexer_CSRC) main.cc $(wildcard *.cc)
 OBJS           := $(addsuffix .o,$(basename $(SRC) ))
-INCLUDE        := ../include
 
 CC             := gcc
 CXX            := g++
@@ -28,7 +27,6 @@ gashlang: $(OBJS)
 $(parser_HEAD) $(parser_CSRC): $(parser_SRC)
 	@ echo "    Building parser cc source"
 	@ bison --defines=$(parser_HEAD) $< -o $(parser_CSRC)
-	@ mv $(parser_HEAD) $(INCLUDE)
 
 $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 	@ echo "    Building lexer cc source"

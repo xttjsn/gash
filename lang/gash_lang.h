@@ -24,7 +24,7 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include "common.h"
+#include "../common.h"
 #include "circuit.h"
 #include "sym.h"
 #include "op.h"

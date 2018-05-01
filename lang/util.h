@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "common.h"
+#include "../common.h"
 
 #ifndef GASH_LANG_UTIL_H
 #define GASH_LANG_UTIL_H
