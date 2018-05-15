@@ -20,7 +20,7 @@
 #ifndef GASH_GC_UTIL_H
 #define GASH_GC_UTIL_H
 
-#include "../include/common.h"
+#include "../include/common.hh"
 #include <time.h>
 
 namespace gashgc {
@@ -78,7 +78,7 @@ namespace gashgc {
    */
   typedef vector<string> StringVec;
 
-  void split(string str, char* delim, StringVec& ret);
+  void split(string str, const char* delim, StringVec& ret);
 
   /**
    * PRNG related
@@ -114,7 +114,7 @@ namespace gashgc {
    *
    * @return
    */
-  bool block_eq(block& a, block& b);
+  bool block_eq(block a, block b);
 
   /**
    * Convert block to hexdecimal
@@ -123,7 +123,7 @@ namespace gashgc {
    *
    * @return
    */
-  string block2hex(block& a);
+  string block2hex(block a);
 
   /**
    * Convert a block to decimal
@@ -132,7 +132,7 @@ namespace gashgc {
    *
    * @return
    */
-  string block2dec(block& a);
+  string block2dec(block a);
 
   /**
    * Evaluate a binary gate
@@ -143,7 +143,7 @@ namespace gashgc {
    *
    * @return
    */
-  u32 eval_gate(int a, int b, int func);
+  u32 eval_bgate(int a, int b, int func);
 
   /**
    * Evaluate a binary gate, with invert option
@@ -166,7 +166,7 @@ namespace gashgc {
    *
    * @return
    */
-  inline int get_lsb(block& label) {
+  inline int get_lsb(block label) {
     // TODO: test whether get_lsb and set_lsb is correct
 
     u8 *var = (u8 *) &label;
@@ -183,7 +183,7 @@ namespace gashgc {
    *
    * @return
    */
-  inline block xor_block(block& a, block& b) {
+  inline block xor_block(block a, block b) {
 
     return _mm_xor_si128(a, b);
 
@@ -196,7 +196,7 @@ namespace gashgc {
    *
    * @return
    */
-  block new_tweak(u32& id);
+  block new_tweak(u32 id);
 
   /**
    * Concatenate least_half and great_half to a block
@@ -219,7 +219,7 @@ namespace gashgc {
    *
    * @return
    */
-  inline ulong get_block_first_half(block& b) {
+  inline u64 get_block_first_half(block& b) {
 
     return *((u64*)&b);
 
@@ -232,8 +232,8 @@ namespace gashgc {
    *
    * @return
    */
-  inline u32 get_block_second_half(block& b) {
-    return *(((u32*)&b)+1);
+  inline u64 get_block_second_half(block& b) {
+    return *(((u64*)&b)+1);
   }
 
   typedef map<u32, pair<block, block>> IdLabelsMap;

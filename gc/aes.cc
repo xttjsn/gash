@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "aes.h"
+#include "aes.hh"
 
 #define EXPAND_ROUND(prev, v0, v1, v2, v3, v4, rcon)                  \
   v0 = _mm_aeskeygenassist_si128(prev, rcon);                         \
@@ -31,6 +31,28 @@
   v4 = _mm_xor_si128(v3, _mm_shuffle_epi32(v0, 255))
 
 namespace gashgc {
+
+  static const u8 AESkey_buf[64] =
+    {
+      105, 187, 117, 137,
+      65, 140, 104, 185,
+      74, 49, 246, 13,
+      246, 67, 88, 55,
+      229, 178, 210, 121,
+      195, 44, 80, 195,
+      184, 111, 175, 138,
+      56, 18, 248, 26,
+      203, 123, 54, 238,
+      95, 101, 16, 236,
+      161, 238, 111, 155,
+      74, 190, 115, 80,
+      127, 40, 15, 186,
+      77, 65, 117, 27,
+      96, 74, 94, 115,
+      18, 77, 79, 132
+    };
+
+  block AESkey = _mm_load_si128((const __m128i *) AESkey_buf);
 
     void expand_key128(__m128i key, __m128i *rndkeys) {
         rndkeys[0] = key;
@@ -53,8 +75,9 @@ namespace gashgc {
         int i = 10;
         int j = 0;
         rndkeys[i--] = tmp[j++];
-        while (i)
+        while (i) {
             rndkeys[i--] = _mm_aesimc_si128(tmp[j++]);
+        }
         rndkeys[i] = tmp[j];
     }
 

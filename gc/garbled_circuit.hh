@@ -20,15 +20,23 @@
 #ifndef GASH_GARBLED_CIRCUIT_H
 #define GASH_GARBLED_CIRCUIT_H
 
-#include "../include/common.h"
-#include "circuit.h"
 #include <wmmintrin.h>
+
+#include "../include/common.hh"
+#include "circuit.hh"
+
+#define WI     WireInstance
+#define GWI    GarbledWireInstance
+#define GC     GarbledCircuit
+#define GG     GarbledGate
 
 namespace gashgc {
 
   class GarbledGate;
   class GarbledWireInstance;
   class GarbledCircuit;
+  class LabelPair;
+  class OutputMap;
 
   /**
    * Typedef a few commonly used classes for simplicity
@@ -36,10 +44,12 @@ namespace gashgc {
    */
   typedef map<u32, GarbledWireInstance*> IdGarbledWireinsMap;
   typedef map<u32, GarbledGate*> IdGarbledGateMap;
+  typedef map<u32, LabelPair*> IdLabelPairMap;
+  typedef map<u32, block> IdLabelMap;
+  typedef map<u32, u32>   IdValueMap;
+  typedef vector<u32>     IdVec;
+  typedef set<u32>        IdSet;
 
-#define GWI GarbledWireInstance
-#define GC GarbledCircuit
-#define GG GarbledGate
 
   /**
    * Garbled Circuit
@@ -69,7 +79,7 @@ namespace gashgc {
      *
      * @param id
      *
-     * @return
+     * @return A pointer to the garbled gate, NULL if not find
      */
     GG* get_gg(u32 id);
 
@@ -131,6 +141,17 @@ namespace gashgc {
      * @return
      */
     int set_gwl(u32 id, block label);
+
+    /**
+     * Get label for wire with id `id` for semantic `val`
+     *
+     * @param id
+     * @param val
+     * @param lbl
+     *
+     * @return
+     */
+    int get_lbl(u32 id, int val, block& lbl);
 
     /**
      * Init R
@@ -249,7 +270,7 @@ namespace gashgc {
      *
      * @return
      */
-    block lbl() {
+    block get_lbl() {
       return m_gw->m_lbl;
     }
 
@@ -330,7 +351,7 @@ namespace gashgc {
      *
      * @return
      */
-    int get_lbl_w_smtc(int semantic);
+    block get_lbl_w_smtc(int semantic);
 
     /**
      * Get the original label that has the semantic
@@ -358,6 +379,13 @@ namespace gashgc {
      */
     void set_lbl_w_smtc(block lbl, int semantic);
 
+    /**
+     * Recover the semantic based on lbl0, lbl1, and lbl
+     *
+     *
+     * @return 0/1 if success, negative errno if failed
+     */
+    int recover_smtc();
   };
 
 
@@ -398,28 +426,33 @@ namespace gashgc {
 #endif
 
     block get_row(int i) {
+
+        block b;
+
       switch (i) {
 
 #ifdef GASH_GC_GRR
       case 0:
-        return getZEROblock();
+        b = getZEROblock();
 #else
       case 0:
-        return m_row0;
+        b = m_row0;
 #endif
 
       case 1:
-        return m_row1;
+        b = m_row1;
 
       case 2:
-        return m_row2;
+        b = m_row2;
 
       case 3:
-        return m_row3;
+        b = m_row3;
 
       default:
         FATAL("Invalid row selection: " << i << "\n");
       }
+
+      return b;
     }
 
     /**
@@ -462,7 +495,7 @@ namespace gashgc {
     GarbledGate() {}
 
     /**
-     * Constructor
+     * Constructor with only wires
      *
      * @param id
      * @param is_xor
@@ -475,7 +508,125 @@ namespace gashgc {
       m_id = out->get_id();
     }
 
+    /**
+     * Constructor with wires and egtt
+     *
+     * @param is_xor
+     * @param in0
+     * @param in1
+     * @param out
+     * @param egtt
+     */
+    GarbledGate(bool is_xor, GWI* in0, GWI* in1, GWI* out, EGTT* egtt): m_is_xor(is_xor), m_in0(in0), m_in1(in1), m_out(out), m_egtt(egtt) {
+        m_id = out->get_id();
+    }
+
+
     u32 get_id() { return m_out->get_id(); }
+  };
+
+  /**
+   * A pair of labels with semantic as the index
+   *
+   */
+  class LabelPair {
+  public:
+    block m_lbl0;
+    block m_lbl1;
+
+    /**
+     * Marshalling label pair to buffer `dest`
+     *
+     * @param dest
+     * @param size The byte size of the buffer that will be marshaled to
+     *
+     * @return The byte size that's marshaled
+     */
+    int marshal(char* dest, u32 size);
+
+    /**
+     * Unmarshal from buffer `src`
+     *
+     * @param src
+     * @param size Byte size of the `src` buffer
+     *
+     * @return The byte size that's successfully unmarshaled
+     */
+    int unmarshal(char* src, u32 size);
+
+    /**
+     * Get the semantic of the label, return error if no matching found
+     *
+     * @param lbl
+     *
+     * @return 0 if stmc == 0, 1 if stmc == 1, negative if error
+     */
+    int get_smtc(block& lbl);
+
+  };
+
+  class GWLMap {
+  public:
+    IdLabelPairMap m_lbl_pair_map;
+
+    /**
+     * Add label pair
+     *
+     * @param id
+     * @param lbl0
+     * @param lbl1
+     *
+     * @return 0 if success, negative if error
+     */
+    int add_lbl_pair(u32 id, block lbl0, block lbl1);
+
+    /**
+     * Get the semantic for the wire with `id` corresponding to label `lbl`
+     *
+     * @param id
+     * @param lbl
+     *
+     * @return The semantic for the label
+     */
+    int get_smtc(u32 id, block lbl);
+
+    /**
+     * Get label for wire with `id` and for semantic `smtc`
+     *
+     * @param id
+     * @param smtc
+     * @param lbl
+     *
+     * @return
+     */
+    int get_lbl(u32 id, int smtc, block& lbl);
+
+    /**
+     * Marshal the entire output map
+     *
+     * @param dest
+     *
+     * @return The byte size that's successfully marshaled
+     */
+    int marshal(char* dest, u32 size);
+
+    /**
+     * Unmarshal from buffer `src`
+     *
+     * @param src
+     * @param size Byte size of the `src` buffer
+     *
+     * @return The byte size that's successfully unmarshaled
+     */
+    int unmarshal(char* src, u32 size);
+
+    /**
+     * The size that's required to receive the entirety of the marshaled output map
+     *
+     *
+     * @return
+     */
+    u32 marshal_size();
   };
 
 }

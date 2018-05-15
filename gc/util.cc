@@ -17,7 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "util.h"
+#include "util.hh"
+
 #include <cstring>
 
 namespace gashgc {
@@ -71,9 +72,13 @@ namespace gashgc {
 
   }
 
-  void split(string str, char* delim, StringVec& ret) {
+  void split(string str, const char* delim, StringVec& ret) {
 
-    char* tok = strtok(str.c_str(), delim);
+    char cstr[str.size()];
+
+    strcpy(cstr, str.c_str());
+
+    char* tok = strtok(cstr, delim);
 
     while (tok) {
 
@@ -83,9 +88,9 @@ namespace gashgc {
 
   }
 
-  void srand_sse(u32 seed) {
+  void srand_sse(u32 s_seed) {
 
-    seed = _mm_set_epi32(seed, seed * 3, seed * 7, seed * 11);
+    seed = _mm_set_epi32(s_seed, s_seed * 3, s_seed * 7, s_seed * 11);
 
   }
 
@@ -95,17 +100,17 @@ namespace gashgc {
         block multiplier;
         block adder;
         block mod_mask;
-        block sra_mask;
+        // block sra_mask;
         // block sseresult;
         static const unsigned int mult[4] = {214013, 17405, 214013, 69069};
         static const unsigned int gadd[4] = {2531011, 10395331, 13737667, 1};
         static const unsigned int mask[4] = {0xFFFFFFFF, 0, 0xFFFFFFFF, 0};
-        static const unsigned int masklo[4] = { 0x00007FFF, 0x00007FFF, 0x00007FFF, 0x00007FFF };
+        // static const unsigned int masklo[4] = { 0x00007FFF, 0x00007FFF, 0x00007FFF, 0x00007FFF };
 
         adder = _mm_load_si128((block *) gadd);
         multiplier = _mm_load_si128((block *) mult);
         mod_mask = _mm_load_si128((block *) mask);
-        sra_mask = _mm_load_si128( (block*) masklo);
+        // sra_mask = _mm_load_si128( (block*) masklo);
         seed_split = _mm_shuffle_epi32(seed, _MM_SHUFFLE(2, 3, 0, 1));
 
         seed = _mm_mul_epu32(seed, multiplier);
@@ -121,13 +126,13 @@ namespace gashgc {
         return seed;
   }
 
-  bool block_eq(block& a, block& b) {
+  bool block_eq(block a, block b) {
 
     return memcmp(&a, &b, 16) == 0;
 
   }
 
-  string block2hex(block& a) {
+  string block2hex(block a) {
 
     char buf[100];
 
@@ -135,7 +140,7 @@ namespace gashgc {
 
     i64 *v64val = (i64 *) &a;
 
-    cx = snprintf(buf, 100, "%.16llx %.16llx\n", (u64) v64val[1], (u64) v64val[0]);
+    cx = snprintf(buf, 100, "%.16lx %.16lx\n", (u64) v64val[1], (u64) v64val[0]);
 
     if (cx > 0 && cx < 100) {
 
@@ -146,7 +151,7 @@ namespace gashgc {
     FATAL("Buffer overflow for block2hex()");
   }
 
-  string block2dec(block& a) {
+  string block2dec(block a) {
 
     char buf[100];
 
@@ -154,7 +159,7 @@ namespace gashgc {
 
     i64 *v64val = (i64 *) &a;
 
-    cx = snprintf(buf, 100, "%lld %lld\n", (u64) v64val[1], (u64) v64val[0]);
+    cx = snprintf(buf, 100, "%lu %lu\n", (u64) v64val[1], (u64) v64val[0]);
 
     if (cx > 0 && cx < 100) {
 
@@ -165,21 +170,21 @@ namespace gashgc {
     FATAL("Buffer overflow for block2dec()");
   }
 
-  u32 eval_gate(int a, int b, int func) {
+  u32 eval_bgate(int a, int b, int func) {
 
-    return getbit(func, a + (b << 1));
+    return getbit(func, (a + (b << 1)));
 
   }
 
-  u32 eval_gate(int a, int b, int func, int inv) {
+  u32 eval_bgate(int a, int b, int func, int inv) {
 
-    return inv ? eval_gate(a, b, func) ^ 1 : eval_gate(a, b, func);
-    
+    return inv ? eval_bgate(a, b, func) ^ 1 : eval_bgate(a, b, func);
+
   }
 
   block new_tweak(u32& id) {
 
-    return _mm_set_epi64x((u64)g, (u64)g);
+    return _mm_set_epi64x((u64)id, (u64)id);
 
   }
 
@@ -206,7 +211,7 @@ namespace gashgc {
 
     } else {
 
-      WARNING("Label does not match either semantics. \nId:" << id 
+      WARNING("Label does not match either semantics. \nId:" << id
       << "\n lbl:"  << block2hex(lbl)
       << "\n lbl0:" << block2hex(lbl0)
       << "\n lbl1:" << block2hex(lbl1));

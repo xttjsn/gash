@@ -37,6 +37,7 @@
 #include <unordered_map>
 #include <set>
 #include <stack>
+#include <emmintrin.h>
 
 #define WARNING(str)                                  \
   std::cerr << str << std::endl
@@ -83,6 +84,7 @@ using std::ostream;
 using std::make_pair;
 using std::set;
 using std::pair;
+using std::ifstream;
 
 namespace gashlang {
 
@@ -94,26 +96,45 @@ namespace gashlang {
 }  // gashlang
 
 
-#define RSA_bits 2048
-#define LABELSIZE 16                        // 16 bytes = 128 bits
+#define RSA_bits       2048
+#define LABELSIZE      16                   // 16 bytes = 128 bits
 // #define GASH_DEBUG true                  // Comment this to toggle debug messages
 #define GASH_NO_OT                          // Uncomment to use IKNP OT
-#define GASH_TIMER 1                        // Comment this to toggle timer
+#define GASH_TIMER                          // Comment this to toggle timer
 #define GASH_GC_GRR                         // Enable garbled row reduction
 #define getZEROblock() _mm_setzero_si128()
 
 
-#define EEXIST                             0x1
-#define ENOENT                             0x2
+/* Errors */
+#define G_EEXIST                             0x1
+#define G_ENOENT                             0x2
+#define G_ETCP                               0x3
+#define G_EINVAL                             0x4
 
 #define TABx1                              "    "
 #define TABx2                              "        "
 
+#define OT_PORT                            23443
+
+
+#define CONC2(x, y) x##y
+#define CONC1(x, y) CONC2(x, y)
+#define NEWVAR(x) CONC1(x, __COUNTER__)
+
+#define REQUIRE_GOOD_STATUS_IMPL(expr, var)      \
+  int var;                                           \
+  if ((var = (expr)) < 0)                            \
+    return var
+
+#define REQUIRE_GOOD_STATUS(expr)                \
+  REQUIRE_GOOD_STATUS_IMPL(expr, NEWVAR(stat))
 
 namespace gashgc {
 
+  typedef uint8_t u8;
   typedef uint32_t u32;
   typedef uint64_t u64;
+  typedef int8_t i8;
   typedef int32_t i32;
   typedef int64_t i64;
   typedef __m128i block;

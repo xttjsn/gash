@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "circuit.h"
+#include "circuit.hh"
 
 namespace gashgc {
 
@@ -36,22 +36,114 @@ namespace gashgc {
 
   int Circuit::add_wireins(WireInstance* w) {
     if (m_wireins_map.find(w->get_id()) != m_wireins_map.end()) {
-      return -EEXIST;
+      return -G_EEXIST;
     }
-    m_wireins_map.insert(make_pair(w->get_id(), w));
+    m_wireins_map.emplace(w->get_id(), w);
     return 0;
   }
 
   int Circuit::add_gate(Gate* g) {
     if (has_gate(g->get_id())) {
-      return -EEXIST;
+      return -G_EEXIST;
     }
-    m_gate_map.insert(make_pair(g->get_id(), g));
+    m_gate_map.emplace(g->get_id(), g);
     return 0;
   }
 
   bool Circuit::has_gate(u32 id) {
     return m_gate_map.find(id) != m_gate_map.end();
+  }
+
+  void build_circ(string circ_file_path, Circuit& circ) {
+
+    ifstream file(circ_file_path);
+
+    if (!file.is_open()) {
+      FATAL("Unable to open circuit file " << circ_file_path);
+    }
+
+    string line;
+    int func;
+    u32 linum;
+    u32 numVar = 0, numIn = 0, numOut = 0, numAND = 0, numOR = 0, numXOR = 0, numDFF = 0;
+    u32 idx;
+    u32 id;
+    vector<string> items;
+    vector<string> subitems;
+    const char* delim = " ";
+    const char* subdelim = ":";
+    WI *w;
+
+    while (getline(file, line)) {
+
+      linum++;
+      split(line, delim, items);
+
+      // Skip directives
+      if (items[0].find('#') != std::string::nops)
+        continue;
+
+      switch (items.size()) {
+      case 8:
+        {
+          // Prologue line
+
+          numVar = stoi(items[1]);
+          numIn = stoi(items[2]);
+          numOut = stoi(items[3]);
+          numAND = stoi(items[4]);
+          numOR = stoi(items[5]);
+          numXOR = stoi(items[6]);
+          numDFF = stoi(items[7]);
+
+          circ.m_nin = numIn;
+          circ.m_nout = numOut;
+          break;
+
+        }
+      case 2:
+        {
+
+          // I:13:1
+
+          // I/O wires
+          split(items[0], subdelim, subitems);
+
+          // Input wires
+          if (strcmp("I", subitems[0].c_str()) == 0) {
+
+            idx = stoi(items[1]);
+            id  = id / 2;
+
+            w = new WI(id, !is_odd(idx));
+            REQUIRE_GOOD_STATUS(circ.add_wireins(w));
+
+            if (subitems.size() > 2) {
+              WARNING("Invalid input wire, expecting 2 item, getting " << subitems.item() << " items");
+            }
+
+          } else {
+
+            // Output wires
+
+            idx = stoi(items[1]);
+            id  = id / 2;
+            w = new WI(id, !is_odd(idx));
+
+            if (subitems.size() == 3) {
+              val = stoi(items[2]);
+              w->set_val(val);
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
   }
 
 }

@@ -20,7 +20,7 @@
 #ifndef GASH_GC_CIRCUIT_H
 #define GASH_GC_CIRCUIT_H
 
-#include "../include/common.h"
+#include "../include/common.hh"
 
 namespace gashgc {
 
@@ -171,8 +171,9 @@ namespace gashgc {
      *
      * @return
      */
-    u32 set_id(u32 id) {
+    int set_id(u32 id) {
       m_wire->m_id = id;
+      return 0;
     }
 
     /**
@@ -237,6 +238,15 @@ namespace gashgc {
     Gate(int func, WireInstance* in0, WireInstance* in1, WireInstance* out)
       : m_func(func), m_in0(in0), m_in1(in1), m_out(out) {}
   };
+
+  /**
+   * Build circuit from circuit file
+   *
+   * @param circ_file_path
+   * @param circ
+   */
+  void build_circ(string circ_file_path, Circuit& circ);
+
 }
 
 #endif

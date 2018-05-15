@@ -10,7 +10,7 @@ OBJS           := $(addsuffix .o,$(basename $(SRC) ))
 
 CC             := gcc
 CXX            := g++
-CXXFLAGS       := -std=c++11 -pthread
+CXXFLAGS       := -std=c++11 -maes -msse3 -pthread -O1
 LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options
 CLANG-FORMAT   := clang-format-3.9
 

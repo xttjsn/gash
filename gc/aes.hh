@@ -20,10 +20,8 @@
 #ifndef GASH_AES_H
 #define GASH_AES_H
 
-#include <emmintrin.h>
 #include <wmmintrin.h>
-
-#include "../include/common.h"
+#include "../include/common.hh"
 
 namespace gashgc {
 

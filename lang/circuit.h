@@ -20,7 +20,7 @@
 #ifndef GASH_LANG_CIRCUIT_H
 #define GASH_LANG_CIRCUIT_H
 
-#include "../include/common.h"
+#include "../include/common.hh"
 #include "op.h"
 
 namespace gashlang {
