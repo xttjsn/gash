@@ -2,8 +2,8 @@ BUILD_DIR      := ../build
 GC_LIB         := $(BUILD_DIR)/lib/libgash_gc.a
 INCLUDE        := ../include
 HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.hh)
-SRC            := $(parser_CSRC) $(lexer_CSRC) main.cc $(wildcard *.cc)
-OBJS           := $(addsuffix .o,$(basename $(SRC) ))
+SRC            := $(parser_CSRC) $(lexer_CSRC) $(filter-out main.cc, $(wildcard *.cc))
+OBJS           := $(addsuffix .o,$(basename $(SRC)))
 
 lexer_SRC      := lexer.l
 parser_SRC     := parser.ypp
@@ -12,7 +12,7 @@ parser_HEAD    := $(addsuffix .tab.h,$(basename $(parser_SRC)))
 parser_OBJ     := $(addsuffix .o,$(basename $(parser_CSRC)))
 lexer_CSRC     := $(addsuffix .cc,$(basename $(lexer_SRC)))
 lexer_HEAD     := $(addsuffix .l.h,$(basename $(lexer_SRC)))
-lexer_OBJ     := $(addsuffix .o,$(basename $(lexer_CSRC)))
+lexer_OBJ      := $(addsuffix .o,$(basename $(lexer_CSRC)))
 
 CC             := gcc
 CXX            := g++
@@ -21,9 +21,14 @@ LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options -lgmp -l
 CLANG-FORMAT   := clang-format-3.9
 
 
-all: $(parser_HEAD) gashlang
+all: $(parser_HEAD) libgash_lang.a gashlang
 
-gashlang: $(OBJS) $(parser_OBJ) $(lexer_OBJ)
+libgash_lang.a: $(OBJS) $(parser_OBJ) $(lexer_OBJ)
+	@ echo "    Building libgash_lang.a"
+	@ ar rvs $@ $^
+	@ mkdir -p ../build/lib && cp ./libgash_lang.a ../build/lib
+
+gashlang: $(OBJS) $(parser_OBJ) $(lexer_OBJ) main.o
 	@ echo "    Building gashlang"
 	@ $(CXX) $^ -o $@ $(GC_LIB) $(LDFLAGS)
 	@ mkdir -p ../build/bin && cp ./gashlang ../build/bin
@@ -55,6 +60,7 @@ clang-format:
 
 clean:
 	@ rm -f $(OBJS)
+	@ rm -f main.o
 	@ rm -f $(parser_CSRC)
 	@ rm -f $(lexer_CSRC)
 	@ rm -f $(parser_HEAD)
