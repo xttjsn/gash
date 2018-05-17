@@ -17,9 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gash_lang.h"
-#include "circuit.h"
+#include "gash_lang.hh"
+#include "circuit.hh"
 #include "parser.tab.h"
+#include "../gc/garbler.hh"
+#include "../gc/evaluator.hh"
 
 #define FORCE_SYM_CAST(sym, type, nsym) \
     do {                                \
@@ -216,9 +218,14 @@ void dir_ip(const char* ip)
     strncpy(mectx.m_ip, ip, 16); // Use safe strcpy
 }
 
-void dir_port(u32 port)
+void dir_port(u8 port)
 {
     mectx.m_port = port;
+}
+
+void dir_ot_port(u8 port)
+{
+  mectx.m_ot_port = port;
 }
 
 void dir_role(RoleType role)
@@ -832,4 +839,20 @@ void run(ofstream& circ_file,
         FATAL("Invalid mode" << mode);
     }
 }
+
+void exec(ExeCtx& ctx) {
+
+  if (ctx.m_role == rGARBLER) {
+
+    gashgc::Garbler g(ctx.m_port, ctx.m_ot_port, string(ctx.m_circ_path), string(ctx.m_data_path));
+
+  } else if (ctx.m_role == rEVALUATOR) {
+
+
+  } else {
+    WARNING("Invalid role, finishing program..");
+  }
+
+}
+
 }

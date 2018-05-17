@@ -25,23 +25,25 @@ namespace gashgc {
    * Network Communication
    *
    */
-  USHORT m_nPort;
+  static USHORT m_nPort;
 
   /// "localhost";
   const char *m_nAddr;
 
-  CSocket *m_vSocket;
+  static CSocket *m_vSocket;
 
   /// thread id
-  u32 m_nPID;
+  static u32 m_nPID;
 
-  u32 runs;
+  static u32 runs;
 
-  field_type m_eFType;
+  static field_type m_eFType;
 
-  uint32_t m_nBitLength;
+  static uint32_t m_nBitLength;
 
-  MaskingFunction *m_fMaskFct;
+  static MaskingFunction *m_fMaskFct;
+
+  static const char* m_cConstSeed[2] = {"437398417012387813714564100", "15657566154164561"};
 
   // Naor-Pinkas OT
 
@@ -49,25 +51,25 @@ namespace gashgc {
    * Naor-Pinkas OT
    *
    */
-  OTExtSnd *sender;
+  static OTExtSnd *sender;
 
-  OTExtRec *receiver;
+  static OTExtRec *receiver;
 
-  SndThread *sndthread;
+  static SndThread *sndthread;
 
-  RcvThread *rcvthread;
+  static RcvThread *rcvthread;
 
-  u32 m_nNumOTThreads;
+  static u32 m_nNumOTThreads;
 
-  u32 m_nBaseOTs;
+  static u32 m_nBaseOTs;
 
-  u32 m_nChecks;
+  static u32 m_nChecks;
 
-  bool m_bUseMinEntCorAssumption;
+  static bool m_bUseMinEntCorAssumption;
 
-  ot_ext_prot m_eProt;
+  static ot_ext_prot m_eProt;
 
-  double rndgentime;
+  static double rndgentime;
 
   /**
    * Function definitions
@@ -81,11 +83,8 @@ namespace gashgc {
 
   bool Cleanup() {
     delete sndthread;
-
     delete rcvthread;
-
     delete m_vSocket;
-
     return true;
   }
 
@@ -109,20 +108,18 @@ namespace gashgc {
 #endif
 
     for (int k = 0; k >= 0; k--) {
-
       for (int i = 0; i < RETRY_CONNECT; i++) {
 
         if (!m_vSocket->Socket()) {
 
           printf("Socket failure: ");
-
           goto connect_failure;
+
         }
 
         if (m_vSocket->Connect(m_nAddr, m_nPort, lTO)) {
 
           // send pid when connected
-
           m_vSocket->Send(&k, sizeof(int));
 
 #ifndef BATCH
@@ -132,23 +129,20 @@ namespace gashgc {
           if (k == 0) {
 
             cout << "connected" << endl;
-
             return TRUE;
 
           } else {
-
             break;
           }
 
           SleepMiliSec(10);
-
           m_vSocket->Close();
+
         }
 
         SleepMiliSec(20);
 
         if (i + 1 == RETRY_CONNECT)
-
           goto server_not_available;
       }
     }
@@ -192,7 +186,6 @@ namespace gashgc {
 
     for (int i = 0; i < 1; i++) // twice the actual number, due to double sockets for OT
       {
-
         CSocket sock;
 
         // cout << "New round! " << endl;
@@ -200,22 +193,19 @@ namespace gashgc {
         if (!m_vSocket->Accept(sock)) {
 
           cerr << "Error in accept" << endl;
-
           goto listen_failure;
 
         }
 
         UINT threadID;
-
         sock.Receive(&threadID, sizeof(int));
 
         if (threadID >= 1) {
 
           sock.Close();
-
           i--;
-
           continue;
+
         }
 
 #ifndef BATCH
@@ -224,7 +214,6 @@ namespace gashgc {
 #endif
         // locate the socket appropriately
         m_vSocket->AttachFrom(sock);
-
         sock.Detach();
       }
 
@@ -297,7 +286,6 @@ namespace gashgc {
     }
 
     if(m_bUseMinEntCorAssumption)
-
       sender->EnableMinEntCorrRobustness();
 
     sender->ComputeBaseOTs(m_eFType);
@@ -355,7 +343,6 @@ namespace gashgc {
     }
 
     if(m_bUseMinEntCorAssumption)
-
       receiver->EnableMinEntCorrRobustness();
 
     receiver->ComputeBaseOTs(m_eFType);
@@ -380,7 +367,6 @@ namespace gashgc {
     bool success = FALSE;
 
     m_vSocket->ResetSndCnt();
-
     m_vSocket->ResetRcvCnt();
 
     timespec ot_begin, ot_end;
@@ -462,36 +448,22 @@ namespace gashgc {
    * @param label0s
    * @param label1s
    */
-  void OTSend(string peer_addr, int peer_ot_port, vector<block> &label0s,
+  int OTSend(string peer_addr, int peer_ot_port, vector<block> &label0s,
               vector<block> &label1s) {
 
     GASSERT(label0s.size() == label1s.size());
 
 #ifdef GASH_OT_DEBUG
 
-    std::cout << "GASH_OT_DEBUG is set." << std::endl;
-    peer_addr = string("127.0.0.1");
-    peer_ot_port = 7766;
+    cout << "GASH_OT_DEBUG is set." << endl;
 
 #endif
 
     uint32_t m_nLabel = label0s.size();
-
     uint64_t numOTs = m_nLabel;
 
-#ifdef GASH_OT_DEBUG
-
-    uint32_t bitlength = 8;
-
+    uint32_t bitlength = LABELSIZE * 8;
     uint32_t nsndvals = 2;
-
-#else
-
-    uint32_t bitlength = 128;
-
-    uint32_t nsndvals = 2;
-
-#endif
 
     m_eFType = ECC_FIELD;
 
@@ -515,7 +487,7 @@ namespace gashgc {
     m_nPID = 0;
 
 #ifdef GASH_OT_DEBUG
-    std::cout << "Parameters for sender:\n"
+    cout << "Parameters for sender:\n"
               << "numOTs:" << numOTs << "\n"
               << "bitlength:" << bitlength << "\n"
               << "nsndvals:" << nsndvals << "\n"
@@ -550,46 +522,35 @@ namespace gashgc {
     for (int i = 0; i < nsndvals; ++i) {
 
       X[i] = new CBitVector();
-
       X[i]->Create(numOTs, bitlength);
 
-      int size = 0;
+      int size = m_nLabel * LABELSIZE;
+      bytes[i] = new BYTE[size];
+      memset(bytes[i], 0, size);
 
-      if (i == 0)
-
-        bytes[i] = label_vec_2_byte_array(label0s, size);
-
-      else
-
-        bytes[i] = label_vec_2_byte_array(label1s, size);
+      if (i == 0) {
+        REQUIRE_GOOD_STATUS(label_vec_marshal(label0s, (char*)bytes[i]));
+      }
+      else {
+        REQUIRE_GOOD_STATUS(label_vec_marshal(label1s, (char*)bytes[i]));
+      }
 
       X[i]->SetBytes(bytes[i], 0, size);
     }
 
-#ifdef GASH_DEBUG
-    std::cout << getProt(m_eProt) << " Sender performing " << numOTs << " "
-              << getSndFlavor(stype) << " / " << getRecFlavor(rtype)
-              << " extensions on " << bitlength << " bit elements with "
-              << m_nNumOTThreads << " threads, " << getFieldType(m_eFType)
-              << " and" << (m_bUseMinEntCorAssumption ? "" : " no")
-              << " min-ent-corr-robustness " << runs << " times" << std::endl;
-#endif
-
     ObliviouslySend(X, numOTs, bitlength, nsndvals, stype, rtype, crypt);
 
     Cleanup();
-
     delete crypt;
-
     delete glock;
 
     for (int i = 0; i < nsndvals; ++i) {
-
       delete[] bytes[i];
-
     }
 
     free(bytes);
+
+    return 0;
   }
 
   /**
@@ -601,33 +562,22 @@ namespace gashgc {
    * @param selects
    * @param ulong
    * @param inputLabel
+   *
+   * @return 0 if success, negative errno if failure
    */
-  void OTRecv(string peer_addr, int peer_ot_port, map<ulong, int> &selects,
+  int OTRecv(string peer_addr, int peer_ot_port, map<ulong, int> &selects,
               map<ulong, block> &inputLabel) {
 
 #ifdef GASH_OT_DEBUG
 
-    std::cout << "GASH_OT_DEBUG is set." << std::endl;
-    peer_addr = string("127.0.0.1");
-    peer_ot_port = 7766;
+    cout << "GASH_OT_DEBUG is set." << endl;
 
 #endif
 
     uint64_t numOTs = selects.size();
 
-#ifdef GASH_OT_DEBUG
-
-    uint32_t bitlength = 8;
-
+    uint32_t bitlength = LABELSIZE * 8;
     uint32_t nsndvals = 2;
-
-#else
-
-    uint32_t bitlength = 128;
-
-    uint32_t nsndvals = 2;
-
-#endif
 
     m_eFType = ECC_FIELD;
 
@@ -650,7 +600,7 @@ namespace gashgc {
     m_nPort = peer_ot_port;
     m_nPID = 1;
 
-    std::cout << "Parameters for recver:\n"
+    cout << "Parameters for recver:\n"
               << "numOTs:" << numOTs << "\n"
               << "bitlength:" << bitlength << "\n"
               << "nsndvals:" << nsndvals << "\n"
@@ -676,24 +626,28 @@ namespace gashgc {
     // Fill choices with values in selects
     choices.Create(numOTs * ceil_log2(nsndvals), crypt);
 
-    // X[i]->SetBytes(bytes[i], 0, size);
-
-    int size = 0;
-
     vector<int> selects_vec;
 
+    // We are taking advantage of the fact that `selects` is ordered
     for (auto it = selects.begin(); it != selects.end(); ++it) {
 
 #ifdef GASH_DEBUG
-      std::cout << "Pushing back the bit for wire: " << it->first
+
+      cout << "Pushing back the bit for wire: " << it->first
                 << "bit: " << it->second;
+
 #endif
 
       selects_vec.push_back(it->second);
-
     }
 
-    BYTE *choice_bytes = int_vec_2_byte_array(selects_vec, size);
+    // 1 bit per selection, there might be some empty bits at the last byte
+    u32 size = (u32)ceil((float)selects_vec.size() / 8.f);
+
+    // Alloc and initialize choice_bytes
+    BYTE choice_bytes[size];
+    memset(choice_bytes, 0, size);
+    REQUIRE_GOOD_STATUS(select2bytes(selects_vec, (char*)choice_bytes));
 
     choices.SetBytes(choice_bytes, 0, size);
 
@@ -705,26 +659,23 @@ namespace gashgc {
     ObliviouslyReceive(&choices, &response, numOTs, bitlength, nsndvals, stype,
                        rtype, crypt);
 
-    // TODO: convert `response` back to label vectors
-
-    BYTE *response_bytes = new BYTE[size * 128];
-
-    response.GetBytes(response_bytes, 0, size * 128);
+    BYTE *response_bytes = new BYTE[selects.size() * LABELSIZE];
+    response.GetBytes(response_bytes, 0, selects.size() * LABELSIZE);
 
     int i = 0;
 
     for (auto it = selects.begin(); it != selects.end(); ++it, ++i) {
 
-      ulong id = it->first;
+      u32 id = it->first;
+      block label;
 
-      block label = byte_2_label(response_bytes, 16 * i);
-
-      inputLabel.insert(std::make_pair(id, label));
+      REQUIRE_GOOD_STATUS(byte2label((char*)response_bytes, LABELSIZE * i, label));
+      inputLabel.emplace(id, label);
 
 #ifdef GASH_DEBUG
 
-      std::cout << "OT Receiving label for wire: " << id << "\n"
-                << "Label: " << block2hex(label) << "\n";
+      cout << "OT Receiving label for wire: " << id << endl
+                << "Label: " << block2hex(label) << endl;
 
 #endif
 
@@ -733,6 +684,8 @@ namespace gashgc {
     Cleanup();
     delete crypt;
     delete glock;
+
+    return 0;
   }
 
 } // namespace gashgc

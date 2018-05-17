@@ -29,6 +29,7 @@ namespace gashgc {
   class Gate;
   class Circuit;
 
+  typedef WireInstance WI;
   typedef map<u32, WireInstance*> IdWireinsMap;
   typedef map<u32, Gate*> IdGateMap;
   typedef set<u32> IdSet;
@@ -103,6 +104,20 @@ namespace gashgc {
      * @return
      */
     bool has_gate(u32 id);
+
+    /**
+     * Create a gate
+     *
+     * @param outid
+     * @param func
+     * @param in0id
+     * @param in1id
+     * @param in0inv
+     * @param in1inv
+     *
+     * @return
+     */
+    int create_gate(u32 outid, int func, u32 in0id, u32 in1id, bool in0inv, bool in1inv);
 
   };
 
@@ -245,7 +260,7 @@ namespace gashgc {
    * @param circ_file_path
    * @param circ
    */
-  void build_circ(string circ_file_path, Circuit& circ);
+  int build_circ(string circ_file_path, Circuit& circ);
 
 }
 

@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gash_lang.h"
+#include "gash_lang.hh"
 #include <fstream>
 
 using po::options_description;

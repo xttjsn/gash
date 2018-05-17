@@ -28,14 +28,52 @@ namespace gashgc {
 
   extern block AESkey;
 
-  extern u32 xor_magic_num;
-  extern u32 nonxor_magic_num;
-
   Evaluator::Evaluator(u8 port, u8 ot_port, string circ_file_path, string input_file_path) {
     m_port = port;
     m_ot_port = ot_port;
-    build_circ(circ_file_path, m_c);
-    // TODO how to verify that garbler and evaluator uses the same circuit?
+
+    if (build_circ(circ_file_path, m_c) < 0) {
+      FATAL("Failed to build circuit");
+    }
+
+    if (build_garbled_circuit() < 0)  {
+      FATAL("Failed to build garbled circuit");
+    }
+  }
+
+  int Evaluator::build_garbled_circuit() {
+
+    WI*          in0;
+    WI*          in1;
+    WI*          out;
+    Gate*        g;
+
+    GWI*         gin0;
+    GWI*         gin1;
+    GWI*         gout;
+    GG*        gg;
+
+    for (auto it = m_c.m_gate_map.begin(); it != m_c.m_gate_map.end(); ++it) {
+
+      g   = it->second;
+      in0 = g->m_in0;
+      in1 = g->m_in1;
+      out = g->m_out;
+
+      gin0 = new GWI(in0);
+      gin1 = new GWI(in1);
+      gout = new GWI(out);
+      gg   = new GG(g->m_func == funcXOR, gin0, gin1, gout);
+
+      REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin0));
+      REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin1));
+      REQUIRE_GOOD_STATUS(m_gc.add_gwi(gout));
+      REQUIRE_GOOD_STATUS(m_gc.add_gg(gg));
+
+    }
+
+    return 0;
+
   }
 
   int Evaluator::read_input(string in_file_path) {

@@ -21,6 +21,7 @@
 #define GASH_OT_H
 
 #include "../include/common.hh"
+#include "util.hh"
 #include "OTExtension/ENCRYPTO_utils/cbitvector.h"
 #include "OTExtension/ENCRYPTO_utils/channel.h"
 #include "OTExtension/ENCRYPTO_utils/crypto/crypto.h"
@@ -44,30 +45,30 @@ namespace gashgc {
 
 typedef vector<block> LabelVec;
 
-BOOL Init(crypto *crypt);
+bool Init(crypto *crypt);
 
-BOOL Cleanup();
+bool Cleanup();
 
-BOOL Connect();
+bool Connect();
 
-BOOL Listen();
+bool Listen();
 
 void InitOTSender(const char *address, int port, crypto *crypt);
 
 void InitOTReceiver(const char *address, int port, crypto *crypt);
 
-BOOL ObliviouslyReceive(CBitVector *choices, CBitVector *ret, int numOTs,
+bool ObliviouslyReceive(CBitVector *choices, CBitVector *ret, int numOTs,
                         int bitlength, uint32_t nsndvals, snd_ot_flavor stype,
                         rec_ot_flavor rtype, crypto *crypt);
 
-BOOL ObliviouslySend(CBitVector **X, int numOTs, int bitlength,
+bool ObliviouslySend(CBitVector **X, int numOTs, int bitlength,
                      uint32_t nsndvals, snd_ot_flavor stype,
                      rec_ot_flavor rtype, crypto *crypt);
 
-void OTSend(string peer_addr, int peer_ot_port, vector<block> &label0s,
+int OTSend(string peer_addr, int peer_ot_port, vector<block> &label0s,
             vector<block> &label1s);
 
-void OTRecv(string peer_addr, int peer_ot_port, map<ulong, int> &selects,
+int OTRecv(string peer_addr, int peer_ot_port, map<ulong, int> &selects,
             map<ulong, block> &inputLabel);
 
 } // namespace gashgc

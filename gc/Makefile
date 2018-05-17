@@ -1,40 +1,45 @@
-lexer_SRC      := lexer.l
-parser_SRC     := parser.ypp
-lexer_CSRC     := $(addsuffix .cc,$(basename $(lexer_SRC)))
-parser_CSRC    := $(addsuffix .cc,$(basename $(parser_SRC)))
-lexer_HEAD     := $(addsuffix .l.h,$(basename $(lexer_SRC)))
-parser_HEAD    := $(addsuffix .tab.h,$(basename $(parser_SRC)))
-HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.h)
-SRC            := $(parser_CSRC) $(lexer_CSRC) main.cc $(wildcard *.cc)
-OBJS           := $(addsuffix .o,$(basename $(SRC) ))
+HEAD              := $(wildcard *.hh)
+SRC               := $(wildcard *.cc)
+OBJS              := $(addsuffix .o,$(basename $(SRC) ))
+SRCS_OT           := $(wildcard OTExtension/ENCRYPTO_utils/*.cpp) \
+                     $(wildcard OTExtension/ENCRYPTO_utils/crypto/*.cpp) \
+                     $(wildcard OTExtension/ot/*.cpp)
+OBJS_OT           := $(addsuffix .o,$(basename $(SRCS_OT)))
+MIRACL_LIB        := OTExtension/ENCRYPTO_utils/miracl_lib/miracl.a
 
-CC             := gcc
-CXX            := g++
-CXXFLAGS       := -std=c++11 -maes -msse3 -pthread -O1
-LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options
-CLANG-FORMAT   := clang-format-3.9
+CC                := gcc
+CXX               := g++
+CXXFLAGS          := -std=c++11 -maes -msse3 -pthread -O1 -Wno-ignored-attributes -fPIC
+LDFLAGS           := -lpthread -lssl -lcrypto -lgmp -lgmpxx
+CLANG-FORMAT      := clang-format
 
 .PHONY: all cscope clang-format clean
 
-all: gashlang
+all: otext libgash_gc.a
 
-gashlang: $(OBJS)
-	@ echo "    Building gashlang"
-	@ echo $(OBJS)
-	@ echo "$(CXX) $^ -o $@ $(LDFLAGS)"
-	@ $(CXX) -o $@ $^ $(LDFLAGS)
+# debug:
+# 	@ echo $(SRCS_OT)
+# 	@ echo $(OBJS_OT)
 
-$(parser_HEAD) $(parser_CSRC): $(parser_SRC)
-	@ echo "    Building parser cc source"
-	@ bison --defines=$(parser_HEAD) $< -o $(parser_CSRC)
+libgash_gc.a: $(OBJS) $(OBJS_OT)
+	@ echo "    Building $@"
+ifeq ("$(wildcard $(MIRACL_LIB))","")
+	@ ./build_miracl.sh
+endif
+	@ ar rvs $@ $^ $(MIRACL_LIB)
+	@ mkdir -p ../build/lib && cp $@ ../build/lib
 
-$(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
-	@ echo "    Building lexer cc source"
-	@ flex --outfile=$@ $<
+# libgash_gc.so: $(OBJS)
+# 	@ echo "    Building $@"
+# 	@ $(CXX) -shared -o $@ -fPIC $^
+# 	@ mkdir -p ../build/lib && cp $@ ../build/lib
+
+otext:
+	@ echo "     Building OTExtension"
+	@ cd OTExtension && make
 
 %.o: %.cc
 	@ echo "    Compiling \"$<\""
-	@ echo "$(CXX) $(CXXFLAGS) -c $< -o $@"
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 
 cscope:
@@ -48,7 +53,5 @@ clang-format:
 	@ echo "Format finished"
 
 clean:
-	@ rm -f $(OBJS)
-	@ rm -f $(parser_CSRC)
-	@ rm -f $(lexer_CSRC)
-	@ rm -f $(parser_HEAD)
+	@ rm -f $(OBJS) $(OBJS_OT) libgash_gc.a libgash_gc.so
+	@ cd OTExtension && make clean

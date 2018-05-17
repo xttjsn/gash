@@ -20,7 +20,7 @@
 #ifndef GASH_OP_H
 #define GASH_OP_H
 
-#include "circuit.h"
+#include "circuit.hh"
 
 namespace gashlang {
 

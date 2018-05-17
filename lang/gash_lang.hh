@@ -25,9 +25,9 @@
 namespace po = boost::program_options;
 
 #include "../include/common.hh"
-#include "circuit.h"
-#include "sym.h"
-#include "op.h"
+#include "circuit.hh"
+#include "sym.hh"
+#include "op.hh"
 
 /* External: interface to the lexer */
 extern int yylineno;    /* from lexer */
@@ -330,7 +330,8 @@ namespace gashlang {
   class ExeCtx {
   public:
     int m_role;
-    u32 m_port;
+    u8 m_port;
+    u8 m_ot_port;
     char m_ip[16];
     char* m_circ_path;
     char* m_data_path;
@@ -520,7 +521,14 @@ namespace gashlang {
    *
    * @param port
    */
-  void dir_port(u32 port);
+  void dir_port(u8 port);
+
+  /**
+   * Directive on port for Oblivious Transfer
+   *
+   * @param port
+   */
+  void dir_ot_port(u8 port);
 
   /**
    * Set the role type of current execution context

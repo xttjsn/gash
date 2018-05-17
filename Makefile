@@ -1,12 +1,10 @@
-all: lang gc
-
-.PHONY: all clean cscope clang-format
-
-lang:
-	$(MAKE) -C lang
+all: gc lang
 
 gc:
-	$(MAKE) -C gc
+	@ cd gc && make
+
+lang:
+	@ cd lang && make
 
 cscope:
 	@ find . -name "*.[ch]" > cscope.files
@@ -21,5 +19,4 @@ clean:
 	@ cd lang && $(MAKE) clean
 	@ cd gc && $(MAKE) clean
 
-
-
+.PHONY: all gc lang clean cscope clang-format

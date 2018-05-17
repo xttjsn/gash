@@ -2,7 +2,7 @@
 
 %{
 
-  #include "gash_lang.h"
+  #include "gash_lang.hh"
 
   #include "parser.tab.h"
 
@@ -118,10 +118,11 @@
 
  /* Directives */
 
-"defip"     { YY_LOC; return DEF_IP;    }
-"definput"  { YY_LOC; return DEF_INPUT; }
-"defrole"   { YY_LOC; return DEF_ROLE;  }
-"defport"   { YY_LOC; return DEF_PORT;  }
+"defip"     { YY_LOC; return DEF_IP;              }
+"definput"  { YY_LOC; return DEF_INPUT;           }
+"defrole"   { YY_LOC; return DEF_ROLE;            }
+"defport"   { YY_LOC; return DEF_PORT;            }
+"defotport" { YY_LOC; return DEF_OT_PORT;         }
 "GARBLER"   { YY_LOC; yylval.yy_role = rGARBLER; return GARBLER;     }
 "EVALUATOR" { YY_LOC; yylval.yy_role = rEVALUATOR; return EVALUATOR; }
 

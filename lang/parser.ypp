@@ -3,7 +3,7 @@
 %{
   #include <stdio.h>
   #include <stdlib.h>
-  #include "gash_lang.h"
+  #include "gash_lang.hh"
 
   extern "C" {int yyparse(void); int yylex(void); int yywrap() { return 1;} }
 
@@ -36,6 +36,7 @@
 
   using gashlang::dir_role;
   using gashlang::dir_port;
+  using gashlang::dir_ot_port;
   using gashlang::dir_ip;
 
   using gashlang::write_data;
@@ -106,6 +107,7 @@
 %token DEF_INPUT
 %token DEF_ROLE
 %token DEF_PORT
+%token DEF_OT_PORT
 %token DEF_IP
 %token DEF_START
 %token <yy_role> GARBLER
@@ -146,20 +148,21 @@ stmt: IF exp S_START stmtlist S_END {
   $$ = new_for($3, $5, $7, $10, $9, get_current_scope());
  }
 | exp ';'                             // Nothing, default behavior is assigning $1 to $$
-| vardef ';'                          { $$=NULL;                               }
+| vardef ';'                          { $$=NULL;                           }
 | ret ';'                             // Default behavior
 ;
 
 
-stmtlist: stmt      					        { $$ = new_ast($1, NULL);	   }
-| stmt  stmtlist                      { $$ = new_ast($1, $2);       }
+stmtlist: stmt      					        { $$ = new_ast($1, NULL);	           }
+| stmt  stmtlist                      { $$ = new_ast($1, $2);              }
 ;
 
-dir : '#' DEF_INPUT NAME I64          { $$ = new_dir_input($3, $4);                }
+dir : '#' DEF_INPUT NAME I64          { $$ = new_dir_input($3, $4);        }
 | '#' DEF_ROLE GARBLER                { dir_role(rGARBLER);                }
 | '#' DEF_ROLE EVALUATOR              { dir_role(rEVALUATOR);              }
-| '#' DEF_PORT I64                    { dir_port($3);                     }
-| '#' DEF_IP IP                       { dir_ip($3);                       }
+| '#' DEF_PORT I64                    { dir_port($3);                      }
+| '#' DEF_OT_PORT I64                 { dir_ot_port($3);                   }
+| '#' DEF_IP IP                       { dir_ip($3);                        }
 ;
 
 vardef: T_INT NAME                    { $$ = new_vdf($2, $1);             }

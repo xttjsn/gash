@@ -1,34 +1,36 @@
-lexer_SRC      := lexer.l
-parser_SRC     := parser.ypp
-lexer_CSRC     := $(addsuffix .cc,$(basename $(lexer_SRC)))
-parser_CSRC    := $(addsuffix .cc,$(basename $(parser_SRC)))
-lexer_HEAD     := $(addsuffix .l.h,$(basename $(lexer_SRC)))
-parser_HEAD    := $(addsuffix .tab.h,$(basename $(parser_SRC)))
-HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.h)
+BUILD_DIR      := ../build
+GC_LIB         := $(BUILD_DIR)/lib/libgash_gc.a
+INCLUDE        := ../include
+HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.hh)
 SRC            := $(parser_CSRC) $(lexer_CSRC) main.cc $(wildcard *.cc)
 OBJS           := $(addsuffix .o,$(basename $(SRC) ))
-INCLUDE        := ../include
+
+lexer_SRC      := lexer.l
+parser_SRC     := parser.ypp
+parser_CSRC    := $(addsuffix .cc,$(basename $(parser_SRC)))
+parser_HEAD    := $(addsuffix .tab.h,$(basename $(parser_SRC)))
+parser_OBJ     := $(addsuffix .o,$(basename $(parser_CSRC)))
+lexer_CSRC     := $(addsuffix .cc,$(basename $(lexer_SRC)))
+lexer_HEAD     := $(addsuffix .l.h,$(basename $(lexer_SRC)))
+lexer_OBJ     := $(addsuffix .o,$(basename $(lexer_CSRC)))
 
 CC             := gcc
 CXX            := g++
-CXXFLAGS       := -std=c++11 -pthread
-LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options
+CXXFLAGS       := -std=c++11 -pthread -Wno-ignored-attributes
+LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options -lgmp -lgmpxx
 CLANG-FORMAT   := clang-format-3.9
 
-.PHONY: all cscope clang-format clean
 
-all: gashlang
+all: $(parser_HEAD) gashlang
 
-gashlang: $(OBJS)
+gashlang: $(OBJS) $(parser_OBJ) $(lexer_OBJ)
 	@ echo "    Building gashlang"
-	@ echo $(OBJS)
-	@ echo "$(CXX) $^ -o $@ $(LDFLAGS)"
-	@ $(CXX) -o $@ $^ $(LDFLAGS)
+	@ $(CXX) $^ -o $@ $(GC_LIB) $(LDFLAGS)
+	@ mkdir -p ../build/bin && cp ./gashlang ../build/bin
 
 $(parser_HEAD) $(parser_CSRC): $(parser_SRC)
 	@ echo "    Building parser cc source"
-	@ bison --defines=$(parser_HEAD) $< -o $(parser_CSRC)
-	@ mv $(parser_HEAD) $(INCLUDE)
+	@ bison --defines=$(parser_HEAD) $(parser_SRC) -o $(parser_CSRC)
 
 $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 	@ echo "    Building lexer cc source"
@@ -36,8 +38,10 @@ $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 
 %.o: %.cc
 	@ echo "    Compiling \"$<\""
-	@ echo "$(CXX) $(CXXFLAGS) -c $< -o $@"
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
+
+install:
+	@ cp ../build/bin/gashlang /usr/local/bin
 
 cscope:
 	@ find . -name "*.[ch]" > cscope.files
@@ -54,3 +58,5 @@ clean:
 	@ rm -f $(parser_CSRC)
 	@ rm -f $(lexer_CSRC)
 	@ rm -f $(parser_HEAD)
+
+.PHONY: all cscope clang-format clean

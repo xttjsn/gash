@@ -23,8 +23,7 @@
 
 namespace gashgc {
 
-  const u32 xor_magic_num = 0x10179394;
-  const u32 nonxor_magic_num = 0x00000639;
+  GC::GC() { }
 
   GG *GC::get_gg(u32 id) {
     auto it = m_gg_map.find(id);
@@ -35,10 +34,10 @@ namespace gashgc {
   }
 
   int GC::add_gg(GG *gate) {
-    if (has_gg(gate->m_id)) {
+    if (has_gg(gate->get_id())) {
       return -G_EEXIST;
     }
-    m_gg_map.emplace(gate->m_id, gate);
+    m_gg_map.emplace(gate->get_id(), gate);
     return 0;
   }
 
@@ -117,6 +116,10 @@ namespace gashgc {
     }
     m_gwi_map.emplace(w->get_id(), w);
     return 0;
+  }
+
+  bool GC::has_gwi(u32 id) {
+    return m_gwi_map.find(id) != m_gwi_map.end();
   }
 
   int GC::set_gwl(u32 id, block label) {
@@ -216,6 +219,77 @@ namespace gashgc {
     for (auto it = m_gg_map.begin(); it != this->m_gg_map.end(); ++it) {
       delete it->second;
     }
+  }
+
+  void GWI::garble(block R) {
+    block lbl0 = random_block();
+    block lbl1 = xor_block(lbl0, R);
+    set_lbl0(lbl0);
+    set_lbl1(lbl1);
+  }
+
+  int GWI::get_smtc_w_lsb(int lsb) {
+
+    if (lsb != 0 && lsb != 1) {
+      WARNING("Invalid lsb, can only be 0 or 1");
+      return -G_EINVAL;
+    }
+
+    int lbl0lsb = get_lsb(get_lbl0());
+    int lbl1lsb = get_lsb(get_lbl1());
+
+    if (lbl0lsb == lsb) {
+      return 0;
+    } else if (lbl1lsb == lsb) {
+      return 1;
+    } else {
+      return -G_EINVAL;
+    }
+
+  }
+
+  block GWI::get_lbl_w_smtc(int smtc) {
+    if (smtc == 0) {
+      return get_lbl0();
+    } else {
+      return get_lbl1();
+    }
+  }
+
+  block GWI::get_lbl_w_lsb(int lsb) {
+
+    if (lsb != 0 && lsb != 1) {
+      FATAL("Invalid lsb, can only be 0 or 1");
+    }
+
+    int lbl0lsb = get_lsb(get_lbl0());
+    int lbl1lsb = get_lsb(get_lbl1());
+
+    if (lbl0lsb == lsb) {
+      return get_lbl0();
+    } else if (lbl1lsb == lsb) {
+      return get_lbl1();
+    } else {
+      FATAL("Cannot find label with lsb " << lsb << ", garbling should make sure\
+      that lsb are different");
+    }
+
+  }
+
+  int GWI::set_lbl_w_smtc(block lbl, int smtc) {
+
+    if (smtc != 0 && smtc != 1) {
+      WARNING("Invalid semantic " << smtc);
+      return -G_EINVAL;
+    }
+
+    if (smtc == 0) {
+      set_lbl0(lbl);
+    } else {
+      set_lbl1(lbl);
+    }
+
+    return 0;
   }
 
   int GWI::recover_smtc() {

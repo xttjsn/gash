@@ -21,7 +21,7 @@
 #define GASH_LANG_CIRCUIT_H
 
 #include "../include/common.hh"
-#include "op.h"
+#include "op.hh"
 
 namespace gashlang {
 

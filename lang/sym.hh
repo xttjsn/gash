@@ -20,9 +20,9 @@
 #ifndef GASH_SYM_H
 #define GASH_SYM_H
 
-#include "../include/common.h"
-#include "circuit.h"
-#include "gash_lang.h"
+#include "../include/common.hh"
+#include "circuit.hh"
+#include "gash_lang.hh"
 
 namespace gashlang {
 

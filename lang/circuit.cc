@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "circuit.h"
+#include "circuit.hh"
 
 namespace gashlang {
 
@@ -410,6 +410,7 @@ Wire* Circuit::get_invert_wire(Wire* w)
     return w_inv;
 }
 
+// TODO: change FATAL to warning, add checks in caller instead
 int Circuit::set_invert_wire(Wire* w, Wire* w_inv)
 {
     if (has_invert_wire(w)) {
@@ -419,6 +420,8 @@ int Circuit::set_invert_wire(Wire* w, Wire* w_inv)
         FATAL("Wire " << w_inv->m_id << "already has inverted wire.");
     }
     m_wire_inverts.insert(make_pair(w->m_id, w_inv->m_id));
+
+    return 0;
 }
 
 void Circuit::addGate(int op, Wire* in0, Wire* in1, Wire* out)

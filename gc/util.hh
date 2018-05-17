@@ -247,6 +247,49 @@ namespace gashgc {
    * @return
    */
   int get_lbl_smtc(u32 id, IdLabelsMap& outMap, block& lbl);
+
+  /**
+   * Convert the 16 bytes of the range from src + offset to src + offset + 16 to a block
+   *
+   * @param src
+   * @param offset
+   * @param lbl
+   *
+   * @return 0 if success, errno if failure (mostly due to invalid index)
+   */
+  int byte2label(char* src, u32 offset, block& lbl);
+
+  /**
+   * Convert selections to bytes
+   * `dest` should be memseted with 0
+   *
+   * @param select_vec
+   * @param dest
+   *
+   * @return 0 if success, errno if failure
+   */
+  int select2bytes(IntVec select_vec, char* dest);
+
+  /**
+   * Marshal the label vector
+   *
+   * @param lblvec
+   * @param dest
+   *
+   * @return
+   */
+  int label_vec_marshal(LabelVec& lblvec, char* dest);
+
+  /**
+   * Set bit
+   *
+   * @param src
+   * @param idx
+   */
+  inline void set_bit(char& src, u32 idx) {
+    src |= 1UL << idx;
+  }
+
 }
 
 #endif

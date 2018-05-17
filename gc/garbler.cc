@@ -32,8 +32,8 @@ namespace gashgc {
 
   extern block AESkey;
 
-  extern u32 xor_magic_num;
-  extern u32 nonxor_magic_num;
+  const static u32 xor_mnum = xor_magic_num;
+  const static u32 nxor_mnum = nonxor_magic_num;
 
   Garbler::Garbler(u8 port, u8 ot_port, string circ_file_path, string input_file_path) {
     m_port = port;
@@ -374,12 +374,12 @@ namespace gashgc {
       // If it is an xor gate, just tell the peer by sending this magic number
       if (gg->m_is_xor) {
 
-        REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&xor_magic_num, sizeof(u32)));
+        REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&xor_mnum, sizeof(u32)));
 
       } else {
         // If not, send rows in the EGTT
 
-        REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&nonxor_magic_num, sizeof(u32)));
+        REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&nxor_mnum, sizeof(u32)));
 
         GASSERT(gg->m_egtt != NULL);
         row1 = gg->m_egtt->get_row(1);
@@ -549,5 +549,12 @@ namespace gashgc {
     return 0;
   }
 
+  Garbler::~Garbler() {
+
+    for (auto it = m_gc.m_gg_map.begin(); it != m_gc.m_gg_map.end(); ++it) {
+      delete it->second;
+    }
+
+  }
 
 } // namespace gashgc

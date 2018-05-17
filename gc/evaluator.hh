@@ -65,6 +65,15 @@ namespace gashgc {
     int read_input(string in_file_path);
 
     /**
+     * Build a garbled version of the circuit
+     * Of course, no label is known, the purpose of this function is only to build
+     * the structure of the garbled circuit
+     *
+     * @return 0 if success, negative errno if failure
+     */
+    int build_garbled_circuit();
+
+    /**
      * Evaluate the circuit
      *
      *

@@ -78,7 +78,9 @@ using std::map;
 using std::unordered_map;
 using std::pair;
 using std::cout;
+using std::cerr;
 using std::endl;
+using std::exception;
 using std::string;
 using std::ostream;
 using std::make_pair;
@@ -88,10 +90,14 @@ using std::ifstream;
 
 namespace gashlang {
 
-  typedef uint32_t u32;
-  typedef uint64_t u64;
-  typedef int32_t i32;
-  typedef int64_t i64;
+  typedef uint8_t         u8;
+  typedef uint16_t        u16;
+  typedef uint32_t        u32;
+  typedef uint64_t        u64;
+  typedef int8_t          i8;
+  typedef int16_t         i16;
+  typedef int32_t         i32;
+  typedef int64_t         i64;
 
 }  // gashlang
 
@@ -116,12 +122,18 @@ namespace gashlang {
 
 #define OT_PORT                            23443
 
+#define funcXOR                                6
+#define funcAND                                8
+#define funcOR                                14
+
+#define xor_magic_num                      0x10179394
+#define nonxor_magic_num                   0x00000639
 
 #define CONC2(x, y) x##y
 #define CONC1(x, y) CONC2(x, y)
 #define NEWVAR(x) CONC1(x, __COUNTER__)
 
-#define REQUIRE_GOOD_STATUS_IMPL(expr, var)      \
+#define REQUIRE_GOOD_STATUS_IMPL(expr, var)          \
   int var;                                           \
   if ((var = (expr)) < 0)                            \
     return var
@@ -131,13 +143,18 @@ namespace gashlang {
 
 namespace gashgc {
 
-  typedef uint8_t u8;
-  typedef uint32_t u32;
-  typedef uint64_t u64;
-  typedef int8_t i8;
-  typedef int32_t i32;
-  typedef int64_t i64;
+  typedef uint8_t                u8;
+  typedef uint16_t               u16;
+  typedef uint32_t               u32;
+  typedef uint64_t               u64;
+  typedef int8_t                 i8;
+  typedef int16_t                i16;
+  typedef int32_t                i32;
+  typedef int64_t                i64;
   typedef __m128i block;
+
+  typedef vector<int>            IntVec;
+  typedef vector<block>          LabelVec;
 
 }  // gashgc
 

@@ -182,7 +182,7 @@ namespace gashgc {
 
   }
 
-  block new_tweak(u32& id) {
+  block new_tweak(u32 id) {
 
     return _mm_set_epi64x((u64)id, (u64)id);
 
@@ -219,6 +219,69 @@ namespace gashgc {
       return -ENOENT;
 
     }
+  }
+
+  int byte2label(char* src, u32 offset, block& lbl) {
+
+    try {
+      lbl = _mm_load_si128((__m128i*)(src + offset));
+    } catch (const exception& e) {
+      cerr << e.what();
+      return -G_EINVAL;
+    }
+    return 0;
+
+  }
+
+  int select2bytes(IntVec select_vec, char* dest) {
+
+    int val;
+    for (u32 i = 0; i < select_vec.size(); ++i) {
+
+      val = select_vec[i];
+      if (val != 0 && val != 1) {
+        return -G_EINVAL;
+      }
+
+      try {
+
+        if (val == 1) {
+          set_bit(dest[i / 8], i % 8);
+        }
+
+      } catch (const exception e) {
+
+        cerr << e.what() << endl;
+        return -G_EINVAL;
+
+      }
+
+    }
+    return 0;
+  }
+
+  int label_vec_marshal(LabelVec& lblvec, char* dest) {
+
+    block lbl;
+    for (u32 i = 0; i < lblvec.size(); ++i) {
+
+      lbl = lblvec[i];
+
+      try {
+
+        memcpy(dest + i * LABELSIZE, (char*)&lbl, LABELSIZE);
+
+      } catch (const exception e) {
+
+        cerr << e.what() << endl;
+        return -G_EINVAL;
+
+      }
+
+    }
+
+    return 0;
+
   }
 
 }

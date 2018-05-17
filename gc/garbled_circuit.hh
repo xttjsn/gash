@@ -213,6 +213,11 @@ namespace gashgc {
      */
     GarbledWire (u32 id) : m_id(id) {}
 
+    /**
+     * Destructor
+     *
+     */
+    ~GarbledWire() {}
   };
 
   /**
@@ -238,14 +243,6 @@ namespace gashgc {
      * @param w
      */
     GarbledWireInstance(WireInstance* w) : m_gw(new GarbledWire(w)), m_inv(w->get_inv()) {}
-
-    // GarbledWireInstance(GarbledWire & garbled_wire) : garbled_wire_ptr_(&garbled_wire), inverted_(false) {}
-
-    // GarbledWireInstance(GarbledWire* garbled_wire_ptr) : garbled_wire_ptr_(garbled_wire_ptr), inverted_(false) {}
-
-    // GarbledWireInstance(GarbledWire & garbled_wire, bool inverted) : garbled_wire_ptr_(&garbled_wire), inverted_(inverted) {}
-
-    // GarbledWireInstance(GarbledWire* garbled_wire_ptr, bool inverted) : garbled_wire_ptr_(garbled_wire_ptr), inverted_(inverted) {}
 
     /**
      * Get label 0
@@ -376,8 +373,10 @@ namespace gashgc {
      *
      * @param lbl
      * @param semantic
+     *
+     * @return 0 if success, errno if failure
      */
-    void set_lbl_w_smtc(block lbl, int semantic);
+    int set_lbl_w_smtc(block lbl, int semantic);
 
     /**
      * Recover the semantic based on lbl0, lbl1, and lbl
@@ -386,6 +385,14 @@ namespace gashgc {
      * @return 0/1 if success, negative errno if failed
      */
     int recover_smtc();
+
+    /**
+     * Destructor
+     *
+     */
+    ~GarbledWireInstance() {
+      delete m_gw;
+    }
   };
 
 
@@ -476,6 +483,11 @@ namespace gashgc {
      */
     void set_row3(block row3) { m_row3 = row3; }
 
+    /**
+     * Destructor
+     *
+     */
+    ~EGTT() {}
   };
 
 
@@ -485,7 +497,6 @@ namespace gashgc {
    */
   class GarbledGate {
   public:
-    u32 m_id;
     bool m_is_xor;
     GWI *m_in0;
     GWI *m_in1;
@@ -505,7 +516,6 @@ namespace gashgc {
      */
     GarbledGate(bool is_xor, GWI* in0, GWI* in1, GWI* out):
       m_is_xor(is_xor),  m_in0(in0),  m_in1(in1),  m_out(out) {
-      m_id = out->get_id();
     }
 
     /**
@@ -518,11 +528,30 @@ namespace gashgc {
      * @param egtt
      */
     GarbledGate(bool is_xor, GWI* in0, GWI* in1, GWI* out, EGTT* egtt): m_is_xor(is_xor), m_in0(in0), m_in1(in1), m_out(out), m_egtt(egtt) {
-        m_id = out->get_id();
     }
 
+    /**
+     * Get the id for the garbled gate
+     *
+     *
+     * @return
+     */
+    inline u32 get_id() {
+      if (!m_out)
+        FATAL("Garbled gate does not have output wire");
+      return m_out->get_id();
+    }
 
-    u32 get_id() { return m_out->get_id(); }
+    /**
+     * Destructor
+     *
+     */
+    ~GarbledGate() {
+      delete m_in0;
+      delete m_in1;
+      delete m_out;
+      delete m_egtt;
+    }
   };
 
   /**

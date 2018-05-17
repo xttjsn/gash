@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "sym.h"
+#include "sym.hh"
 
 namespace gashlang {
 
@@ -166,6 +166,9 @@ Symbol* SymbolStore::new_symbol(string name, SymbolType type)
         vector<Symbol*> symbol_list({ sym });
         m_symbols.insert(make_pair(name, symbol_list));
     }
+
+    // Return the newly created symbol
+    return sym;
 }
 
 Symbol* SymbolStore::new_symbol(Symbol* sym_old)
@@ -188,10 +191,13 @@ Symbol* SymbolStore::new_symbol(Symbol* sym_old)
         sym = (Symbol*)new FuncSymbol(*static_cast<FuncSymbol*>(sym_old));
         break;
     default:
+        FATAL("Invalid symbol type" << sym_old->m_type);
         break;
     }
     sym->gets_older();
     m_symbols.find(sym->m_name)->second.push_back(sym);
+
+    return sym;
 }
 
 /**
@@ -266,7 +272,7 @@ void pop_scope()
 
 Scope* get_current_scope()
 {
-    get_scope_stack().top();
+    return get_scope_stack().top();
 }
 
 SymbolStore& get_symbol_store()
