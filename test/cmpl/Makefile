@@ -7,7 +7,7 @@ SRC                  := $(wildcard *.cc)
 BIN                  := $(addprefix test_,$(basename $(SRC)))
 
 CXX                  := g++
-CXXFLAGS             := -std=c++11 -pthread -Wno-ignored-attributes
+CXXFLAGS             := -std=c++11 -pthread -Wno-ignored-attributes -g
 LDFLAGS              := -lpthread -lgtest
 
 all: $(BIN)

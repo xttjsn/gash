@@ -75,6 +75,7 @@ int evala_MUL_raw(Bundle& in0, Bundle& in1, Bundle& out)
 
     // Temporary bundle
     Bundle tmp;
+    Bundle tmp2;
 
     // Cin wire
     Wire* cin;
@@ -100,7 +101,8 @@ int evala_MUL_raw(Bundle& in0, Bundle& in1, Bundle& out)
             }
 
             // Add prev_res to tmp
-            evala_ADD_raw(prev_res, tmp, prev_res, cin);
+            evala_ADD_raw(prev_res, tmp, tmp2, cin);
+            prev_res = tmp2;
 
             // Insert cin to be the second-to-last bit, because the last bit is the
             // sign bit
@@ -110,6 +112,9 @@ int evala_MUL_raw(Bundle& in0, Bundle& in1, Bundle& out)
             prev_res = res;
             prev_res.add(zerowire(), prev_res.size() - 1);
         }
+        res  = Bundle();
+        tmp  = Bundle();
+        tmp2 = Bundle();
     }
 
     // Out is of size `2*len+1`
@@ -174,6 +179,8 @@ int evala_DIV(Bundle& in0, Bundle& in1, Bundle& out)
                 return dvg_status;
         }
         out.add(r);
+        tmp0 = Bundle();
+        tmp1 = Bundle();
     }
     return 0;
 }
@@ -650,6 +657,7 @@ int evalw_INV(Wire* in, Wire*& ret)
             // Invert `in`'s id
             in->invert();
         }
+        ret = in;
     } else {
         // `in` is input wire
         if (mgc.is_input_wire(in)) {

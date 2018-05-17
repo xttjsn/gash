@@ -140,25 +140,28 @@ namespace gashlang {
     Ast *m_right;
   };
 
-  /**
-   * Operation base class, refer to op.h for different operation number
-   *
-   */
-  class Op {
-  public:
-    NodeType m_nodetype;
-    u32 m_op;
-    Ast* m_left;
-    Ast* m_right;
-  };
+  // /**
+  //  * Operation base class, refer to op.h for different operation number
+  //  *
+  //  */
+  // class Op {
+  // public:
+  //   NodeType m_nodetype;
+  //   u32 m_op;
+  //   Ast* m_left;
+  //   Ast* m_right;
+  // };
 
   /**
    * Arithmetic operations
    *
    */
-  class Aop : public Op {
+  class Aop {
   public:
     NodeType m_nodetype = nAOP;
+    u32 m_op;
+    Ast* m_left;
+    Ast* m_right;
   };
 
   /**
@@ -166,10 +169,13 @@ namespace gashlang {
    *
    * @return
    */
-  class Bop : public Op {
+  class Bop {
   public:
     NodeType m_nodetype = nBOP;
     /// Used for SHL/SHR
+    u32 m_op;
+    Ast* m_left;
+    Ast* m_right;
     Ast* m_n_ast;
   };
 
@@ -177,8 +183,12 @@ namespace gashlang {
    * Comparison/logical/boolean operation;
    *
    */
-  class Cop : public Op {
+  class Cop {
+  public:
     NodeType m_nodetype = nCOP;
+    u32 m_op;
+    Ast* m_left;
+    Ast* m_right;
   };
 
   /**
@@ -291,8 +301,9 @@ namespace gashlang {
    */
   class Vardef {
   public:
-    NodeType m_nodetype = nVDF;
-    Symbol* m_sym;
+    NodeType   m_nodetype = nVDF;
+    Symbol*    m_sym;
+    bool       m_isinput;
   };
 
   /**
@@ -603,5 +614,22 @@ namespace gashlang {
   void run(ofstream& circ_file, ofstream& data_file,
            const char* circ_out, const char* data_out,
            const char* input, const char* mode);
+
+  /**
+   * Set circuit and data out file stream
+   *
+   * @param circ_ofstream
+   * @param data_ofstream
+   */
+  void set_ofstream(ofstream& circ_ofstream, ofstream& data_ofstream);
+
+  /**
+   * Clean all intermediate parsing related structures.
+   * Possibly for the purpose of conducting unit test.
+   * Will destroy all scopes in the scope stack, and
+   * re-initialize all global variables.
+   *
+   */
+  void parse_clean();
 }
 #endif

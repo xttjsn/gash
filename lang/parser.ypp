@@ -16,6 +16,7 @@
   using gashlang::RoleType::rEVALUATOR;
   using gashlang::Bundle;
   using gashlang::RefType;
+  using gashlang::Func;
   using gashlang::i32;
   using gashlang::i64;
   using gashlang::u32;
@@ -206,22 +207,24 @@ dirlist: dir                          { $$ = new_ast($1, NULL);        }
 | dir dirlist                         { $$ = new_ast($1, $2);          }
 ;
 
-program: dirlist FUNCTION NAME '(' vardeflist ')' S_START stmtlist S_END {
+program: FUNCTION NAME '(' vardeflist ')' S_START stmtlist S_END dirlist {
 
   // Define function, which will puts everything under the func struct named NAME
   // However, current we don't support function call, so it's useless
-  defun($3, $5, $8);
+  Func* func = defun($2, $4, $7);
 
   // Recursively executing the `list`
   Bundle bret;
-  evalast($8, bret);
+  evalast((Ast*) func, bret);
+  // evalast($7, bret);
 
   // Write the built-up circuit to file
   write_circuit();
 
-  // Evaluate the directives, which puts related field to a ExeCtx class, which is used by the gc framework
+  // Evaluate the directives, which puts related field to a ExeCtx class, which
+  // is used by the gc framework
   Bundle bret_dir;
-  evalast($1, bret_dir);
+  evalast($9, bret_dir);
 
   // Write the data defined by the directives to file
   write_data();

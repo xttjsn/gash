@@ -18,10 +18,10 @@
  */
 
 #include "gash_lang.hh"
+#include "../gc/evaluator.hh"
+#include "../gc/garbler.hh"
 #include "circuit.hh"
 #include "parser.tab.h"
-#include "../gc/garbler.hh"
-#include "../gc/evaluator.hh"
 
 #define FORCE_SYM_CAST(sym, type, nsym) \
     do {                                \
@@ -63,9 +63,19 @@ Func* defun(Symbol* sym, Ast* vdf_ast, Ast* do_ast)
     GASSERT(sym->m_type == FUNC);
     FuncSymbol* fsym = (FuncSymbol*)sym;
 
+    Ast* curr_vdf_ast = vdf_ast;
+    Vardef* vdf;
+    while (curr_vdf_ast) {
+        vdf = (Vardef*)curr_vdf_ast->m_left;
+        GASSERT(vdf->m_nodetype == nVDF);
+        vdf->m_isinput = true;
+        curr_vdf_ast   = curr_vdf_ast->m_right;
+    }
+
     func->m_fsym = fsym;
     func->m_vdf_ast = vdf_ast;
     func->m_do_ast = do_ast;
+
     return func;
 }
 
@@ -197,6 +207,7 @@ Ast* new_vdf(Symbol* sym, u32 intlen)
     NumSymbol* nsym;
     FORCE_SYM_CAST(sym, NUM, nsym);
     nsym->m_len = intlen;
+    nsym->m_bundle = Bundle(intlen);
     vardef->m_sym = sym;
     return (Ast*)vardef;
 }
@@ -225,7 +236,7 @@ void dir_port(u8 port)
 
 void dir_ot_port(u8 port)
 {
-  mectx.m_ot_port = port;
+    mectx.m_ot_port = port;
 }
 
 void dir_role(RoleType role)
@@ -240,6 +251,17 @@ void evalast(Ast* ast, Bundle& bret)
     }
 
     switch (ast->m_nodetype) {
+    case nFUNC: {
+        Func* func = (Func*) ast;
+        evalast(func->m_vdf_ast, bret);
+        evalast(func->m_do_ast, bret);
+        break;
+    }
+    case nLIST: {
+        evalast(ast->m_left, bret);
+        evalast(ast->m_right, bret);
+        break;
+    }
     case nAOP: {
         Aop* aop = (Aop*)ast;
         evalast_aop(aop, bret);
@@ -287,6 +309,11 @@ void evalast(Ast* ast, Bundle& bret)
         For* afor = (For*)ast;
         evalast_for(afor, bret);
     } break;
+    case nDIR: {
+        Dir* dir = (Dir*)ast;
+        evalast_dir(dir);
+        break;
+    }
     default:
         FATAL("Unsupported nodetype : " << ast->m_nodetype);
         break;
@@ -477,6 +504,16 @@ void evalast_vdf(Vardef* vdf, Bundle& bret)
         sym_a->get_bundle(bret);
     } else {
         FATAL("Invalid symbol type" << vdf->m_sym->m_type);
+    }
+
+    /**
+     * Add input wire
+     *
+     */
+    if (vdf->m_isinput) {
+        for (u32 i = 0; i < bret.size(); ++i) {
+            mgc.add_input_wire(bret[i]);
+        }
     }
 }
 
@@ -814,6 +851,12 @@ void yyerror(const char* s, ...)
     exit(-1);
 }
 
+void set_ofstream(ofstream& circ_ofstream, ofstream& data_ofstream)
+{
+    mgc.set_circ_outstream(circ_ofstream);
+    mgc.set_data_outstream(data_ofstream);
+}
+
 void run(ofstream& circ_file,
     ofstream& data_file,
     const char* circ_out,
@@ -821,9 +864,8 @@ void run(ofstream& circ_file,
     const char* input,
     const char* mode)
 {
-    mgc.set_circ_outstream(circ_file);
-    mgc.set_data_outstream(data_file);
 
+    set_ofstream(circ_file, data_file);
     mectx.m_circ_path = new char[strlen(circ_out) + 1];
     strcpy(mectx.m_circ_path, circ_out);
     mectx.m_data_path = new char[strlen(data_out) + 1];
@@ -840,19 +882,28 @@ void run(ofstream& circ_file,
     }
 }
 
-void exec(ExeCtx& ctx) {
+void exec(ExeCtx& ctx)
+{
 
-  if (ctx.m_role == rGARBLER) {
+    if (ctx.m_role == rGARBLER) {
 
-    gashgc::Garbler g(ctx.m_port, ctx.m_ot_port, string(ctx.m_circ_path), string(ctx.m_data_path));
+        gashgc::Garbler g(ctx.m_port, ctx.m_ot_port, string(ctx.m_circ_path),
+        string(ctx.m_data_path));
 
-  } else if (ctx.m_role == rEVALUATOR) {
+    } else if (ctx.m_role == rEVALUATOR) {
 
+    } else {
+        WARNING("Invalid role, finishing program..");
+    }
+}
 
-  } else {
-    WARNING("Invalid role, finishing program..");
-  }
+void parse_clean() {
+
+    ScopeStack::instance().clear();
+    get_symbol_store().clear();
+    mgc = Circuit();
+    mectx = ExeCtx();
 
 }
 
-}
+} // namespace gashlang

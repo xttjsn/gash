@@ -21,5 +21,27 @@
 #define GASH_TEST_COMMON_H
 
 #include <gtest/gtest.h>
+#include "../../lang/gash_lang.hh"
+#include <cstdio>
+
+class CMPLTest : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+
+    char* tmp_circ_name = tmpnam(NULL);
+    char* tmp_data_name = tmpnam(NULL);
+
+    m_circ_stream = ofstream(tmp_circ_name, std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream(tmp_data_name, std::ios::out | std::ios::trunc);
+
+  }
+
+  virtual void TearDown() {
+    gashlang::parse_clean();
+  }
+
+  ofstream m_circ_stream;
+  ofstream m_data_stream;
+};
 
 #endif

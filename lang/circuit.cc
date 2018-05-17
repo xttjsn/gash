@@ -318,6 +318,7 @@ void Circuit::add_input_values(Bundle& bundle)
     for (u32 i = 0; i < bundle.size(); ++i) {
         wire_id = bundle[i]->m_id;
         bitval = bundle[i]->m_v;
+        GASSERT(bitval == 0 || bitval == 1);
         m_input_data.insert(make_pair(wire_id, bitval));
 
         if (m_input_duplicates.find(wire_id) != m_input_duplicates.end()) {

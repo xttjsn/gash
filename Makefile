@@ -9,6 +9,7 @@ lang:
 cscope:
 	@ find . -name "*.[ch]" > cscope.files
 	@ find . -name "*.cc" >> cscope.files
+	@ find . -name "*.hh" >> cscope.files
 	@ cscope -b -q -k
 
 clang-format:

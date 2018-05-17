@@ -200,6 +200,16 @@ Symbol* SymbolStore::new_symbol(Symbol* sym_old)
     return sym;
 }
 
+  void SymbolStore::clear() {
+    for (auto it = m_symbols.begin(); it != m_symbols.end(); ++it) {
+      vector<Symbol*>& symvec = it->second;
+      for (auto sit = symvec.begin(); sit != symvec.end(); ++sit) {
+        delete *sit;
+      }
+    }
+    m_symbols.clear();
+  }
+
 /**
  * Scope
  */
@@ -297,17 +307,20 @@ Symbol* lookup(char* name, SymbolType type)
     Scope* top_scope = get_scope_stack().top();
     Symbol* sym = top_scope->get_symbol_for_name(name);
     if (!sym) {
-        if (type == NONE)
-            FATAL("Cannot find symbol for name: " << name << ", but also cannot\
+      if (type == NONE) {
+        FATAL("Cannot find symbol for name: " << name << ", but also cannot\
         create new symbol of type NONE.");
+      }
 
-        sym = top_scope->new_symbol(name, type);
+      sym = top_scope->new_symbol(name, type);
     } else {
-        if (type != NONE)
-            FATAL("Found symbol for name: " << name << ", but type is not NONE\
-        , I guess you are trying to override other local variables, but it's not supported yet.");
+      if (type != NONE) {
+        FATAL("Found symbol for name: " << name << ", but type is not NONE , I\
+        guess you are trying to override other local variables, but it's not\
+        supported yet.");
+      }
 
-        sym = top_scope->get_symbol_for_name(name);
+      sym = top_scope->get_symbol_for_name(name);
     }
     return sym;
 }

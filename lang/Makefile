@@ -16,9 +16,9 @@ lexer_OBJ      := $(addsuffix .o,$(basename $(lexer_CSRC)))
 
 CC             := gcc
 CXX            := g++
-CXXFLAGS       := -std=c++11 -pthread -Wno-ignored-attributes
+CXXFLAGS       := -std=c++11 -pthread -Wno-ignored-attributes -g -fPIC
 LDFLAGS        := -lpthread -lfl -lssl -lcrypto -lboost_program_options -lgmp -lgmpxx
-CLANG-FORMAT   := clang-format-3.9
+CLANG-FORMAT   := clang-format
 
 
 all: $(parser_HEAD) libgash_lang.a gashlang
@@ -41,7 +41,7 @@ $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 	@ echo "    Building lexer cc source"
 	@ flex --outfile=$@ $<
 
-%.o: %.cc
+%.o: %.cc %.hh
 	@ echo "    Compiling \"$<\""
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 

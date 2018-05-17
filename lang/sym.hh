@@ -183,6 +183,12 @@ namespace gashlang {
      */
     Symbol* new_symbol(Symbol* sym_old);
 
+    /**
+     * Remove all symbols
+     *
+     */
+    void clear();
+
   };
 
   enum ScopeType {
@@ -226,7 +232,9 @@ namespace gashlang {
   class ScopeStack {
     std::stack<Scope*> m_scopes;
 
-    ScopeStack() {}
+    ScopeStack() {
+      m_scopes.push(new Scope());
+    }
 
   public:
 
@@ -264,6 +272,8 @@ namespace gashlang {
         delete s;
         m_scopes.pop();
       }
+      // The initial scope
+      m_scopes.push(new Scope());
     }
   };
 

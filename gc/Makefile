@@ -9,7 +9,7 @@ MIRACL_LIB        := OTExtension/ENCRYPTO_utils/miracl_lib/miracl.a
 
 CC                := gcc
 CXX               := g++
-CXXFLAGS          := -std=c++11 -maes -msse3 -pthread -O1 -Wno-ignored-attributes -fPIC
+CXXFLAGS          := -std=c++11 -maes -msse3 -pthread -O1 -Wno-ignored-attributes -fPIC -g
 LDFLAGS           := -lpthread -lssl -lcrypto -lgmp -lgmpxx
 CLANG-FORMAT      := clang-format
 

@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
     }
 
     const char* input;
-    const char* circ_out;
-    const char* data_out;
+    const char* circ_fname;
+    const char* data_fname;
     const char* mode;
     if (!vm.count("input")) {
         cout << "Require input file" << endl;
@@ -66,14 +66,14 @@ int main(int argc, char* argv[])
 
     if (!vm.count("output")) {
         cout << "Missing circuit output file name, using `out.circ`" << endl;
-        circ_out = "out.circ";
+        circ_fname = "out.circ";
     } else
-        circ_out = vm["output"].as<string>().c_str();
+        circ_fname = vm["output"].as<string>().c_str();
     if (!vm.count("data_output")) {
         cout << "Missing data output file name, using `data.txt`" << endl;
-        data_out = "data.txt";
+        data_fname = "data.txt";
     } else
-        data_out = vm["data_output"].as<string>().c_str();
+        data_fname = vm["data_output"].as<string>().c_str();
     if (!vm.count("mode")) {
         cout << "Missing mode, usng `normal`" << endl;
         mode = "normal";
@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
         mode = vm["mode"].as<string>().c_str();
     }
 
-    ofstream circ_file(circ_out, std::ios::out | std::ios::trunc);
-    ofstream data_file(data_out, std::ios::out | std::ios::trunc);
+    ofstream circ_file(circ_fname, std::ios::out | std::ios::trunc);
+    ofstream data_file(data_fname, std::ios::out | std::ios::trunc);
 
-    run(circ_file, data_file, circ_out, data_out, input, mode);
+    run(circ_file, data_file, circ_fname, data_fname, input, mode);
 }
