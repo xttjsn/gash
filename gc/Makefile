@@ -1,3 +1,4 @@
+BUILD_DIR         := ../build
 HEAD              := $(wildcard *.hh)
 SRC               := $(wildcard *.cc)
 OBJS              := $(addsuffix .o,$(basename $(SRC) ))
@@ -5,7 +6,8 @@ SRCS_OT           := $(wildcard OTExtension/ENCRYPTO_utils/*.cpp) \
                      $(wildcard OTExtension/ENCRYPTO_utils/crypto/*.cpp) \
                      $(wildcard OTExtension/ot/*.cpp)
 OBJS_OT           := $(addsuffix .o,$(basename $(SRCS_OT)))
-MIRACL_LIB        := OTExtension/ENCRYPTO_utils/miracl_lib/miracl.a
+MIRACL_OLD_PATH   := OTExtension/ENCRYPTO_utils/miracl_lib/miracl.a
+MIRACL_LIB        := $(BUILD_DIR)/lib/libmiracl.a
 
 CC                := gcc
 CXX               := g++
@@ -17,25 +19,18 @@ CLANG-FORMAT      := clang-format
 
 all: otext libgash_gc.a
 
-# debug:
-# 	@ echo $(SRCS_OT)
-# 	@ echo $(OBJS_OT)
-
 libgash_gc.a: $(OBJS) $(OBJS_OT)
 	@ echo "    Building $@"
 ifeq ("$(wildcard $(MIRACL_LIB))","")
 	@ ./build_miracl.sh
+	@ mkdir -p ../build/lib && cp $(MIRACL_OLD_PATH) $(MIRACL_LIB)
 endif
-	@ ar rvs $@ $^ $(MIRACL_LIB)
+	@ ar rvs $@ $^
 	@ mkdir -p ../build/lib && cp $@ ../build/lib
-
-# libgash_gc.so: $(OBJS)
-# 	@ echo "    Building $@"
-# 	@ $(CXX) -shared -o $@ -fPIC $^
-# 	@ mkdir -p ../build/lib && cp $@ ../build/lib
 
 otext:
 	@ echo "     Building OTExtension"
+	@ sed -i '/CC=g++/c\CC=g++ -fPIC' OTExtension/Makefile
 	@ cd OTExtension && make
 
 %.o: %.cc
