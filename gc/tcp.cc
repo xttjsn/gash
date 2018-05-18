@@ -25,7 +25,7 @@ namespace gashgc {
    * Server init
    *
    */
-    int tcp_server_init(int port, int& listen_sock, int& peer_sock)
+    int tcp_server_init(u16 port, int& listen_sock, int& peer_sock)
     {
         int result;
         int opt_val = 1;
@@ -71,7 +71,7 @@ namespace gashgc {
    * Client init
    *
    */
-    int tcp_client_init(string ip, int port, int& sock)
+    int tcp_client_init(string ip, u16 port, int& sock)
     {
         struct addrinfo* res;
         struct sockaddr_in address;

@@ -54,8 +54,8 @@ namespace gashgc {
     int                   m_listen_sock;
     string                m_self_ip;
     string                m_peer_ip;
-    u8                    m_port;
-    u8                    m_ot_port;
+    u16                    m_port;
+    u16                    m_ot_port;
 
     /**
      * Read input data from input data file
@@ -126,7 +126,7 @@ namespace gashgc {
      * @param circ_file_path
      * @param input_file_path
      */
-    Garbler(u8 port, u8 ot_port, string circ_file_path, string input_file_path);
+    Garbler(u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
     /**
      * Destructor

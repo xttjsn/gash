@@ -51,8 +51,8 @@ namespace gashgc {
     int                   m_peer_ot_sock;
     string                m_self_ip;      // For debug purpose
     string                m_peer_ip;
-    u8                    m_port;
-    u8                    m_ot_port;
+    u16                    m_port;
+    u16                    m_ot_port;
 
 
     /**
@@ -145,7 +145,7 @@ namespace gashgc {
      * @param circ_file_path Circuit file path
      * @param input_file_path Input data file path
      */
-    Evaluator(u8 port, u8 ot_port, string circ_file_path, string input_file_path);
+    Evaluator(u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
     /**
      * Destructor

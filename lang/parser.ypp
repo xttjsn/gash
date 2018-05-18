@@ -17,8 +17,10 @@
   using gashlang::Bundle;
   using gashlang::RefType;
   using gashlang::Func;
+  using gashlang::i16;
   using gashlang::i32;
   using gashlang::i64;
+  using gashlang::u16;
   using gashlang::u32;
   using gashlang::u64;
 

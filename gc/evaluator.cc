@@ -28,7 +28,7 @@ namespace gashgc {
 
     extern block AESkey;
 
-    Evaluator::Evaluator(u8 port, u8 ot_port, string circ_file_path, string input_file_path)
+    Evaluator::Evaluator(u16 port, u16 ot_port, string circ_file_path, string input_file_path)
     {
         m_port = port;
         m_ot_port = ot_port;

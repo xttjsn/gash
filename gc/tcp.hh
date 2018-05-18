@@ -34,7 +34,7 @@ namespace gashgc {
    * @param listen_sock
    * @param peer_sock
    */
-  int tcp_server_init(int port, int& listen_sock, int& peer_sock);
+  int tcp_server_init(u16 port, int& listen_sock, int& peer_sock);
 
   /**
    * Client initialization: create socket and connect
@@ -43,7 +43,7 @@ namespace gashgc {
    * @param port
    * @param sock
    */
-  int tcp_client_init(string ip, int port, int& sock);
+  int tcp_client_init(string ip, u16 port, int& sock);
 
   /**
    * Send `size` bytes over socket

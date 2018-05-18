@@ -341,8 +341,8 @@ namespace gashlang {
   class ExeCtx {
   public:
     int m_role;
-    u8 m_port;
-    u8 m_ot_port;
+    u16 m_port;
+    u16 m_ot_port;
     char m_ip[16];
     char* m_circ_path;
     char* m_data_path;
@@ -532,14 +532,14 @@ namespace gashlang {
    *
    * @param port
    */
-  void dir_port(u8 port);
+  void dir_port(u16 port);
 
   /**
    * Directive on port for Oblivious Transfer
    *
    * @param port
    */
-  void dir_ot_port(u8 port);
+  void dir_ot_port(u16 port);
 
   /**
    * Set the role type of current execution context

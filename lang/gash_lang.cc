@@ -229,12 +229,12 @@ namespace gashlang {
         strncpy(mectx.m_ip, ip, 16); // Use safe strcpy
     }
 
-    void dir_port(u8 port)
+    void dir_port(u16 port)
     {
         mectx.m_port = port;
     }
 
-    void dir_ot_port(u8 port)
+    void dir_ot_port(u16 port)
     {
         mectx.m_ot_port = port;
     }

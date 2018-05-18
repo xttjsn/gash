@@ -35,7 +35,7 @@ namespace gashgc {
     const static u32 xor_mnum = xor_magic_num;
     const static u32 nxor_mnum = nonxor_magic_num;
 
-    Garbler::Garbler(u8 port, u8 ot_port, string circ_file_path, string input_file_path)
+    Garbler::Garbler(u16 port, u16 ot_port, string circ_file_path, string input_file_path)
     {
         m_port = port;
         m_ot_port = ot_port;

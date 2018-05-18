@@ -21,8 +21,13 @@
 #define GASH_TEST_COMMON_H
 
 #include <gtest/gtest.h>
-#include "../../lang/gash_lang.hh"
 #include <cstdio>
+#include <fcntl.h>
+#include "../../include/common.hh"
+#include "../../lang/gash_lang.hh"
+#include "../../gc/tcp.hh"
+
+#define LARGE_SIZE 100000
 
 class CMPLTest : public ::testing::Test {
 protected:
@@ -42,6 +47,16 @@ protected:
 
   ofstream m_circ_stream;
   ofstream m_data_stream;
+};
+
+class TCPTest : public ::testing::Test {
+protected:
+    virtual void SetUp() {
+    }
+
+    virtual void TearDown() {
+    }
+
 };
 
 #endif
