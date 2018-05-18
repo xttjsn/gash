@@ -19,112 +19,110 @@
 
 #include "../include/common.hh"
 
-TEST_F(CMPLTest, ADD_1) {
-
-  extern FILE* yyin;
-  const char* src=
-    "func add(int1 a, int1 b) {      "
-    "    return a + b;               "
-    "}                               "
-    "#definput     a    0            "
-    "#definput     b    1            ";
-
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
-
-  int parse_result = yyparse();
-
-  EXPECT_EQ(0, parse_result);
-
-  gashlang::parse_clean();
-
-}
-
-TEST_F(CMPLTest, ADD_8) {
-
-  extern FILE* yyin;
-  const char* src=
-    "func add(int8 a, int8 b) {      "
-    "    return a + b;               "
-    "}                               "
-    "#definput     a    0            "
-    "#definput     b    1            ";
-
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
-
-  int parse_result = yyparse();
-
-  EXPECT_EQ(0, parse_result);
-
-}
-
-TEST_F(CMPLTest, ADD_16) {
-
-  extern FILE* yyin;
-  const char* src=
-    "func add(int16 a, int16 b) {    "
-    "    return a + b;               "
-    "}                               "
-    "#definput     a    0            "
-    "#definput     b    1            ";
-
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
-
-  int parse_result = yyparse();
-
-  EXPECT_EQ(0, parse_result);
-}
-
-TEST_F(CMPLTest, ADD_32) {
-
-  extern FILE* yyin;
-  const char* src=
-    "func add(int32 a, int32 b) {    "
-    "    return a + b;               "
-    "}                               "
-    "#definput     a    0            "
-    "#definput     b    1            ";
-
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
-
-  int parse_result = yyparse();
-
-  EXPECT_EQ(0, parse_result);
-}
-
-TEST_F(CMPLTest, ADD_64) {
-
-  extern FILE* yyin;
-  const char* src=
-    "func add(int64 a, int64 b) {    "
-    "    return a + b;               "
-    "}                               "
-    "#definput     a    0            "
-    "#definput     b    1            ";
-
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
-
-  int parse_result = yyparse();
-
-  EXPECT_EQ(0, parse_result);
-}
-
-int main(int argc, char *argv[])
+TEST_F(CMPLTest, ADD_1)
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+
+    extern FILE* yyin;
+    const char* src = "func add(int1 a, int1 b) {      "
+                      "    return a + b;               "
+                      "}                               "
+                      "#definput     a    0            "
+                      "#definput     b    1            ";
+
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+    int parse_result = yyparse();
+
+    EXPECT_EQ(0, parse_result);
+
+    gashlang::parse_clean();
+}
+
+TEST_F(CMPLTest, ADD_8)
+{
+
+    extern FILE* yyin;
+    const char* src = "func add(int8 a, int8 b) {      "
+                      "    return a + b;               "
+                      "}                               "
+                      "#definput     a    0            "
+                      "#definput     b    1            ";
+
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+    int parse_result = yyparse();
+
+    EXPECT_EQ(0, parse_result);
+}
+
+TEST_F(CMPLTest, ADD_16)
+{
+
+    extern FILE* yyin;
+    const char* src = "func add(int16 a, int16 b) {    "
+                      "    return a + b;               "
+                      "}                               "
+                      "#definput     a    0            "
+                      "#definput     b    1            ";
+
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+    int parse_result = yyparse();
+
+    EXPECT_EQ(0, parse_result);
+}
+
+TEST_F(CMPLTest, ADD_32)
+{
+
+    extern FILE* yyin;
+    const char* src = "func add(int32 a, int32 b) {    "
+                      "    return a + b;               "
+                      "}                               "
+                      "#definput     a    0            "
+                      "#definput     b    1            ";
+
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+    int parse_result = yyparse();
+
+    EXPECT_EQ(0, parse_result);
+}
+
+TEST_F(CMPLTest, ADD_64)
+{
+
+    extern FILE* yyin;
+    const char* src = "func add(int64 a, int64 b) {    "
+                      "    return a + b;               "
+                      "}                               "
+                      "#definput     a    0            "
+                      "#definput     b    1            ";
+
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+    int parse_result = yyparse();
+
+    EXPECT_EQ(0, parse_result);
+}
+
+int main(int argc, char* argv[])
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

@@ -21,162 +21,153 @@
 
 namespace gashgc {
 
-  /**
+    /**
    * Server init
    *
    */
-  int tcp_server_init(int port, int &listen_sock, int &peer_sock) {
-    int result;
-    int opt_val = 1;
-    struct sockaddr_in address;
+    int tcp_server_init(int port, int& listen_sock, int& peer_sock)
+    {
+        int result;
+        int opt_val = 1;
+        struct sockaddr_in address;
 
-    listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+        listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    memset(&address, 0, sizeof(address));
+        memset(&address, 0, sizeof(address));
 
-    address.sin_family = AF_INET;
-    address.sin_port = htons(port);
-    address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_family = AF_INET;
+        address.sin_port = htons(port);
+        address.sin_addr.s_addr = INADDR_ANY;
 
-    setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
+        setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
 
-    result = bind(listen_sock, (struct sockaddr *) &address, sizeof(address));
-    if (result != 0) {
+        result = bind(listen_sock, (struct sockaddr*)&address, sizeof(address));
+        if (result != 0) {
 
-      WARNING("bind() failed.");
-      return -G_ETCP;
+            WARNING("bind() failed.");
+            return -G_ETCP;
+        }
 
+        result = listen(listen_sock, 5);
+        if (result != 0) {
+
+            WARNING("listen() fail.");
+            return -G_ETCP;
+        }
+
+        // Accept
+        size_t size = sizeof(address);
+        peer_sock = accept(listen_sock, (struct sockaddr*)&address, (socklen_t*)&size);
+        if (peer_sock < 0) {
+
+            WARNING("accept() failed");
+            return -G_ETCP;
+        }
+
+        return 0;
     }
 
-    result = listen(listen_sock, 5);
-    if (result != 0) {
-
-      WARNING("listen() fail.");
-      return -G_ETCP;
-
-    }
-
-    // Accept
-    size_t size = sizeof(address);
-    peer_sock = accept(listen_sock, (struct sockaddr *) &address, (socklen_t *) &size);
-    if (peer_sock < 0) {
-
-      WARNING("accept() failed");
-      return -G_ETCP;
-
-    }
-
-    return 0;
-
-  }
-
-  /**
+    /**
    * Client init
    *
    */
-  int tcp_client_init(string ip, int port, int &sock) {
-    struct addrinfo *res;
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_port = htons(port);
+    int tcp_client_init(string ip, int port, int& sock)
+    {
+        struct addrinfo* res;
+        struct sockaddr_in address;
+        address.sin_family = AF_INET;
+        address.sin_port = htons(port);
 
-    int result = getaddrinfo(ip.c_str(), NULL, NULL, &res);
+        int result = getaddrinfo(ip.c_str(), NULL, NULL, &res);
 
-    if (result != 0) {
+        if (result != 0) {
 
-      WARNING("Peer hostname invalid.");
+            WARNING("Peer hostname invalid.");
+        }
 
+        freeaddrinfo(res);
+
+        inet_pton(AF_INET, ip.c_str(), &(address.sin_addr));
+
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (::connect(sock, (struct sockaddr*)&address, sizeof(address)) != 0) {
+
+            WARNING("connect() failed");
+        }
+
+        return 0;
     }
 
-    freeaddrinfo(res);
-
-    inet_pton(AF_INET, ip.c_str(), &(address.sin_addr));
-
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (::connect(sock, (struct sockaddr *) &address, sizeof(address)) != 0) {
-
-      WARNING("connect() failed");
-
-    }
-
-    return 0;
-  }
-
-
-  /**
+    /**
    * Send bytes
    *
    */
-  int tcp_send_bytes(int socket, char* src, u32 size) {
+    int tcp_send_bytes(int socket, char* src, u32 size)
+    {
 
-    GASSERT(size > 0);
+        GASSERT(size > 0);
 
-    int send_status;
+        int send_status;
 
-    if ((send_status = send(socket, &size, sizeof(u32), 0)) != sizeof(u32)) {
+        if ((send_status = send(socket, &size, sizeof(u32), 0)) != sizeof(u32)) {
 
-      WARNING("sendBytes error: Unable to send size " << size << "\n");
+            WARNING("sendBytes error: Unable to send size " << size << "\n");
 
-      return -G_ETCP;
+            return -G_ETCP;
+        }
 
+        send_status = 0;
+
+        u32 sent_amt = 0;
+
+        while (sent_amt < size) { // We could allow sending less than `aligned_size`, but this is safer
+
+            send_status = send(socket, src + sent_amt, size - sent_amt, 0);
+
+            if (send_status < 0) {
+
+                WARNING("sendBytes error: Unable to send src\n");
+
+                return -G_ETCP;
+            }
+
+            sent_amt += send_status;
+        }
+
+        return 0;
     }
 
-
-    send_status = 0;
-
-    u32 sent_amt = 0;
-
-    while (sent_amt < size) { // We could allow sending less than `aligned_size`, but this is safer
-
-      send_status = send(socket, src + sent_amt, size - sent_amt, 0);
-
-      if (send_status < 0) {
-
-        WARNING("sendBytes error: Unable to send src\n");
-
-        return -G_ETCP;
-
-      }
-
-      sent_amt += send_status;
-
-    }
-
-    return 0;
-  }
-
-  /**
+    /**
    * Receive bytes
    *
    */
-  int tcp_recv_bytes(int socket, char* dest, u32 size) {
+    int tcp_recv_bytes(int socket, char* dest, u32 size)
+    {
 
-    int recv_status = 0;
+        int recv_status = 0;
 
-    REQUIRE_GOOD_STATUS(recv(socket, &size, sizeof(u32), 0));
+        REQUIRE_GOOD_STATUS(recv(socket, &size, sizeof(u32), 0));
 
-    GASSERT(size > 0);
+        GASSERT(size > 0);
 
-    int recv_amt = 0;
+        int recv_amt = 0;
 
-    while(recv_amt < (int)size) {
+        while (recv_amt < (int)size) {
 
-       recv_status = recv(socket, dest + recv_amt, size - recv_amt, 0);
+            recv_status = recv(socket, dest + recv_amt, size - recv_amt, 0);
 
-       if (recv_status < 0) {
+            if (recv_status < 0) {
 
-         WARNING("sendBytes error: Unable to receive size " << size << "\n");
+                WARNING("sendBytes error: Unable to receive size " << size << "\n");
 
-         return -G_ETCP;
+                return -G_ETCP;
+            }
 
-       }
+            recv_amt += recv_status;
+        }
 
-       recv_amt += recv_status;
+        return 0;
     }
 
-    return 0;
-
-  }
-
-}
+} // namespace gashgc

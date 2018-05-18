@@ -19,42 +19,42 @@
 
 #include "aes.hh"
 
-#define EXPAND_ROUND(prev, v0, v1, v2, v3, v4, rcon)                  \
-  v0 = _mm_aeskeygenassist_si128(prev, rcon);                         \
-  v1 = _mm_setzero_si128();                                           \
-  v1 = _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(v1),          \
-                                       _mm_castsi128_ps(prev), 64));  \
-  v2 = _mm_xor_si128(prev, v1);                                       \
-  v3 = _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(v1),          \
-                                       _mm_castsi128_ps(v2), 152));   \
-  v3 = _mm_xor_si128(v3, v2);                                         \
-  v4 = _mm_xor_si128(v3, _mm_shuffle_epi32(v0, 255))
+#define EXPAND_ROUND(prev, v0, v1, v2, v3, v4, rcon)           \
+    v0 = _mm_aeskeygenassist_si128(prev, rcon);                \
+    v1 = _mm_setzero_si128();                                  \
+    v1 = _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(v1), \
+        _mm_castsi128_ps(prev), 64));                          \
+    v2 = _mm_xor_si128(prev, v1);                              \
+    v3 = _mm_castps_si128(_mm_shuffle_ps(_mm_castsi128_ps(v1), \
+        _mm_castsi128_ps(v2), 152));                           \
+    v3 = _mm_xor_si128(v3, v2);                                \
+    v4 = _mm_xor_si128(v3, _mm_shuffle_epi32(v0, 255))
 
 namespace gashgc {
 
-  static const u8 AESkey_buf[64] =
-    {
-      105, 187, 117, 137,
-      65, 140, 104, 185,
-      74, 49, 246, 13,
-      246, 67, 88, 55,
-      229, 178, 210, 121,
-      195, 44, 80, 195,
-      184, 111, 175, 138,
-      56, 18, 248, 26,
-      203, 123, 54, 238,
-      95, 101, 16, 236,
-      161, 238, 111, 155,
-      74, 190, 115, 80,
-      127, 40, 15, 186,
-      77, 65, 117, 27,
-      96, 74, 94, 115,
-      18, 77, 79, 132
+    static const u8 AESkey_buf[64] = {
+        105, 187, 117, 137,
+        65, 140, 104, 185,
+        74, 49, 246, 13,
+        246, 67, 88, 55,
+        229, 178, 210, 121,
+        195, 44, 80, 195,
+        184, 111, 175, 138,
+        56, 18, 248, 26,
+        203, 123, 54, 238,
+        95, 101, 16, 236,
+        161, 238, 111, 155,
+        74, 190, 115, 80,
+        127, 40, 15, 186,
+        77, 65, 117, 27,
+        96, 74, 94, 115,
+        18, 77, 79, 132
     };
 
-  block AESkey = _mm_load_si128((const __m128i *) AESkey_buf);
+    block AESkey = _mm_load_si128((const __m128i*)AESkey_buf);
 
-    void expand_key128(__m128i key, __m128i *rndkeys) {
+    void expand_key128(__m128i key, __m128i* rndkeys)
+    {
         rndkeys[0] = key;
         __m128i v0, v1, v2, v3;
         EXPAND_ROUND(rndkeys[0], v0, v1, v2, v3, rndkeys[1], 1);
@@ -69,7 +69,8 @@ namespace gashgc {
         EXPAND_ROUND(rndkeys[9], v0, v1, v2, v3, rndkeys[10], 54);
     }
 
-    void expand_deckey128(__m128i key, __m128i *rndkeys) {
+    void expand_deckey128(__m128i key, __m128i* rndkeys)
+    {
         __m128i tmp[11];
         expand_key128(key, tmp);
         int i = 10;
@@ -81,40 +82,43 @@ namespace gashgc {
         rndkeys[i] = tmp[j];
     }
 
-    void aes_encrypt128(unsigned char *msg, unsigned char *key, unsigned char *out) {
-        __m128i userkey = _mm_load_si128((__m128i *) key);
+    void aes_encrypt128(unsigned char* msg, unsigned char* key, unsigned char* out)
+    {
+        __m128i userkey = _mm_load_si128((__m128i*)key);
         __m128i rndkeys[11];
         expand_key128(userkey, rndkeys);
-        __m128i state = _mm_load_si128((__m128i *) msg);
-        state = _mm_xor_si128(rndkeys[0], state);        // AddRoundKey
+        __m128i state = _mm_load_si128((__m128i*)msg);
+        state = _mm_xor_si128(rndkeys[0], state); // AddRoundKey
         int i;
         for (i = 1; i < 10; i++) {
             state = _mm_aesenc_si128(state, rndkeys[i]);
         }
         state = _mm_aesenclast_si128(state, rndkeys[i]);
-        _mm_store_si128((__m128i *) out, state);
+        _mm_store_si128((__m128i*)out, state);
     }
 
-    void aes_decrypt128(unsigned char *ciphertext, unsigned char *key, unsigned char *out) {
-        __m128i userkey = _mm_load_si128((__m128i *) key);
+    void aes_decrypt128(unsigned char* ciphertext, unsigned char* key, unsigned char* out)
+    {
+        __m128i userkey = _mm_load_si128((__m128i*)key);
         __m128i rndkeys[11];
         expand_deckey128(userkey, rndkeys);
-        __m128i state = _mm_load_si128((__m128i *) ciphertext);
-        state = _mm_xor_si128(rndkeys[0], state);        // AddRoundKey
+        __m128i state = _mm_load_si128((__m128i*)ciphertext);
+        state = _mm_xor_si128(rndkeys[0], state); // AddRoundKey
         int i;
         for (i = 1; i < 10; i++) {
             state = _mm_aesdec_si128(state, rndkeys[i]);
         }
         state = _mm_aesdeclast_si128(state, rndkeys[i]);
-        _mm_store_si128((__m128i *) out, state);
+        _mm_store_si128((__m128i*)out, state);
     }
 
-    block aes_encrypt128(block msg, block key) {
+    block aes_encrypt128(block msg, block key)
+    {
         __m128i userkey = key;
         __m128i rndkeys[11];
         expand_key128(userkey, rndkeys);
         __m128i state = msg;
-        state = _mm_xor_si128(rndkeys[0], state);        // AddRoundKey
+        state = _mm_xor_si128(rndkeys[0], state); // AddRoundKey
         int i;
         for (i = 1; i < 10; i++) {
             state = _mm_aesenc_si128(state, rndkeys[i]);
@@ -123,12 +127,13 @@ namespace gashgc {
         return state;
     }
 
-    block aes_decrypt128(block cipher, block key) {
+    block aes_decrypt128(block cipher, block key)
+    {
         __m128i userkey = key;
         __m128i rndkeys[11];
         expand_deckey128(userkey, rndkeys);
         __m128i state = cipher;
-        state = _mm_xor_si128(rndkeys[0], state);        // AddRoundKey
+        state = _mm_xor_si128(rndkeys[0], state); // AddRoundKey
         int i;
         for (i = 1; i < 10; i++) {
             state = _mm_aesdec_si128(state, rndkeys[i]);
@@ -137,32 +142,38 @@ namespace gashgc {
         return state;
     }
 
-    block getRet(block a, block b, block T, block key) {
+    block getRet(block a, block b, block T, block key)
+    {
         block ret;
         block K = _mm_xor_si128(_mm_xor_si128(_mm_slli_epi64(a, 1),
-                                              _mm_slli_epi64(b, 2)), T);
+                                    _mm_slli_epi64(b, 2)),
+            T);
         ret = aes_encrypt128(K, key);
         return ret;
     }
 
-    block encrypt(block a, block b, block T, block c, block key) {
+    block encrypt(block a, block b, block T, block c, block key)
+    {
         // Enc(X^a, X^b, T, X^c) = \pi(K) ^ K ^ X^c,
         // K = 2X^a ^ 4X^b ^ T
         block ret;
         block K = _mm_xor_si128(_mm_xor_si128(_mm_slli_epi64(a, 1),
-                                              _mm_slli_epi64(b, 2)), T);
+                                    _mm_slli_epi64(b, 2)),
+            T);
         ret = aes_encrypt128(K, key);
         ret = _mm_xor_si128(_mm_xor_si128(ret, K), c);
         return ret;
     }
 
-    block decrypt(block a, block b, block T, block cipher, block key) {
+    block decrypt(block a, block b, block T, block cipher, block key)
+    {
         // X^c =  \pi(K) ^ K ^ Enc(...)
         block ret;
         block K = _mm_xor_si128(_mm_xor_si128(_mm_slli_epi64(a, 1),
-                                              _mm_slli_epi64(b, 2)), T);
+                                    _mm_slli_epi64(b, 2)),
+            T);
         ret = aes_decrypt128(K, key);
         ret = _mm_xor_si128(_mm_xor_si128(ret, K), cipher);
         return ret;
     }
-}
+} // namespace gashgc
