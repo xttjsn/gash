@@ -182,7 +182,7 @@ namespace gashgc {
        * Garbling an XOR gate
        *
        */
-            if (func == XOR) {
+            if (func == funcXOR) {
 
                 lbl0 = xor_block(gin0->get_lbl0(), gin1->get_lbl0());
                 gout->set_lbl0(lbl0);
@@ -239,7 +239,7 @@ namespace gashgc {
                 tweak = new_tweak(g->get_id());
 
                 // Get the semantic of the first row of egtt
-                frst_row_smtc = eval_bgate(gin0->get_smtc_w_lsb(0), gin1->get_smtc_w_lsb(1), func);
+                frst_row_smtc = eval_bgate(gin0->get_smtc_w_lsb(0), gin1->get_smtc_w_lsb(0), func);
 
                 // Encrypt the label
                 lbl = encrypt(gin0->get_lbl_w_lsb(0), gin1->get_lbl_w_lsb(0), tweak, ZERO,
@@ -285,19 +285,28 @@ namespace gashgc {
 #endif
 
                 // Write label to encrypted garbled truth table
-                gtt[1] = encrypt(gin0->get_lbl_w_lsb(1), gin1->get_lbl_w_lsb(0), tweak,
-                    gout->get_lbl_w_smtc(eval_bgate(
-                        gin0->get_smtc_w_lsb(1), gin1->get_smtc_w_lsb(0), func)),
+                gtt[1] = encrypt(gin0->get_lbl_w_lsb(1),
+                    gin1->get_lbl_w_lsb(0),
+                    tweak,
+                    gout->get_lbl_w_smtc(eval_bgate(gin0->get_smtc_w_lsb(1),
+                        gin1->get_smtc_w_lsb(0),
+                        func)),
                     AESkey);
 
-                gtt[2] = encrypt(gin0->get_lbl_w_lsb(0), gin1->get_lbl_w_lsb(1), tweak,
-                    gout->get_lbl_w_smtc(eval_bgate(
-                        gin0->get_smtc_w_lsb(0), gin1->get_smtc_w_lsb(1), func)),
+                gtt[2] = encrypt(gin0->get_lbl_w_lsb(0),
+                    gin1->get_lbl_w_lsb(1),
+                    tweak,
+                    gout->get_lbl_w_smtc(eval_bgate(gin0->get_smtc_w_lsb(0),
+                        gin1->get_smtc_w_lsb(1),
+                        func)),
                     AESkey);
 
-                gtt[3] = encrypt(gin0->get_lbl_w_lsb(1), gin1->get_lbl_w_lsb(1), tweak,
-                    gout->get_lbl_w_smtc(eval_bgate(
-                        gin0->get_smtc_w_lsb(1), gin1->get_smtc_w_lsb(1), func)),
+                gtt[3] = encrypt(gin0->get_lbl_w_lsb(1),
+                    gin1->get_lbl_w_lsb(1),
+                    tweak,
+                    gout->get_lbl_w_smtc(eval_bgate(gin0->get_smtc_w_lsb(1),
+                        gin1->get_smtc_w_lsb(1),
+                        func)),
                     AESkey);
 
 #ifdef GASH_DEBUG

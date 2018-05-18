@@ -277,7 +277,11 @@ namespace gashgc {
      * @param lbl0
      */
     void set_lbl0(block lbl0) {
-      m_gw->m_lbl0 = lbl0;
+      if (m_inv) {
+        m_gw->m_lbl1 = lbl0;
+      } else {
+        m_gw->m_lbl0 = lbl0;
+      }
     }
 
     /**
@@ -286,7 +290,11 @@ namespace gashgc {
      * @param lbl1
      */
     void set_lbl1(block lbl1) {
-      m_gw->m_lbl1 = lbl1;
+      if (m_inv) {
+        m_gw->m_lbl0 = lbl1;
+      } else {
+        m_gw->m_lbl1 = lbl1;
+      }
     }
 
     /**
@@ -441,19 +449,24 @@ namespace gashgc {
 #ifdef GASH_GC_GRR
       case 0:
         b = getZEROblock();
+	break;
 #else
       case 0:
         b = m_row0;
+	break;
 #endif
 
       case 1:
         b = m_row1;
+	break;
 
       case 2:
         b = m_row2;
+	break;
 
       case 3:
         b = m_row3;
+	break;
 
       default:
         FATAL("Invalid row selection: " << i << "\n");

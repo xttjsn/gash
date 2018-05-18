@@ -68,7 +68,7 @@
  * Get the n-th bit of v
  */
 #define getbit(v, n)                                 \
-  (v & (1 << n))
+  (v >> n) & 1
 
 #define clearbit(v, n)                               \
   (v &= ~(1 << n))

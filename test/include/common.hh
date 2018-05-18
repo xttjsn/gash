@@ -26,6 +26,9 @@
 #include "../../include/common.hh"
 #include "../../lang/gash_lang.hh"
 #include "../../gc/tcp.hh"
+#include "../../gc/garbled_circuit.hh"
+#include "../../gc/util.hh"
+#include "../../gc/aes.hh"
 
 #define LARGE_SIZE 100000
 
@@ -56,6 +59,25 @@ protected:
 
     virtual void TearDown() {
     }
+
+};
+
+typedef gashgc::GarbledCircuit GC;
+typedef gashgc::GarbledGate GG;
+typedef gashgc::block block;
+typedef gashgc::GarbledWireInstance GWI;
+typedef gashgc::WireInstance WI;
+
+class GRBLTest : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+    m_gc.init();
+  }
+
+  virtual void TearDown() {
+  }
+
+  GC m_gc;
 
 };
 
