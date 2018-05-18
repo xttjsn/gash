@@ -33,7 +33,7 @@ otext:
 	@ sed -i '/CC=g++/c\CC=g++ -fPIC' OTExtension/Makefile
 	@ cd OTExtension && make
 
-%.o: %.cc
+%.o: %.cc %.hh
 	@ echo "    Compiling \"$<\""
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 

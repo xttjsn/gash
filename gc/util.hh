@@ -176,6 +176,16 @@ namespace gashgc {
   }
 
   /**
+   * Set least significant bit
+   *
+   * @param lbl
+   */
+  inline void set_lsb(block& lbl) {
+    u8 *p = (u8*)&lbl;
+    *p |= 1;
+  }
+
+  /**
    * XOR two blocks
    *
    * @param block_a
