@@ -592,7 +592,7 @@ void write_gate(int op, Wire* in0, Wire* in1, Wire*& out)
         }
     } else {
         // No wire is constant
-        mgc.addGate(op, in0, in1, out);
+        mgc.add_gate(op, in0, in1, out);
     }
 }
 
@@ -662,12 +662,12 @@ int evalw_INV(Wire* in, Wire*& ret)
         // `in` is input wire
         if (mgc.is_input_wire(in)) {
             // If `in` has input invert duplicate
-            if (mgc.has_input_duplicate(in)) {
+            if (mgc.has_input_dup(in)) {
                 ret = mgc.get_invert_wire(in);
             } else {
                 // `in` has no invert duplicate
                 ret = nextwire();
-                mgc.set_input_invert_duplicate(in, ret);
+                mgc.set_input_inv_dup(in, ret);
             }
 
         } else {
@@ -683,13 +683,12 @@ int evalw_INV(Wire* in, Wire*& ret)
                     ret = nextwire();
                     ret->m_v = in->m_v ^ 1;
                 } else {
-                    // `in` is not constant
+                    // `in` is not constant, make a duplicate of the gate
                     Gate* parent_gate = in->m_parent_gate;
                     REQUIRE_NOT_NULL(parent_gate);
                     ret = nextwire();
                     ret->invert_from(in);
                     mgc.set_invert_wire(in, ret);
-                    mgc.set_invert_wire(ret, in);
                     write_gate(parent_gate->m_op, parent_gate->m_in0, parent_gate->m_in1,
                         ret);
                 }

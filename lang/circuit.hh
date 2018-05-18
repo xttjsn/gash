@@ -39,10 +39,10 @@ namespace gashlang {
    * Typedef a bunch of helper classes
    *
    */
-  typedef map<u32, u32> WireIdValueMap;
-  typedef map<u32, u32> WireIdWireIdMap;
+  typedef map<u32, u32> IdValMap;
+  typedef map<u32, u32> IdIdMap;
   typedef map<Wire*, Wire*> WireWireMap;
-  typedef map<u32, Wire*> WireIdWireMap;
+  typedef map<u32, Wire*> IdWireMap;
   typedef vector<u32> Bits;
 
   /**
@@ -282,31 +282,38 @@ namespace gashlang {
 
     Gate() {}
 
-  Gate(int op, Wire* in0, Wire* in1, Wire* out) : m_out(out), m_op(op), m_in0(in0), m_in1(in1) {}
+    Gate(int op, Wire* in0, Wire* in1, Wire* out)
+        : m_out(out)
+        , m_op(op)
+        , m_in0(in0)
+        , m_in1(in1)
+    {
+      out->m_parent_gate = this;
+    }
 
     void emit(ostream &outstream);
   };
 
   class GateList {
   public:
-    vector<Gate*> m_gates;
+    vector<Gate*>       m_gates;
     void emit(ostream& outstream);
     void add(Gate* g) {m_gates.push_back(g);}
   };
 
   class Circuit {
   public:
-    Prologue m_prologue;
-    Bundle m_in;
-    Bundle m_out;
+    Prologue      m_prologue;
+    Bundle        m_in;
+    Bundle        m_out;
 
-    GateList m_gates;
-    WireIdWireMap m_wires;
-    WireIdValueMap m_input_data;
-    WireIdWireIdMap m_input_duplicates;
-    WireIdWireIdMap m_wire_inverts;
-    ostream* m_circ_stream = NULL;
-    ostream* m_data_stream = NULL;
+    GateList      m_gates;
+    IdWireMap     m_wires;
+    IdValMap      m_input_val;
+    IdIdMap       m_input_dup;
+    IdIdMap       m_wire_inverts;
+    ostream*      m_circ_stream = NULL;
+    ostream*      m_data_stream = NULL;
 
     Circuit() {}
     Circuit(ostream& circ_stream, ostream& data_stream);
@@ -348,7 +355,7 @@ namespace gashlang {
      *
      * @return
      */
-    bool has_input_duplicate(Wire* w);
+    bool has_input_dup(Wire* w);
 
     /**
      * Check whether the wire is input wire.
@@ -365,7 +372,7 @@ namespace gashlang {
      * @param w
      * @param w_dup
      */
-    void set_input_invert_duplicate(Wire* w, Wire* w_dup);
+    void set_input_inv_dup(Wire* w, Wire* w_dup);
 
     /**
      * Check whether wire has inverted wire,
@@ -421,7 +428,7 @@ namespace gashlang {
      * @param in1
      * @param out
      */
-    void addGate(int op, Wire* in0, Wire* in1, Wire* out);
+    void add_gate(int op, Wire* in0, Wire* in1, Wire* out);
   };
 
 }  // gashlang

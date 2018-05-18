@@ -301,10 +301,10 @@ void Circuit::write_input()
     u32 bit;
     ostream& stream = *m_data_stream;
 
-    stream << "input " << m_input_data.size() << endl;
-    for (u32 i = 0; i < m_input_data.size(); ++i) {
-        w_id = m_input_data.find(i)->first;
-        bit = m_input_data.find(i)->second;
+    stream << "input " << m_input_val.size() << endl;
+    for (u32 i = 0; i < m_input_val.size(); ++i) {
+        w_id = m_input_val.find(i)->first;
+        bit = m_input_val.find(i)->second;
         stream << evenify(w_id) << ' ' << bit << endl;
     }
 }
@@ -319,17 +319,17 @@ void Circuit::add_input_values(Bundle& bundle)
         wire_id = bundle[i]->m_id;
         bitval = bundle[i]->m_v;
         GASSERT(bitval == 0 || bitval == 1);
-        m_input_data.insert(make_pair(wire_id, bitval));
+        m_input_val.insert(make_pair(wire_id, bitval));
 
-        if (m_input_duplicates.find(wire_id) != m_input_duplicates.end()) {
+        if (m_input_dup.find(wire_id) != m_input_dup.end()) {
             // Found input duplicate
-            wire_dup_id = m_input_duplicates.find(wire_id)->second;
-            m_input_data.insert(make_pair(wire_dup_id, 1 ^ bitval));
+            wire_dup_id = m_input_dup.find(wire_id)->second;
+            m_input_val.insert(make_pair(wire_dup_id, 1 ^ bitval));
         }
     }
 
     // Check consistency against m_in.
-    WireIdValueMap wire_existence_map;
+    IdValMap wire_existence_map;
     for (u32 i = 0; i < m_in.size(); ++i) {
         wire_existence_map.insert(make_pair(m_in[i]->m_id, 1));
     }
@@ -340,9 +340,9 @@ void Circuit::add_input_values(Bundle& bundle)
                 "Wire exists in input value bundle, but cannot "
                 "find it in m_in, probably m_in hasn't been "
                 "properly setup.");
-        if (m_input_duplicates.find(wire_id) != m_input_duplicates.end()) {
+        if (m_input_dup.find(wire_id) != m_input_dup.end()) {
             // Found input duplicate
-            wire_dup_id = m_input_duplicates.find(wire_id)->second;
+            wire_dup_id = m_input_dup.find(wire_id)->second;
             if (wire_existence_map.find(wire_dup_id) == wire_existence_map.end())
                 throw std::runtime_error(
                     "Wire's invert exists in input value bundle, "
@@ -355,12 +355,13 @@ void Circuit::add_input_values(Bundle& bundle)
 void Circuit::add_input_wire(Wire* w)
 {
     m_in.add(w);
+    m_wires.emplace(w->m_id, w);
     m_prologue.numIN++;
 }
 
-bool Circuit::has_input_duplicate(Wire* w)
+bool Circuit::has_input_dup(Wire* w)
 {
-    return m_input_duplicates.find(w->m_id) != m_input_duplicates.end();
+    return m_input_dup.find(w->m_id) != m_input_dup.end();
 }
 
 bool Circuit::is_input_wire(Wire* w)
@@ -384,17 +385,17 @@ bool Circuit::is_input_wire(Wire* w)
     return false;
 }
 
-void Circuit::set_input_invert_duplicate(Wire* w, Wire* w_dup)
+void Circuit::set_input_inv_dup(Wire* w, Wire* w_dup)
 {
     u32 id_original = w->m_id;
     u32 id_duplicate = w_dup->m_id;
-    if (m_input_duplicates.find(id_original) != m_input_duplicates.end()) {
+    if (m_input_dup.find(id_original) != m_input_dup.end()) {
         FATAL("Input wire with id " << id_original << " is already_duplicated.");
     }
-    m_input_duplicates.insert(make_pair(id_original, id_duplicate));
-    // m_input_duplicates.insert(make_pair(id_duplicate, id_original));
+    m_input_dup.emplace(id_original, id_duplicate);
+    m_input_dup.emplace(id_duplicate, id_original);
+    m_wires.emplace(id_duplicate, w_dup);
     set_invert_wire(w, w_dup);
-    set_invert_wire(w_dup, w);
     add_input_wire(w_dup);
 }
 
@@ -420,15 +421,17 @@ int Circuit::set_invert_wire(Wire* w, Wire* w_inv)
     if (has_invert_wire(w_inv)) {
         FATAL("Wire " << w_inv->m_id << "already has inverted wire.");
     }
-    m_wire_inverts.insert(make_pair(w->m_id, w_inv->m_id));
+    m_wire_inverts.emplace(w->m_id, w_inv->m_id);
+    m_wire_inverts.emplace(w_inv->m_id, w->m_id);
 
     return 0;
 }
 
-void Circuit::addGate(int op, Wire* in0, Wire* in1, Wire* out)
+void Circuit::add_gate(int op, Wire* in0, Wire* in1, Wire* out)
 {
     Gate* g = new Gate(op, in0, in1, out);
     m_gates.add(g);
+    m_wires.emplace(out->m_id, out);
     switch (op) {
     case opAND:
         m_prologue.numAND++;

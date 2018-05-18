@@ -11,10 +11,13 @@ LDFLAGS              := -lpthread -lgtest -L$(BUILD_DIR)/lib -lgash -lgmp -lgmpx
 
 all: $(BIN)
 
-test_%: %.cc
+test_%: %.cc $(GASH_SLIB)
 	@ echo "    Compiling \"$<\""
 	@ echo "$(CXX) $(CXXFLAGS) -o $@ $< $(LDFLAGS)"
 	@ $(CXX) $(CXXFLAGS) -o $@ $< $(LDFLAGS)
+
+$(GASH_SLIB):
+	# Empty
 
 clean:
 	@ rm -f test_*
