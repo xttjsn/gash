@@ -224,6 +224,9 @@ TEST_F(GRBLTest, CorrectEGTTDecryption)
 
                             /// Check whether lbl is the correct label
                             EXPECT_EQ(1, block_eq(lbl, correct_lbl));
+                            cout << "lbl:" << block2hex(lbl) << endl;
+                            cout << "correct_lbl:" << block2hex(correct_lbl) << endl;
+
                         }
                     }
                 }
