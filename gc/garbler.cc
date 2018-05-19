@@ -24,10 +24,6 @@
 #include "tcp.hh"
 #include "util.hh"
 
-#define XOR 6
-#define AND 8
-#define OR 14
-
 namespace gashgc {
 
     extern block AESkey;
@@ -487,7 +483,8 @@ namespace gashgc {
         }
 
         // Call OTSend
-        return OTSend(m_peer_ip, m_peer_ot_port, lbl0vec, lbl1vec);
+        OTParty otp;
+        REQUIRE_GOOD_STATUS(otp.OTSend(m_peer_ip, m_peer_ot_port, lbl0vec, lbl1vec));
     }
 
 #endif

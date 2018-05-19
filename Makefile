@@ -22,7 +22,7 @@ lang $(LANG_LIB):
 $(GASH_SLIB): $(GC_LIB) $(LANG_LIB) $(MIRACL_LIB)
 	@ echo "    Building libgash.so"
 	@ echo "$(CXX) $^ -shared -o $@"
-	@ $(CXX) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive
+	@ $(CXX) -g -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive
 
 test:
 	@ echo "    Building tests"

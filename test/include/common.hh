@@ -29,8 +29,38 @@
 #include "../../gc/garbled_circuit.hh"
 #include "../../gc/util.hh"
 #include "../../gc/aes.hh"
+#include "../../gc/ot.hh"
 
 #define LARGE_SIZE 100000
+
+namespace gashgc {
+  extern block AESkey;
+}
+
+using gashgc::aes_decrypt128;
+using gashgc::aes_encrypt128;
+using gashgc::AESkey;
+using gashgc::EGTT;
+using gashgc::block2hex;
+using gashgc::block_eq;
+using gashgc::decrypt;
+using gashgc::encrypt;
+using gashgc::eval_bgate;
+using gashgc::get_lsb;
+using gashgc::new_tweak;
+using gashgc::random_block;
+using gashgc::set_lsb;
+using gashgc::u32;
+using gashgc::u16;
+using gashgc::xor_block;
+
+using gashgc::OTParty;
+
+typedef gashgc::GarbledCircuit GC;
+typedef gashgc::GarbledGate GG;
+typedef gashgc::block block;
+typedef gashgc::GarbledWireInstance GWI;
+typedef gashgc::WireInstance WI;
 
 class CMPLTest : public ::testing::Test {
 protected:
@@ -62,12 +92,6 @@ protected:
 
 };
 
-typedef gashgc::GarbledCircuit GC;
-typedef gashgc::GarbledGate GG;
-typedef gashgc::block block;
-typedef gashgc::GarbledWireInstance GWI;
-typedef gashgc::WireInstance WI;
-
 class GRBLTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
@@ -79,6 +103,17 @@ protected:
 
   GC m_gc;
 
+};
+
+class OTTest : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+
+  }
+
+  virtual void TearDown() {
+
+  }
 };
 
 #endif

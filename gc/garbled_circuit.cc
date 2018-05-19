@@ -148,10 +148,11 @@ namespace gashgc {
         return -G_ENOENT;
     }
 
-    void GC::init() {
-      srand_sse(time(NULL));
-      m_R = random_block();
-      set_lsb(m_R);
+    void GC::init()
+    {
+        srand_sse(time(NULL));
+        m_R = random_block();
+        set_lsb(m_R);
     }
 
     void GC::debug_report_garbler()

@@ -172,7 +172,7 @@ namespace gashgc {
         block K = _mm_xor_si128(_mm_xor_si128(_mm_slli_epi64(a, 1),
                                     _mm_slli_epi64(b, 2)),
             T);
-        ret = aes_encrypt128(K, key);    // Use encryption instead of decryption
+        ret = aes_encrypt128(K, key); // Use encryption instead of decryption
         ret = _mm_xor_si128(_mm_xor_si128(ret, K), cipher);
         return ret;
     }

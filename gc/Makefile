@@ -30,7 +30,7 @@ endif
 
 otext:
 	@ echo "     Building OTExtension"
-	@ sed -i '/CC=g++/c\CC=g++ -fPIC' OTExtension/Makefile
+	@ sed -i '/CC=g++/c\CC=g++ -fPIC -g' OTExtension/Makefile
 	@ cd OTExtension && make
 
 %.o: %.cc %.hh

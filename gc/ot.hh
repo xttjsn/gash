@@ -21,7 +21,6 @@
 #define GASH_OT_H
 
 #include "../include/common.hh"
-#include "util.hh"
 #include "OTExtension/ENCRYPTO_utils/cbitvector.h"
 #include "OTExtension/ENCRYPTO_utils/channel.h"
 #include "OTExtension/ENCRYPTO_utils/crypto/crypto.h"
@@ -40,36 +39,158 @@
 #include "OTExtension/ot/nnob-ot-ext-rec.h"
 #include "OTExtension/ot/nnob-ot-ext-snd.h"
 #include "OTExtension/ot/xormasking.h"
+#include "util.hh"
 
 namespace gashgc {
 
-typedef vector<block> LabelVec;
+    typedef vector<block> LabelVec;
 
-bool Init(crypto *crypt);
+    class OTParty {
+    public:
+        USHORT m_nPort;
+        const char* m_nAddr;
+        CSocket* m_vSocket;
+        u32 m_nPID;
+        field_type m_eFType;
+        u32 m_nBitLength;
+        MaskingFunction* m_fMaskFct;
+        const char* m_cConstSeed[2] = { "437398417012387813714564100", "15657566154164561" };
 
-bool Cleanup();
+        OTExtSnd* m_sender;
+        OTExtRec* m_receiver;
+        SndThread* m_sndthread;
+        RcvThread* m_rcvthread;
+        u32 m_nNumOTThreads;
+        u32 m_nBaseOTs;
+        u32 m_nChecks;
+        bool m_bUseMinEntCorAssumption;
+        ot_ext_prot m_eProt;
+        double m_rndgentime;
 
-bool Connect();
+        /**
+        * Init the socket
+        *
+        */
+        void Init()
+        {
+            m_vSocket = new CSocket();
+        }
 
-bool Listen();
+        /**
+        * Clean up threads and socket
+        *
+        */
+        void Cleanup()
+        {
+            delete m_sndthread;
+            delete m_rcvthread;
+            delete m_vSocket;
+        }
 
-void InitOTSender(const char *address, int port, crypto *crypt);
+        /**
+         * Listen for receiver to connect, called by sender
+         *
+         *
+         * @return 0 if success, negative errno if failure
+         */
+        int Listen();
 
-void InitOTReceiver(const char *address, int port, crypto *crypt);
+        /**
+         * Connect to sender, called by receiver
+         *
+         *
+         * @return 0 if success, negative errno if failure
+         */
+        int Connect();
 
-bool ObliviouslyReceive(CBitVector *choices, CBitVector *ret, int numOTs,
-                        int bitlength, uint32_t nsndvals, snd_ot_flavor stype,
-                        rec_ot_flavor rtype, crypto *crypt);
+        /**
+         * Init sender specific stuff
+         *
+         * @param addr
+         * @param port
+         * @param crypt
+         * @param glock
+         *
+         * @return
+         */
+        int InitOTSender(const char* addr, int port, crypto* crypt, CLock* glock);
 
-bool ObliviouslySend(CBitVector **X, int numOTs, int bitlength,
-                     uint32_t nsndvals, snd_ot_flavor stype,
-                     rec_ot_flavor rtype, crypto *crypt);
+        /**
+         * Init receiver specific stuff
+         *
+         * @param addr
+         * @param port
+         * @param crypt
+         * @param glock
+         *
+         * @return
+         */
+        int InitOTReceiver(const char* addr, int port, crypto* crypt, CLock* glock);
 
-int OTSend(string peer_addr, int peer_ot_port, vector<block> &label0s,
-            vector<block> &label1s);
+        /**
+         * Actually call the OT send routine
+         *
+         * @param X
+         * @param numOTs
+         * @param bitlength
+         * @param nsndvals
+         * @param stype
+         * @param rtype
+         * @param crypt
+         *
+         * @return
+         */
+        bool ObliviousSend(CBitVector** X, int numOTs, int bitlength, uint32_t nsndvals,
+                           snd_ot_flavor stype, rec_ot_flavor rtype, crypto* crypt);
 
-int OTRecv(string peer_addr, int peer_ot_port, map<ulong, int> &selects,
-            map<ulong, block> &inputLabel);
+        /**
+         *
+         *
+         * @param choices
+         * @param ret
+         * @param numOTs
+         * @param bitlength
+         * @param nsndvals
+         * @param stype
+         * @param rtype
+         * @param crypt
+         *
+         * @return
+         */
+        bool ObliviousReceive(CBitVector* choices, CBitVector* ret, int numOTs,
+                                int bitlength, uint32_t nsndvals, snd_ot_flavor stype,
+                                rec_ot_flavor rtype, crypto* crypt);
+
+        /**
+         * The send interface to gashgc
+         *
+         * @param peer_addr
+         * @param peer_ot_port
+         * @param label0s
+         * @param label1s
+         *
+         * @return
+         */
+        int OTSend(string peer_addr, int peer_ot_port, vector<block>& label0s,
+                   vector<block>& label1s);
+
+
+        /**
+         * The receive interface to gashgc
+         *
+         * @param peer_addr
+         * @param peer_ot_port
+         * @param u32
+         * @param selects
+         * @param u32
+         * @param res_idlbl_map
+         *
+         * @return
+         */
+        int OTRecv(string peer_addr, int peer_ot_port, map<u32, int>& selects,
+                   map<u32, block>& res_idlbl_map);
+
+    };
 
 } // namespace gashgc
 

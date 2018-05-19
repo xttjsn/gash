@@ -21,25 +21,6 @@
 
 #define NTEST 20
 
-namespace gashgc {
-    extern block AESkey;
-}
-
-using gashgc::aes_decrypt128;
-using gashgc::aes_encrypt128;
-using gashgc::AESkey;
-using gashgc::block2hex;
-using gashgc::block_eq;
-using gashgc::decrypt;
-using gashgc::EGTT;
-using gashgc::encrypt;
-using gashgc::eval_bgate;
-using gashgc::get_lsb;
-using gashgc::new_tweak;
-using gashgc::random_block;
-using gashgc::set_lsb;
-using gashgc::u32;
-using gashgc::xor_block;
 
 TEST_F(GRBLTest, REndsWith1)
 {
@@ -224,8 +205,6 @@ TEST_F(GRBLTest, CorrectEGTTDecryption)
 
                             /// Check whether lbl is the correct label
                             EXPECT_EQ(1, block_eq(lbl, correct_lbl));
-                            cout << "lbl:" << block2hex(lbl) << endl;
-                            cout << "correct_lbl:" << block2hex(correct_lbl) << endl;
 
                         }
                     }

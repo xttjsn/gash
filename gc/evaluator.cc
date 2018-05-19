@@ -290,11 +290,17 @@ namespace gashgc {
     int Evaluator::recv_self_lbls()
     {
 
-        LabelVec lblvec;
-        IdValueMap idvalmap;
-        int val;
+        map<u32, block> idlblmap;
+        GWI*            gw;
 
-        REQUIRE_GOOD_STATUS(OTRecv(m_peer_ip, m_peer_ot_port, m_id_val_map, lbl1vec));
+        OTParty otp;
+        REQUIRE_GOOD_STATUS(otp.OTRecv(m_peer_ip, m_peer_ot_port, m_id_val_map, idlblmap));
+
+        for (auto it = idlblmap.begin(); it != idlblmap.end(); ++it) {
+            gw = m_gc.get_gwi(it->first);
+            GASSERT(gw != NULL);
+            gw->set_lbl(it->second);
+        }
     }
 
 #endif
