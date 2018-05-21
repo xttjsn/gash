@@ -44,16 +44,26 @@ namespace gashgc {
     /// The set of input ids
     IdSet                 m_self_in_id_set;
     IdSet                 m_peer_in_id_set;
-    IdSet                 m_out_id_set;
 
     /// Network related stuff
     int                   m_peer_sock;
     int                   m_peer_ot_sock;
     string                m_self_ip;      // For debug purpose
     string                m_peer_ip;
-    u16                    m_port;
-    u16                    m_ot_port;
+    u16                   m_port;
+    u16                   m_ot_port;
 
+    /// Input file paths
+    string                m_circ_fpath;
+    string                m_input_fpath;
+
+    /**
+     * Read circuit file and build a circuit
+     *
+     *
+     * @return
+     */
+    int build_circ();
 
     /**
      * Read input data from input data file
@@ -62,7 +72,7 @@ namespace gashgc {
      *
      * @return 0 if read_input succeeds, otherwise errno is returned
      */
-    int read_input(string in_file_path);
+    int read_input();
 
     /**
      * Build a garbled version of the circuit
@@ -138,20 +148,29 @@ namespace gashgc {
     int send_output();
 
     /**
+     * Print output bits to stdout
+     *
+     *
+     * @return
+     */
+    int report_output();
+
+    /**
      * Constructor
      *
+     * @param peer_ip Ip address of garbler
      * @param port The port used for sending/recving info (other than OT)
      * @param ot_port The port used by OTExtension to conduct OT
      * @param circ_file_path Circuit file path
      * @param input_file_path Input data file path
      */
-    Evaluator(u16 port, u16 ot_port, string circ_file_path, string input_file_path);
+    Evaluator(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
     /**
      * Destructor
      *
      */
-    ~Evaluator();
+    ~Evaluator(){}
   };
 
 

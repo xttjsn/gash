@@ -255,14 +255,15 @@ namespace gashlang {
   class Prologue {
   public:
     u32 numVAR;
-    u32 numIN;
+    u32 numIN ;
     u32 numOUT;
     u32 numAND;
-    u32 numOR;
+    u32 numOR ;
     u32 numXOR;
     u32 numDFF;
 
-    Prologue() {}
+    Prologue() {
+    }
 
     Prologue(u32 IN, u32 OUT, u32 AND, u32 OR, u32 XOR, u32 DFF);
 
@@ -309,13 +310,22 @@ namespace gashlang {
 
     GateList      m_gates;
     IdWireMap     m_wires;
-    IdValMap      m_input_val;
     IdIdMap       m_input_dup;
     IdIdMap       m_wire_inverts;
     ostream*      m_circ_stream = NULL;
     ostream*      m_data_stream = NULL;
 
-    Circuit() {}
+    Circuit() {
+      m_prologue = Prologue();
+      m_prologue.numAND = 0;
+      m_prologue.numVAR = 0;
+      m_prologue.numIN  = 0;
+      m_prologue.numOUT = 0;
+      m_prologue.numAND = 0;
+      m_prologue.numOR  = 0;
+      m_prologue.numXOR = 0;
+      m_prologue.numDFF = 0;
+    }
     Circuit(ostream& circ_stream, ostream& data_stream);
 
     /**
@@ -324,22 +334,23 @@ namespace gashlang {
      */
     void write();
 
+    /**
+     * Write input wire to circuit file
+     *
+     */
+    void write_inwires();
+
+    /**
+     * Write output wire to circuit file
+     *
+     */
+    void write_outwires();
 
     /**
      * Write input to data_stream.
      *
      */
     void write_input();
-
-    /**
-     * Use the bundle as input, will take care of input duplicates.
-     * Additionally, we check the consistency against m_in.
-     * As a result, call this function only after m_in is properly setup.
-     *
-     * @param bits
-     * @param b
-     */
-    void add_input_values(Bundle& bundle);
 
     /**
      * Add input wire to the circuit.

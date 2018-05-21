@@ -153,6 +153,7 @@ namespace gashgc {
         srand_sse(time(NULL));
         m_R = random_block();
         set_lsb(m_R);
+        cout << "R:" << block2hex(m_R) << endl;
     }
 
     void GC::debug_report_garbler()
@@ -233,9 +234,9 @@ namespace gashgc {
             delete it->second;
         }
 
-        for (auto it = m_gg_map.begin(); it != this->m_gg_map.end(); ++it) {
-            delete it->second;
-        }
+        // for (auto it = m_gg_map.begin(); it != this->m_gg_map.end(); ++it) {
+        //     delete it->second;
+        // }
     }
 
     void GWI::garble(block R)

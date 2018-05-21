@@ -1,6 +1,6 @@
 CLANG-FORMAT            := clang-format
 
-all: ot
+all: exec
 
 cmpl:
 	@ cd cmpl && make
@@ -14,6 +14,9 @@ tcp:
 ot:
 	@ cd ot && make
 
+exec:
+	@ cd exec && make
+
 clean:
 	@ cd cmpl && make clean
 
@@ -22,4 +25,4 @@ clang-format:
 	@ $(foreach src,$(wildcard */*.cc),$(CLANG-FORMAT) -i -style=file $(src);)
 	@ echo "Format finished"
 
-.PHONY: all cmpl grbl tcp ot
+.PHONY: all cmpl grbl tcp ot exec

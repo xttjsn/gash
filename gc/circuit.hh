@@ -30,7 +30,7 @@ namespace gashgc {
   class Circuit;
 
   typedef WireInstance WI;
-  typedef map<u32, WireInstance*> IdWireinsMap;
+  typedef map<u32, WireInstance*> IdWiMap;
   typedef map<u32, Gate*> IdGateMap;
   typedef set<u32> IdSet;
   typedef vector<u32> IdVec;
@@ -50,17 +50,17 @@ namespace gashgc {
 
     u32 m_ngate;
 
-    IdWireinsMap m_wireins_map;
+    IdWiMap m_wi_map;
 
     IdGateMap m_gate_map;
 
+    IdSet m_in_id_set;
+
     IdSet m_out_id_set;
 
-    IdVec m_in_id_vec;
-
-    IdVec m_out_id_vec;
-
     IdBoolMap m_out_const_map;
+
+    Circuit() : m_nin(0), m_nout(0), m_ngate(0) {}
 
     /**
      * Get wire instance with id
@@ -260,7 +260,7 @@ namespace gashgc {
    * @param circ_file_path
    * @param circ
    */
-  int build_circ(string circ_file_path, Circuit& circ);
+  int build_circuit(string circ_file_path, Circuit& circ);
 
 }
 

@@ -22,6 +22,8 @@
 TEST_F(CMPLTest, ADD_1)
 {
 
+    m_circ_stream = ofstream("add1.circ", std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream("add1.dat", std::ios::out | std::ios::trunc);
     extern FILE* yyin;
     const char* src = "func add(int1 a, int1 b) {      "
                       "    return a + b;               "
@@ -37,13 +39,13 @@ TEST_F(CMPLTest, ADD_1)
     int parse_result = yyparse();
 
     EXPECT_EQ(0, parse_result);
-
-    gashlang::parse_clean();
 }
 
 TEST_F(CMPLTest, ADD_8)
 {
 
+    m_circ_stream = ofstream("add8.circ", std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream("add8.dat", std::ios::out | std::ios::trunc);
     extern FILE* yyin;
     const char* src = "func add(int8 a, int8 b) {      "
                       "    return a + b;               "
@@ -64,6 +66,8 @@ TEST_F(CMPLTest, ADD_8)
 TEST_F(CMPLTest, ADD_16)
 {
 
+    m_circ_stream = ofstream("add16.circ", std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream("add16.dat", std::ios::out | std::ios::trunc);
     extern FILE* yyin;
     const char* src = "func add(int16 a, int16 b) {    "
                       "    return a + b;               "
@@ -84,6 +88,8 @@ TEST_F(CMPLTest, ADD_16)
 TEST_F(CMPLTest, ADD_32)
 {
 
+    m_circ_stream = ofstream("add32.circ", std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream("add32.dat", std::ios::out | std::ios::trunc);
     extern FILE* yyin;
     const char* src = "func add(int32 a, int32 b) {    "
                       "    return a + b;               "
@@ -104,6 +110,8 @@ TEST_F(CMPLTest, ADD_32)
 TEST_F(CMPLTest, ADD_64)
 {
 
+    m_circ_stream = ofstream("add64.circ", std::ios::out | std::ios::trunc);
+    m_data_stream = ofstream("add64.dat", std::ios::out | std::ios::trunc);
     extern FILE* yyin;
     const char* src = "func add(int64 a, int64 b) {    "
                       "    return a + b;               "

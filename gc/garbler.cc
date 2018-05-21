@@ -35,15 +35,20 @@ namespace gashgc {
     {
         m_port = port;
         m_ot_port = ot_port;
-        build_circ(circ_file_path, m_c);
+        m_circ_fpath = circ_file_path;
+        m_input_fpath = input_file_path;
     }
 
-    int Garbler::read_input(string in_file_path)
+    int Garbler::build_circ() {
+        return build_circuit(m_circ_fpath, m_c);
+    }
+
+    int Garbler::read_input()
     {
 
-        ifstream file(in_file_path);
+        ifstream file(m_input_fpath);
         if (!file.is_open()) {
-            FATAL("Unable to open input data file " << in_file_path);
+            FATAL("Unable to open input data file " << m_input_fpath);
         }
 
         string line;
@@ -87,11 +92,23 @@ namespace gashgc {
 
                 // Insert the id to the set containing all self input wire ids
                 m_self_in_id_set.emplace(id);
+
+                continue;
             }
 
             // Others
             FATAL("Line " << linum << "-Invalid line while reading data input :" << linum);
         }
+
+        // Figure out peer's id set by adding every id that's in the input id set
+        // but not in m_self_in_id_set
+        for (auto it = m_c.m_in_id_set.begin(); it != m_c.m_in_id_set.end(); ++it) {
+            id = *it;
+            if (m_self_in_id_set.find(id) == m_self_in_id_set.end()) {
+                m_peer_in_id_set.emplace(id);
+            }
+        }
+
 
         return 0;
     }
@@ -136,7 +153,7 @@ namespace gashgc {
 
 #endif
 
-        for (auto it = m_in_id_set.begin(); it != m_in_id_set.end(); ++it) {
+        for (auto it = m_c.m_in_id_set.begin(); it != m_c.m_in_id_set.end(); ++it) {
 
             wi = m_c.get_wireins(*it);
 
@@ -418,6 +435,7 @@ namespace gashgc {
 
             REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, val, lbl));
 
+            REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&id, sizeof(u32)));
             REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&lbl, LABELSIZE));
         }
 
@@ -468,7 +486,7 @@ namespace gashgc {
         LabelVec lbl0vec;
         LabelVec lbl1vec;
 
-        size = m_gc.m_peer_in_id_set.size();
+        size = m_peer_in_id_set.size();
         REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
 
         for (auto it = m_peer_in_id_set.begin(); it != m_peer_in_id_set.end(); ++it) {
@@ -484,7 +502,9 @@ namespace gashgc {
 
         // Call OTSend
         OTParty otp;
-        REQUIRE_GOOD_STATUS(otp.OTSend(m_peer_ip, m_peer_ot_port, lbl0vec, lbl1vec));
+        REQUIRE_GOOD_STATUS(otp.OTSend(m_peer_ip, m_ot_port, lbl0vec, lbl1vec));
+
+        return 0;
     }
 
 #endif
@@ -498,10 +518,10 @@ namespace gashgc {
         block lbl0;
         block lbl1;
 
-        size = m_out_id_set.size();
+        size = m_c.m_out_id_set.size();
         REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
 
-        for (auto it = m_out_id_set.begin(); it != m_out_id_set.end(); ++it) {
+        for (auto it = m_c.m_out_id_set.begin(); it != m_c.m_out_id_set.end(); ++it) {
 
             id = *it;
             REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, 0, lbl0));
@@ -523,8 +543,8 @@ namespace gashgc {
         int val;
 
         REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
-        if (size != m_out_id_set.size()) {
-            WARNING("Output size inconsistent, expecting " << m_out_id_set.size() << ", getting " << size);
+        if (size != m_c.m_out_id_set.size()) {
+            WARNING("Output size inconsistent, expecting " << m_c.m_out_id_set.size() << ", getting " << size);
         }
 
 #ifdef GASH_DEBUG
@@ -552,12 +572,16 @@ namespace gashgc {
         return 0;
     }
 
-    Garbler::~Garbler()
-    {
+    int Garbler::report_output() {
 
-        for (auto it = m_gc.m_gg_map.begin(); it != m_gc.m_gg_map.end(); ++it) {
-            delete it->second;
+        for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
+            cout << it->first << ":" << it->second << endl;
         }
+
+        return 0;
+
     }
+
+    Garbler::~Garbler(){}
 
 } // namespace gashgc

@@ -253,13 +253,17 @@ namespace gashlang {
         switch (ast->m_nodetype) {
         case nFUNC: {
             Func* func = (Func*)ast;
-            evalast(func->m_vdf_ast, bret);
-            evalast(func->m_do_ast, bret);
+            Bundle b1;
+            Bundle b2;
+            evalast(func->m_vdf_ast, b1);
+            evalast(func->m_do_ast, b2);
             break;
         }
         case nLIST: {
-            evalast(ast->m_left, bret);
-            evalast(ast->m_right, bret);
+            Bundle b1;
+            Bundle b2;
+            evalast(ast->m_left, b1);
+            evalast(ast->m_right, b2);
             break;
         }
         case nAOP: {
@@ -673,16 +677,43 @@ namespace gashlang {
         i64 val = dir->m_val;
 
         if (sym->m_type == NUM) {
-            NumSymbol* nsym = (NumSymbol*)sym;
+
+            NumSymbol*   nsym = (NumSymbol*)sym;
+            Wire*        w;
+            Wire*        w_dup;
+            u32          id;
+            u32          id_dup;
+
+            /**
+             * For each wire in the bundle, check to see if it's in the input bundle
+             * of the circuit. If not, then raise warning. If so, then set the value
+             * of the wire. Additionally, check whether this wire has invert duplicate.
+             * If so, make sure that the invert duplicate gets the opposite value.
+             *
+             */
             for (u32 i = 0; i < nsym->m_bundle.size(); ++i) {
                 Wire* w = nsym->m_bundle[i];
-                if (!mgc.m_in.hasWire(w->m_id)) {
+                id = w->m_id;
+                if (!mgc.m_in.hasWire(id)) {
                     WARNING("Directory symbol is not in input bundle of circuit.");
                     return;
                 }
-                GASSERT(mgc.m_in.getWire(w->m_id) == w); // Require one pointer to a wire
+                GASSERT(mgc.m_in.getWire(id) == w); // Require one pointer to a wire
                 w->m_v = getbit(val, i);
+
+                if (mgc.m_input_dup.find(id) != mgc.m_input_dup.end()) {
+                  // Found input duplicate
+                  id_dup = mgc.m_input_dup.find(id)->second;
+                  if (!mgc.m_in.hasWire(id_dup)) {
+                    FATAL("An input wire's invert duplicate is not in the input bundle of circuit.");
+                  }
+
+                  w_dup = mgc.m_in.getWire(id_dup);
+                  w_dup->m_v = getbit(val, i) ^ 1;
+                }
             }
+
+
         } else if (sym->m_type == ARRAY) {
             NOT_YET_IMPLEMENTED("dir_input : ARRAY");
         } else {
@@ -887,8 +918,8 @@ namespace gashlang {
 
         if (ctx.m_role == rGARBLER) {
 
-            gashgc::Garbler g(ctx.m_port, ctx.m_ot_port, string(ctx.m_circ_path),
-                string(ctx.m_data_path));
+            // gashgc::Garbler g(ctx.m_port, ctx.m_ot_port, string(ctx.m_circ_path),
+            //     string(ctx.m_data_path));
 
         } else if (ctx.m_role == rEVALUATOR) {
 

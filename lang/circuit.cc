@@ -117,7 +117,6 @@ namespace gashlang {
     {
         for (u32 i = 0; i < len; i++) {
             Wire* w = nextwire();
-            w->m_v = 0; // Default value is 0.
             m_wires.push_back(w);
         }
     }
@@ -286,70 +285,58 @@ namespace gashlang {
         m_data_stream = &data_stream;
     }
 
+    void Circuit::write_inwires() {
+        Wire*       w;
+        u32         id;
+        ostream&     stream = *m_circ_stream;
+
+        for (int i = 0; i < m_in.size(); ++i) {
+            w = m_in[i];
+            id = w->m_id;
+            stream << "I:" << evenify(id) << endl;
+        }
+    }
+
+    void Circuit::write_outwires() {
+        Wire*       w;
+        u32         id;
+        ostream&     stream = *m_circ_stream;
+
+        for (int i = 0; i < m_out.size(); ++i) {
+            w = m_out[i];
+            id = w->m_id;
+            if (w->m_v == 0 || w->m_v == 1)
+              stream << "O:" << evenify(id) << ':' << w->m_v << endl;
+            else
+              stream << "O:" << evenify(id) << endl;
+        }
+    }
+
     void Circuit::write()
     {
         m_prologue.emit(*m_circ_stream);
-        m_in.emit(*m_circ_stream);
-        m_out.emit(*m_circ_stream);
+        write_inwires();
+        write_outwires();
         m_gates.emit(*m_circ_stream);
         write_input();
     }
 
     void Circuit::write_input()
     {
-        u32 w_id;
-        u32 bit;
-        ostream& stream = *m_data_stream;
 
-        stream << "input " << m_input_val.size() << endl;
-        for (u32 i = 0; i < m_input_val.size(); ++i) {
-            w_id = m_input_val.find(i)->first;
-            bit = m_input_val.find(i)->second;
-            stream << evenify(w_id) << ' ' << bit << endl;
-        }
-    }
+        Wire*        w;
+        int          val;
+        u32          id;
+        ostream&     stream = *m_data_stream;
 
-    void Circuit::add_input_values(Bundle& bundle)
-    {
-        u32 wire_id;
-        u32 wire_dup_id;
-        u32 bitval;
-
-        for (u32 i = 0; i < bundle.size(); ++i) {
-            wire_id = bundle[i]->m_id;
-            bitval = bundle[i]->m_v;
-            GASSERT(bitval == 0 || bitval == 1);
-            m_input_val.insert(make_pair(wire_id, bitval));
-
-            if (m_input_dup.find(wire_id) != m_input_dup.end()) {
-                // Found input duplicate
-                wire_dup_id = m_input_dup.find(wire_id)->second;
-                m_input_val.insert(make_pair(wire_dup_id, 1 ^ bitval));
-            }
+        for (int i = 0; i < m_in.size(); ++i) {
+          w = m_in[i];
+          id = w->m_id;
+          val = w->m_v;
+          if (val == 0 || val == 1)
+            stream << evenify(id) << ' ' << val << endl;
         }
 
-        // Check consistency against m_in.
-        IdValMap wire_existence_map;
-        for (u32 i = 0; i < m_in.size(); ++i) {
-            wire_existence_map.insert(make_pair(m_in[i]->m_id, 1));
-        }
-
-        for (u32 i = 0; i < bundle.size(); ++i) {
-            if (wire_existence_map.find(bundle[i]->m_id) == wire_existence_map.end())
-                throw std::runtime_error(
-                    "Wire exists in input value bundle, but cannot "
-                    "find it in m_in, probably m_in hasn't been "
-                    "properly setup.");
-            if (m_input_dup.find(wire_id) != m_input_dup.end()) {
-                // Found input duplicate
-                wire_dup_id = m_input_dup.find(wire_id)->second;
-                if (wire_existence_map.find(wire_dup_id) == wire_existence_map.end())
-                    throw std::runtime_error(
-                        "Wire's invert exists in input value bundle, "
-                        "but cannot find it in m_in, probably m_in "
-                        "hasn't been properly setup.");
-            }
-        }
     }
 
     void Circuit::add_input_wire(Wire* w)

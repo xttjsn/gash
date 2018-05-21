@@ -28,18 +28,17 @@ namespace gashgc {
 
     extern block AESkey;
 
-    Evaluator::Evaluator(u16 port, u16 ot_port, string circ_file_path, string input_file_path)
+    Evaluator::Evaluator(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path)
     {
+        m_peer_ip = peer_ip;
         m_port = port;
         m_ot_port = ot_port;
+        m_circ_fpath = circ_file_path;
+        m_input_fpath = input_file_path;
+    }
 
-        if (build_circ(circ_file_path, m_c) < 0) {
-            FATAL("Failed to build circuit");
-        }
-
-        if (build_garbled_circuit() < 0) {
-            FATAL("Failed to build garbled circuit");
-        }
+    int Evaluator::build_circ() {
+        return build_circuit(m_circ_fpath, m_c);
     }
 
     int Evaluator::build_garbled_circuit()
@@ -62,13 +61,21 @@ namespace gashgc {
             in1 = g->m_in1;
             out = g->m_out;
 
-            gin0 = new GWI(in0);
-            gin1 = new GWI(in1);
+            gin0 = m_gc.get_gwi(in0->get_id());
+            if (gin0 == NULL) {
+              gin0 = new GWI(in0);
+              REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin0));
+            }
+
+            gin1 = m_gc.get_gwi(in1->get_id());
+            if (gin1 == NULL) {
+              gin1 = new GWI(in1);
+              REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin1));
+            }
+
             gout = new GWI(out);
             gg = new GG(g->m_func == funcXOR, gin0, gin1, gout);
 
-            REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin0));
-            REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin1));
             REQUIRE_GOOD_STATUS(m_gc.add_gwi(gout));
             REQUIRE_GOOD_STATUS(m_gc.add_gg(gg));
         }
@@ -76,12 +83,12 @@ namespace gashgc {
         return 0;
     }
 
-    int Evaluator::read_input(string in_file_path)
+    int Evaluator::read_input()
     {
 
-        ifstream file(in_file_path);
+        ifstream file(m_input_fpath);
         if (!file.is_open()) {
-            FATAL("Unable to open input data file " << in_file_path);
+            FATAL("Unable to open input data file " << m_input_fpath);
         }
 
         string line;
@@ -126,6 +133,8 @@ namespace gashgc {
 
                 // Insert the id to the set containing all self input wire ids
                 m_self_in_id_set.emplace(id);
+
+                continue;
             }
 
             // Others
@@ -214,7 +223,7 @@ namespace gashgc {
         block row3;
 
         REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
-        GASSERT(size == m_gc.m_ngate); // Assert that peer is sending the same number of gates
+        GASSERT(size == m_c.m_ngate); // Assert that peer is sending the same number of gates
 
         for (u32 i = 0; i < size; ++i) {
 
@@ -292,18 +301,51 @@ namespace gashgc {
 
         map<u32, block> idlblmap;
         GWI*            gw;
+        u32             size;
+
+        REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
+        GASSERT(size == m_in_val_map.size());
 
         OTParty otp;
-        REQUIRE_GOOD_STATUS(otp.OTRecv(m_peer_ip, m_peer_ot_port, m_id_val_map, idlblmap));
+        REQUIRE_GOOD_STATUS(otp.OTRecv(m_peer_ip, m_ot_port, m_in_val_map, idlblmap));
 
         for (auto it = idlblmap.begin(); it != idlblmap.end(); ++it) {
             gw = m_gc.get_gwi(it->first);
             GASSERT(gw != NULL);
             gw->set_lbl(it->second);
         }
+
+        return 0;
     }
 
 #endif
+
+    int Evaluator::recv_peer_lbls() {
+
+        u32 id;
+        u32 size;
+        GWI* gw;
+        block lbl;
+        int val;
+
+        REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
+
+        for (u32 i = 0; i < size; ++i) {
+
+            REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&id, sizeof(u32)));
+            REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&lbl, LABELSIZE));
+
+            gw = m_gc.get_gwi(id);
+            if (!gw) {
+                WARNING("Cannot find value for wire id: " << id);
+                return -G_ENOENT;
+            }
+
+            gw->set_lbl(lbl);
+        }
+
+        return 0;
+    }
 
     int Evaluator::recv_output_map()
     {
@@ -322,7 +364,7 @@ namespace gashgc {
             REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&lbl0, LABELSIZE));
             REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&lbl1, LABELSIZE));
 
-            if (m_out_id_set.find(id) == m_out_id_set.end()) {
+            if (m_c.m_out_id_set.find(id) == m_c.m_out_id_set.end()) {
                 WARNING("Cannot find id in output id set:" << id);
                 return -G_ENOENT;
             }
@@ -347,7 +389,7 @@ namespace gashgc {
         GWI* gw;
         int val;
 
-        for (auto it = m_out_id_set.begin(); it != m_out_id_set.end(); ++it) {
+        for (auto it = m_c.m_out_id_set.begin(); it != m_c.m_out_id_set.end(); ++it) {
 
             id = *it;
             gw = m_gc.get_gwi(id);
@@ -361,6 +403,16 @@ namespace gashgc {
         }
 
         return 0;
+    }
+
+    int Evaluator::report_output() {
+
+        for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
+            cout << it->first << ":" << it->second << endl;
+        }
+
+        return 0;
+
     }
 
     int Evaluator::send_output()

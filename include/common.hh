@@ -105,7 +105,7 @@ namespace gashlang {
 #define RSA_bits       2048
 #define LABELSIZE      16                   // 16 bytes = 128 bits
 // #define GASH_DEBUG true                  // Comment this to toggle debug messages
-#define GASH_NO_OT                          // Uncomment to use IKNP OT
+// #define GASH_NO_OT                          // Uncomment to use IKNP OT
 #define GASH_TIMER                          // Comment this to toggle timer
 #define GASH_GC_GRR                         // Enable garbled row reduction
 #define getZEROblock() _mm_setzero_si128()
@@ -138,8 +138,10 @@ namespace gashlang {
   if ((var = (expr)) < 0)                            \
     return var
 
-#define REQUIRE_GOOD_STATUS(expr)                \
-  REQUIRE_GOOD_STATUS_IMPL(expr, NEWVAR(stat))
+#define REQUIRE_GOOD_STATUS(expr)                    \
+  do {                                               \
+    REQUIRE_GOOD_STATUS_IMPL(expr, NEWVAR(stat));    \
+  } while (0)
 
 namespace gashgc {
 

@@ -37,18 +37,18 @@ namespace gashgc {
 
     WireInstance* Circuit::get_wireins(u32 i)
     {
-        if (m_wireins_map.find(i) == m_wireins_map.end()) {
+        if (m_wi_map.find(i) == m_wi_map.end()) {
             return NULL;
         }
-        return m_wireins_map[i];
+        return m_wi_map[i];
     }
 
     int Circuit::add_wireins(WireInstance* w)
     {
-        if (m_wireins_map.find(w->get_id()) != m_wireins_map.end()) {
+        if (m_wi_map.find(w->get_id()) != m_wi_map.end()) {
             return -G_EEXIST;
         }
-        m_wireins_map.emplace(w->get_id(), w);
+        m_wi_map.emplace(w->get_id(), w);
         return 0;
     }
 
@@ -74,11 +74,17 @@ namespace gashgc {
             return -G_EEXIST;
         }
 
-        WI* out = new WI(outid, false);
+        // WI* out = new WI(outid, false);
+        WI* out = get_wireins(outid);
         WI* in0 = get_wireins(in0id);
         WI* in1 = get_wireins(in1id);
 
-        REQUIRE_GOOD_STATUS(add_wireins(out));
+        if (out == NULL)
+        {
+            out = new WI(outid, false);
+            REQUIRE_GOOD_STATUS(add_wireins(out));
+        }
+
 
         if (!in0) {
             WARNING("Wire instance in0 does not exist");
@@ -103,7 +109,7 @@ namespace gashgc {
         return 0;
     }
 
-    int build_circ(string circ_file_path, Circuit& circ)
+    int build_circuit(string circ_file_path, Circuit& circ)
     {
 
         ifstream file(circ_file_path);
@@ -133,6 +139,8 @@ namespace gashgc {
         while (getline(file, line)) {
 
             linum++;
+            items.clear();
+            subitems.clear();
             split(line, delim, items);
 
             // Skip directives
@@ -165,8 +173,8 @@ namespace gashgc {
                 // Input wires
                 if (strcmp("I", subitems[0].c_str()) == 0) {
 
-                    idx = stoi(items[1]);
-                    id = id / 2;
+                    idx = stoi(subitems[1]);
+                    id = idx / 2;
 
                     w = new WI(id, !is_odd(idx));
                     REQUIRE_GOOD_STATUS(circ.add_wireins(w));
@@ -175,19 +183,25 @@ namespace gashgc {
                         WARNING("Invalid input wire, expecting 2 item, getting " << subitems.size() << " items");
                     }
 
+                    circ.m_in_id_set.emplace(id);
+
                 } else if (strcmp("O", subitems[0].c_str()) == 0) {
 
                     // Output wires
 
-                    idx = stoi(items[1]);
-                    id = id / 2;
+                    idx = stoi(subitems[1]);
+                    id = idx / 2;
                     w = new WI(id, !is_odd(idx));
 
                     if (subitems.size() == 3) {
-                        val = stoi(items[2]);
+                        val = stoi(subitems[2]);
                         w->set_val(val);
                     }
+
+                    circ.m_out_id_set.emplace(id);
                 }
+
+                circ.m_wi_map.emplace(id, w);
 
                 break;
             }
@@ -235,6 +249,8 @@ namespace gashgc {
             }
             }
         }
+
+        circ.m_ngate = circ.m_gate_map.size();
 
         return 0;
     }

@@ -46,7 +46,7 @@ namespace gashgc {
   typedef map<u32, GarbledGate*> IdGarbledGateMap;
   typedef map<u32, LabelPair*> IdLabelPairMap;
   typedef map<u32, block> IdLabelMap;
-  typedef map<u32, u32>   IdValueMap;
+  typedef map<u32, int>   IdValueMap;
   typedef vector<u32>     IdVec;
   typedef set<u32>        IdSet;
 
@@ -57,9 +57,6 @@ namespace gashgc {
    */
   class GarbledCircuit {
   public:
-    u32                        m_nin;
-    u32                        m_nout;
-    u32                        m_ngate;
     block                      m_R;
 
     IdGarbledWireinsMap        m_gwi_map;
@@ -550,8 +547,10 @@ namespace gashgc {
      * @return
      */
     inline u32 get_id() {
-      if (!m_out)
+      if (m_out == NULL) {
         FATAL("Garbled gate does not have output wire");
+      }
+
       return m_out->get_id();
     }
 
@@ -560,9 +559,6 @@ namespace gashgc {
      *
      */
     ~GarbledGate() {
-      delete m_in0;
-      delete m_in1;
-      delete m_out;
       delete m_egtt;
     }
   };

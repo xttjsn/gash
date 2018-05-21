@@ -83,6 +83,7 @@ namespace gashgc {
         while (tok) {
 
             ret.push_back(string(tok));
+            tok = strtok(NULL, delim);
         }
     }
 

@@ -30,6 +30,8 @@
 #include "../../gc/util.hh"
 #include "../../gc/aes.hh"
 #include "../../gc/ot.hh"
+#include "../../gc/garbler.hh"
+#include "../../gc/evaluator.hh"
 
 #define LARGE_SIZE 100000
 
@@ -55,6 +57,8 @@ using gashgc::u16;
 using gashgc::xor_block;
 
 using gashgc::OTParty;
+using gashgc::Garbler;
+using gashgc::Evaluator;
 
 typedef gashgc::GarbledCircuit GC;
 typedef gashgc::GarbledGate GG;
@@ -65,13 +69,6 @@ typedef gashgc::WireInstance WI;
 class CMPLTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
-
-    char* tmp_circ_name = tmpnam(NULL);
-    char* tmp_data_name = tmpnam(NULL);
-
-    m_circ_stream = ofstream(tmp_circ_name, std::ios::out | std::ios::trunc);
-    m_data_stream = ofstream(tmp_data_name, std::ios::out | std::ios::trunc);
-
   }
 
   virtual void TearDown() {
@@ -114,6 +111,20 @@ protected:
   virtual void TearDown() {
 
   }
+};
+
+class EXECTest: public ::testing::Test {
+protected:
+  virtual void SetUp() {
+
+  }
+
+  virtual void TearDown() {
+    gashlang::parse_clean();
+  }
+
+  ofstream m_circ_stream;
+  ofstream m_data_stream;
 };
 
 #endif

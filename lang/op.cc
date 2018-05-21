@@ -27,7 +27,7 @@ namespace gashlang {
     int evala_ADD_raw(Bundle& in0, Bundle& in1, Bundle& out, Wire*& cin)
     {
         GASSERT(in0.size() == in1.size());
-        cin = onewire();
+        cin = zerowire();
         Wire* a;
         Wire* b;
         Wire* c;

@@ -9,7 +9,7 @@ BIN                  := $(addprefix test_,$(basename $(SRC)))
 CXX                  := g++
 CXXFLAGS             := -std=c++11 -pthread -Wno-ignored-attributes -g -fPIC
 # LDFLAGS              := -lpthread -lgtest -L$(BUILD_DIR)/lib -lgash -lgmp -lgmpxx -lcrypto
-LDFLAGS              := -lpthread -lgtest $(GC_LIB) $(LANG_LIB) $(MIRACL_LIB) -lgmp -lgmpxx -lcrypto
+LDFLAGS              := -lpthread -lgtest $(GC_LIB) $(LANG_LIB) $(MIRACL_LIB) -lgash -lgmp -lgmpxx -lcrypto
 
 all: $(BIN)
 
@@ -23,7 +23,5 @@ $(GASH_SLIB):
 
 clean:
 	@ rm -f test_*
-	@ rm -f *.circ
-	@ rm -f *.dat
 
 .PHONY: all clean

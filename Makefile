@@ -19,7 +19,7 @@ gc $(GC_LIB) $(MIRACL_LIB):
 lang $(LANG_LIB):
 	@ cd lang && make
 
-$(GASH_SLIB): $(GC_LIB) $(LANG_LIB) $(MIRACL_LIB)
+$(GASH_SLIB): $(LANG_LIB) $(GC_LIB) $(MIRACL_LIB)
 	@ echo "    Building libgash.so"
 	@ echo "$(CXX) $^ -shared -o $@"
 	@ $(CXX) -g -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive

@@ -43,10 +43,8 @@ namespace gashgc {
     IdValueMap            m_out_val_map;
 
     /// The set of input/output ids //TODO: remove value map if don't need them
-    IdSet                 m_in_id_set;
     IdSet                 m_self_in_id_set;
     IdSet                 m_peer_in_id_set;
-    IdSet                 m_out_id_set;
 
     /// Network related stuff
     int                   m_peer_sock;
@@ -54,17 +52,28 @@ namespace gashgc {
     int                   m_listen_sock;
     string                m_self_ip;
     string                m_peer_ip;
-    u16                    m_port;
-    u16                    m_ot_port;
+    u16                   m_port;
+    u16                   m_ot_port;
+
+    /// File paths
+    string                m_circ_fpath;
+    string                m_input_fpath;
+
+    /**
+     * Read circuit file and build a circuit
+     *
+     *
+     * @return
+     */
+    int build_circ();
 
     /**
      * Read input data from input data file
      *
-     * @param in_file_path
      *
      * @return
      */
-    int read_input(string in_file_path);
+    int read_input();
 
     /**
      * Garble the circuit
@@ -120,6 +129,14 @@ namespace gashgc {
     int recv_output();
 
     /**
+     * Report received output
+     *
+     *
+     * @return
+     */
+    int report_output();
+
+    /**
      * Constructor
      *
      * @param port The gc port that this garbler listens on
@@ -133,6 +150,8 @@ namespace gashgc {
      *
      */
     ~Garbler();
+
+
   };
 
 }
