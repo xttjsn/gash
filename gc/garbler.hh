@@ -139,11 +139,13 @@ namespace gashgc {
     /**
      * Constructor
      *
+     * @param peer_ip The ip of peer (currently only useful for oblivious transfer)
+     *        i.e., listen() still listen for all incoming connections.
      * @param port The gc port that this garbler listens on
      * @param circ_file_path
      * @param input_file_path
      */
-    Garbler(u16 port, u16 ot_port, string circ_file_path, string input_file_path);
+    Garbler(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
     /**
      * Destructor

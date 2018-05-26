@@ -20,6 +20,7 @@
 #include "../include/common.hh"
 
 #define g_ip "127.0.0.1"
+#define e_ip "127.0.0.1"
 #define g_circ "add_g.circ"
 #define g_dat "add_g.dat"
 #define e_circ "add_e.circ"
@@ -108,12 +109,12 @@ TEST_F(EXECTest, Sub64)
 
     /// Generate random port
     srandom(time(0));
-    u16 g_port    = rand() % 10000 + 40000;
-    u16 g_ot_port = rand() % 10000 + 40000;
+    u16 g_port    = 7798;
+    u16 g_ot_port = 44332;
 
     if (fork() == 0) {
         /// Child plays evaluator
-        sleep(0.3);
+        sleep(0.5);
         m_circ_stream = ofstream(e_circ, std::ios::out | std::ios::trunc);
         m_data_stream = ofstream(e_dat, std::ios::out | std::ios::trunc);
         extern FILE* yyin;
@@ -138,6 +139,7 @@ TEST_F(EXECTest, Sub64)
         EXPECT_EQ(0, evaluator.build_garbled_circuit());
         EXPECT_EQ(0, evaluator.init_connection());
         EXPECT_EQ(0, evaluator.recv_egtt());
+        sleep(0.5);          // Give server some time to setup
         EXPECT_EQ(0, evaluator.recv_self_lbls());
         EXPECT_EQ(0, evaluator.recv_peer_lbls());
         EXPECT_EQ(0, evaluator.evaluate_circ());
@@ -166,7 +168,7 @@ TEST_F(EXECTest, Sub64)
 
         EXPECT_EQ(0, parse_result);
 
-        Garbler garbler(g_port, g_ot_port, string(g_circ), string(g_dat));
+        Garbler garbler(e_ip, g_port, g_ot_port, string(g_circ), string(g_dat));
 
         EXPECT_EQ(0, garbler.build_circ());
         EXPECT_EQ(0, garbler.read_input());

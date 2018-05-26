@@ -451,4 +451,14 @@ namespace gashgc {
         return 0;
     }
 
+    Evaluator::~Evaluator() {
+
+        shutdown(m_peer_sock, SHUT_WR);
+        close(m_peer_sock);
+
+        m_peer_sock = INVALID_SOCKET;
+
+        cout << "Evaluator's sockets closed!" << endl;
+    }
+
 } // namespace gashgc

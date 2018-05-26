@@ -18,6 +18,7 @@
  */
 
 #include "tcp.hh"
+#include <unistd.h>
 
 namespace gashgc {
 
@@ -40,17 +41,18 @@ namespace gashgc {
         address.sin_addr.s_addr = INADDR_ANY;
 
         setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
+        setsockopt(listen_sock, SOL_TCP, TCP_NODELAY, &opt_val, sizeof(opt_val));
 
         result = bind(listen_sock, (struct sockaddr*)&address, sizeof(address));
         if (result != 0) {
-
+            perror("bind() failed.");
             WARNING("bind() failed.");
             return -G_ETCP;
         }
 
         result = listen(listen_sock, 5);
         if (result != 0) {
-
+            perror("listen() failed.");
             WARNING("listen() fail.");
             return -G_ETCP;
         }
@@ -59,7 +61,7 @@ namespace gashgc {
         size_t size = sizeof(address);
         peer_sock = accept(listen_sock, (struct sockaddr*)&address, (socklen_t*)&size);
         if (peer_sock < 0) {
-
+            perror("accept() failed");
             WARNING("accept() failed");
             return -G_ETCP;
         }
@@ -91,9 +93,21 @@ namespace gashgc {
 
         sock = socket(AF_INET, SOCK_STREAM, 0);
 
-        if (::connect(sock, (struct sockaddr*)&address, sizeof(address)) != 0) {
+        int one = 1;
+        setsockopt(sock, SOL_TCP, TCP_NODELAY, &one, sizeof(one));
 
-            WARNING("connect() failed");
+        int nretry = 100;
+        float period = 0.3;
+
+        while (nretry > 0 && (result = ::connect(sock, (struct sockaddr*)&address, sizeof(address))) != 0) {
+            perror("Connect() failed, try again later");
+            nretry--;
+            sleep(period);
+        }
+
+        if (result < 0) {
+            perror("Connect() failed, no more tries");
+            abort();
         }
 
         return 0;

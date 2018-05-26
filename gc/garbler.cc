@@ -31,8 +31,9 @@ namespace gashgc {
     const static u32 xor_mnum = xor_magic_num;
     const static u32 nxor_mnum = nonxor_magic_num;
 
-    Garbler::Garbler(u16 port, u16 ot_port, string circ_file_path, string input_file_path)
+    Garbler::Garbler(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path)
     {
+        m_peer_ip = peer_ip;
         m_port = port;
         m_ot_port = ot_port;
         m_circ_fpath = circ_file_path;
@@ -582,6 +583,15 @@ namespace gashgc {
 
     }
 
-    Garbler::~Garbler(){}
+    Garbler::~Garbler(){
+    
+        shutdown(m_listen_sock, SHUT_WR);
+        close(m_listen_sock);
+
+        shutdown(m_peer_sock, SHUT_WR);
+        close(m_peer_sock);
+
+        cout << "Garbler's sockets closed!" << endl;
+    }
 
 } // namespace gashgc

@@ -170,7 +170,7 @@ namespace gashgc {
      * Destructor
      *
      */
-    ~Evaluator(){}
+    ~Evaluator();
   };
 
 

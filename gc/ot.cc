@@ -25,17 +25,17 @@ namespace gashgc {
     {
 
         if (!m_vSocket->Socket()) {
-            cerr << "Listen failed." << endl;
+            perror("Socket() failed.");
             return -G_ETCP;
         }
 
         if (!m_vSocket->Bind(m_nPort, m_nAddr)) {
-            cerr << "Listen failed." << endl;
+            perror("Bind failed.");
             return -G_ETCP;
         }
 
         if (!m_vSocket->Listen()) {
-            cerr << "Listen failed." << endl;
+            perror("Listen failed.");
             return -G_ETCP;
         }
 
@@ -44,7 +44,7 @@ namespace gashgc {
             CSocket sock;
 
             if (!m_vSocket->Accept(sock)) {
-                cerr << "Error in accept." << endl;
+                perror("Accept failed.");
                 return -G_ETCP;
             }
 
