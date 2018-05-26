@@ -10,6 +10,7 @@ CXX                  := g++
 CXXFLAGS             := -std=c++11 -pthread -Wno-ignored-attributes -g -fPIC
 # LDFLAGS              := -lpthread -lgtest -L$(BUILD_DIR)/lib -lgash -lgmp -lgmpxx -lcrypto
 LDFLAGS              := -lpthread -lgtest $(GC_LIB) $(LANG_LIB) $(MIRACL_LIB) -lgash -lgmp -lgmpxx -lcrypto
+CLANG-FORMAT         := clang-format
 
 all: $(BIN)
 
@@ -20,6 +21,11 @@ test_%: %.cc $(GASH_SLIB)
 
 $(GASH_SLIB):
 	# Empty
+
+clang-format:
+	@ echo "Doing clang-format"
+	@ $(foreach src,$(SRC),$(CLANG-FORMAT) -i -style=file $(src);)
+	@ echo "Format finished"
 
 clean:
 	@ rm -f test_*

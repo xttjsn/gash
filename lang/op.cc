@@ -653,11 +653,22 @@ namespace gashlang {
             // If `in` is constant wire
             if (in->m_v >= 0) {
                 in->m_v ^= 1;
+                ret = in;
             } else {
                 // Invert `in`'s id
-                in->invert();
+
+                if (mgc.is_input_wire(in)) {
+                    if (mgc.has_input_dup(in)) {
+                        ret = mgc.get_invert_wire(in);
+                    } else {
+                        ret = nextwire();
+                        mgc.set_input_inv_dup(in, ret);
+                    }   
+                } else {
+                    in->invert();
+                    ret = in;
+                }
             }
-            ret = in;
         } else {
             // `in` is input wire
             if (mgc.is_input_wire(in)) {

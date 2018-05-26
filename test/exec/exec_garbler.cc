@@ -19,47 +19,91 @@
 
 #include "../include/common.hh"
 
-#define g_port        41554
-#define g_ot_port     46778
-#define g_circ        "add4_g.circ"
-#define g_dat         "add4_g.dat"
+#define g_port 41554
+#define g_ip "127.0.0.1"
+#define g_circ "add_g.circ"
+#define g_dat "add_g.dat"
+#define e_circ "add_e.circ"
+#define e_dat "add_e.dat"
 
-TEST_F(EXECTest, BuildCirc) {
+TEST_F(EXECTest, Add64)
+{
 
-  /// Parsing
-  m_circ_stream = ofstream(g_circ, std::ios::out | std::ios::trunc);
-  m_data_stream = ofstream(g_dat, std::ios::out | std::ios::trunc);
-  extern FILE* yyin;
-  const char* src = "func add(int4 a, int4 b) {      "
-                    "    return a + b;               "
-                    "}                               "
-                    "#definput     a    0            ";
+    /// Generate random port
+    srandom(time(0));
+    u16 g_ot_port = rand() % 10000 + 40000;
 
-  yyin = std::tmpfile();
-  std::fputs(src, yyin);
-  std::rewind(yyin);
-  gashlang::set_ofstream(m_circ_stream, m_data_stream);
+    if (fork() == 0) {
+        /// Child plays evaluator
+        m_circ_stream = ofstream(e_circ, std::ios::out | std::ios::trunc);
+        m_data_stream = ofstream(e_dat, std::ios::out | std::ios::trunc);
+        extern FILE* yyin;
+        const char* src = "func add(int64 a, int64 b) {      "
+                          "    return a + b;               "
+                          "}                               "
+                          "#definput     b    1            ";
 
-  int parse_result = yyparse();
+        yyin = std::tmpfile();
+        std::fputs(src, yyin);
+        std::rewind(yyin);
+        gashlang::set_ofstream(m_circ_stream, m_data_stream);
 
-  EXPECT_EQ(0, parse_result);
+        int parse_result = yyparse();
 
-  Garbler garbler(g_port, g_ot_port, string(g_circ), string(g_dat));
+        EXPECT_EQ(0, parse_result);
 
-  EXPECT_EQ(0, garbler.build_circ());
-  EXPECT_EQ(0, garbler.read_input());
-  EXPECT_EQ(0, garbler.garble_circ());
-  EXPECT_EQ(0, garbler.init_connection());
-  EXPECT_EQ(0, garbler.send_egtt());
-  EXPECT_EQ(0, garbler.send_peer_lbls());
-  EXPECT_EQ(0, garbler.send_self_lbls());
-  EXPECT_EQ(0, garbler.send_output_map());
-  EXPECT_EQ(0, garbler.recv_output());
-  EXPECT_EQ(0, garbler.report_output());
+        Evaluator evaluator(g_ip, g_port, g_ot_port, string(e_circ), string(e_dat));
+
+        EXPECT_EQ(0, evaluator.build_circ());
+        EXPECT_EQ(0, evaluator.read_input());
+        EXPECT_EQ(0, evaluator.build_garbled_circuit());
+        EXPECT_EQ(0, evaluator.init_connection());
+        EXPECT_EQ(0, evaluator.recv_egtt());
+        EXPECT_EQ(0, evaluator.recv_self_lbls());
+        EXPECT_EQ(0, evaluator.recv_peer_lbls());
+        EXPECT_EQ(0, evaluator.evaluate_circ());
+        EXPECT_EQ(0, evaluator.recv_output_map());
+        EXPECT_EQ(0, evaluator.recover_output());
+        EXPECT_EQ(0, evaluator.report_output());
+        EXPECT_EQ(0, evaluator.send_output());
+    } else {
+        /// Parent plays garbler
+
+        /// Parsing
+        m_circ_stream = ofstream(g_circ, std::ios::out | std::ios::trunc);
+        m_data_stream = ofstream(g_dat, std::ios::out | std::ios::trunc);
+        extern FILE* yyin;
+        const char* src = "func add(int64 a, int64 b) {    "
+                          "    return a + b;               "
+                          "}                               "
+                          "#definput     a    0            ";
+
+        yyin = std::tmpfile();
+        std::fputs(src, yyin);
+        std::rewind(yyin);
+        gashlang::set_ofstream(m_circ_stream, m_data_stream);
+
+        int parse_result = yyparse();
+
+        EXPECT_EQ(0, parse_result);
+
+        Garbler garbler(g_port, g_ot_port, string(g_circ), string(g_dat));
+
+        EXPECT_EQ(0, garbler.build_circ());
+        EXPECT_EQ(0, garbler.read_input());
+        EXPECT_EQ(0, garbler.garble_circ());
+        EXPECT_EQ(0, garbler.init_connection());
+        EXPECT_EQ(0, garbler.send_egtt());
+        EXPECT_EQ(0, garbler.send_peer_lbls());
+        EXPECT_EQ(0, garbler.send_self_lbls());
+        EXPECT_EQ(0, garbler.send_output_map());
+        EXPECT_EQ(0, garbler.recv_output());
+        EXPECT_EQ(0, garbler.report_output());
+    }
 }
 
 int main(int argc, char* argv[])
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

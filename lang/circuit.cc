@@ -358,8 +358,8 @@ namespace gashlang {
             w_another = m_in[i];
             // Do some consistency check along the way
             if (w->m_id == w_another->m_id) {
-                WARNING(
-                    "Two wire pointers point to the same wire instance. ID:" << w->m_id);
+                /* WARNING( */
+                    /* "Two wire pointers point to the same wire instance. ID:" << w->m_id); */
                 if (w->m_v != w->m_v) {
                     FATAL(
                         "Two wire pointers point to the same wire instance but have "

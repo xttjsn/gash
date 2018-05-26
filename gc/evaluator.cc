@@ -47,11 +47,15 @@ namespace gashgc {
         WI* in0;
         WI* in1;
         WI* out;
+        WI* w;
         Gate* g;
+
+        u32 id;
 
         GWI* gin0;
         GWI* gin1;
         GWI* gout;
+        GWI* gw;
         GG* gg;
 
         for (auto it = m_c.m_gate_map.begin(); it != m_c.m_gate_map.end(); ++it) {
@@ -78,6 +82,16 @@ namespace gashgc {
 
             REQUIRE_GOOD_STATUS(m_gc.add_gwi(gout));
             REQUIRE_GOOD_STATUS(m_gc.add_gg(gg));
+        }
+
+        for (auto it = m_c.m_wi_map.begin(); it != m_c.m_wi_map.end(); it++) {
+            id = it->first;
+            w = it->second;
+
+            if (!m_gc.has_gwi(id)) {
+                gw = new GWI(w);
+                m_gc.add_gwi(gw);
+            }
         }
 
         return 0;
