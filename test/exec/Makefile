@@ -29,5 +29,6 @@ clang-format:
 
 clean:
 	@ rm -f test_*
+	@ rm *.circ *.dat
 
 .PHONY: all clean
