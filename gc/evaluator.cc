@@ -37,7 +37,8 @@ namespace gashgc {
         m_input_fpath = input_file_path;
     }
 
-    int Evaluator::build_circ() {
+    int Evaluator::build_circ()
+    {
         return build_circuit(m_circ_fpath, m_c);
     }
 
@@ -67,14 +68,14 @@ namespace gashgc {
 
             gin0 = m_gc.get_gwi(in0->get_id());
             if (gin0 == NULL) {
-              gin0 = new GWI(in0);
-              REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin0));
+                gin0 = new GWI(in0);
+                REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin0));
             }
 
             gin1 = m_gc.get_gwi(in1->get_id());
             if (gin1 == NULL) {
-              gin1 = new GWI(in1);
-              REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin1));
+                gin1 = new GWI(in1);
+                REQUIRE_GOOD_STATUS(m_gc.add_gwi(gin1));
             }
 
             gout = new GWI(out);
@@ -314,8 +315,8 @@ namespace gashgc {
     {
 
         map<u32, block> idlblmap;
-        GWI*            gw;
-        u32             size;
+        GWI* gw;
+        u32 size;
 
         REQUIRE_GOOD_STATUS(tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
         GASSERT(size == m_in_val_map.size());
@@ -334,7 +335,8 @@ namespace gashgc {
 
 #endif
 
-    int Evaluator::recv_peer_lbls() {
+    int Evaluator::recv_peer_lbls()
+    {
 
         u32 id;
         u32 size;
@@ -419,14 +421,14 @@ namespace gashgc {
         return 0;
     }
 
-    int Evaluator::report_output() {
+    int Evaluator::report_output()
+    {
 
         for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
             cout << it->first << ":" << it->second << endl;
         }
 
         return 0;
-
     }
 
     int Evaluator::send_output()
@@ -451,7 +453,8 @@ namespace gashgc {
         return 0;
     }
 
-    Evaluator::~Evaluator() {
+    Evaluator::~Evaluator()
+    {
 
         shutdown(m_peer_sock, SHUT_WR);
         close(m_peer_sock);

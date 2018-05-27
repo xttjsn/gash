@@ -40,7 +40,8 @@ namespace gashgc {
         m_input_fpath = input_file_path;
     }
 
-    int Garbler::build_circ() {
+    int Garbler::build_circ()
+    {
         return build_circuit(m_circ_fpath, m_c);
     }
 
@@ -109,7 +110,6 @@ namespace gashgc {
                 m_peer_in_id_set.emplace(id);
             }
         }
-
 
         return 0;
     }
@@ -573,18 +573,19 @@ namespace gashgc {
         return 0;
     }
 
-    int Garbler::report_output() {
+    int Garbler::report_output()
+    {
 
         for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
             cout << it->first << ":" << it->second << endl;
         }
 
         return 0;
-
     }
 
-    Garbler::~Garbler(){
-    
+    Garbler::~Garbler()
+    {
+
         shutdown(m_listen_sock, SHUT_WR);
         close(m_listen_sock);
 

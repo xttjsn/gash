@@ -79,19 +79,17 @@ namespace gashgc {
         WI* in0 = get_wireins(in0id);
         WI* in1 = get_wireins(in1id);
 
-        if (out == NULL)
-        {
+        if (out == NULL) {
             out = new WI(outid, false);
             REQUIRE_GOOD_STATUS(add_wireins(out));
         }
 
-
         if (!in0) {
-            WARNING("Wire instance in0 does not exist");
+            WARNING("Wire instance in0 does not exist. ID:" << in0id);
             return -G_ENOENT;
         }
         if (!in1) {
-            WARNING("Wire instance in1 does not exist");
+            WARNING("Wire instance in1 does not exist. ID:" << in1id);
             return -G_ENOENT;
         }
 
@@ -142,6 +140,9 @@ namespace gashgc {
             items.clear();
             subitems.clear();
             split(line, delim, items);
+
+            if (items.size() == 0)
+                continue;
 
             // Skip directives
             if (items[0].find('#') != std::string::npos)
@@ -246,7 +247,17 @@ namespace gashgc {
                 }
 
                 REQUIRE_GOOD_STATUS(circ.create_gate(outid, func, in0id, in1id, is_odd(in0idx), is_odd(in1idx)));
+                break;
             }
+            default:
+
+              perror("Items have invalid length!\n");
+              perror("Items:\n");
+              for (int i = 0; i < items.size(); i++) {
+                cerr << items[i] << endl;
+              }
+              cerr << "line:" << line << endl;
+              abort();
             }
         }
 

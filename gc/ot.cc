@@ -115,7 +115,8 @@ namespace gashgc {
         return 0;
     }
 
-    int OTParty::InitOTSender(const char* addr, int port, crypto* crypt, CLock* glock) {
+    int OTParty::InitOTSender(const char* addr, int port, crypto* crypt, CLock* glock)
+    {
 
 #ifdef OTTiming
 
@@ -165,7 +166,6 @@ namespace gashgc {
         default:
             m_sender = new ALSZOTExtSnd(crypt, m_rcvthread, m_sndthread, m_nBaseOTs, m_nChecks);
             break;
-
         }
 
         if (m_bUseMinEntCorAssumption)
@@ -176,7 +176,8 @@ namespace gashgc {
         return 0;
     }
 
-    int OTParty::InitOTReceiver(const char* addr, int port, crypto* crypt, CLock* glock) {
+    int OTParty::InitOTReceiver(const char* addr, int port, crypto* crypt, CLock* glock)
+    {
 
         m_nPort = (USHORT)port;
         m_nAddr = addr;
@@ -231,8 +232,9 @@ namespace gashgc {
     }
 
     bool OTParty::ObliviousSend(CBitVector** X, int numOTs, int bitlength,
-                         uint32_t nsndvals, snd_ot_flavor stype,
-                         rec_ot_flavor rtype, crypto* crypt) {
+        uint32_t nsndvals, snd_ot_flavor stype,
+        rec_ot_flavor rtype, crypto* crypt)
+    {
 
         bool success = FALSE;
 
@@ -245,7 +247,7 @@ namespace gashgc {
 
         // Execute OT sender routine
         success = m_sender->send(numOTs, bitlength, nsndvals, X, stype, rtype,
-                               m_nNumOTThreads, m_fMaskFct);
+            m_nNumOTThreads, m_fMaskFct);
 
         clock_gettime(CLOCK_MONOTONIC, &ot_end);
 
@@ -263,13 +265,12 @@ namespace gashgc {
 #endif
 
         return success;
-
     }
 
-
     bool OTParty::ObliviousReceive(CBitVector* choices, CBitVector* ret, int numOTs,
-                            int bitlength, uint32_t nsndvals, snd_ot_flavor stype,
-                          rec_ot_flavor rtype, crypto* crypt) {
+        int bitlength, uint32_t nsndvals, snd_ot_flavor stype,
+        rec_ot_flavor rtype, crypto* crypt)
+    {
 
         bool success = FALSE;
 
@@ -280,7 +281,7 @@ namespace gashgc {
         clock_gettime(CLOCK_MONOTONIC, &ot_begin);
         // Execute OT receiver routine
         success = m_receiver->receive(numOTs, bitlength, nsndvals, choices, ret,
-                                    stype, rtype, m_nNumOTThreads, m_fMaskFct);
+            stype, rtype, m_nNumOTThreads, m_fMaskFct);
 
         clock_gettime(CLOCK_MONOTONIC, &ot_end);
 
@@ -295,11 +296,11 @@ namespace gashgc {
 #endif
 
         return success;
-
     }
 
     int OTParty::OTSend(string peer_addr, int peer_ot_port, vector<block>& label0s,
-               vector<block>& label1s) {
+        vector<block>& label1s)
+    {
 
         GASSERT(label0s.size() == label1s.size());
 
@@ -461,7 +462,7 @@ namespace gashgc {
         response.Reset();
 
         ObliviousReceive(&choices, &response, numOTs, bitlength, nsndvals, stype,
-                         rtype, crypt);
+            rtype, crypt);
 
         BYTE* response_bytes = new BYTE[selects.size() * LABELSIZE];
         response.GetBytes(response_bytes, 0, selects.size() * LABELSIZE);
@@ -475,7 +476,6 @@ namespace gashgc {
 
             REQUIRE_GOOD_STATUS(byte2label((char*)response_bytes, LABELSIZE * i, label));
             res_idlbl_map.emplace(id, label);
-
         }
 
         Cleanup();

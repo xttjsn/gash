@@ -702,17 +702,16 @@ namespace gashlang {
                 w->m_v = getbit(val, i);
 
                 if (mgc.m_input_dup.find(id) != mgc.m_input_dup.end()) {
-                  // Found input duplicate
-                  id_dup = mgc.m_input_dup.find(id)->second;
-                  if (!mgc.m_in.hasWire(id_dup)) {
-                    FATAL("An input wire's invert duplicate is not in the input bundle of circuit.");
-                  }
+                    // Found input duplicate
+                    id_dup = mgc.m_input_dup.find(id)->second;
+                    if (!mgc.m_in.hasWire(id_dup)) {
+                        FATAL("An input wire's invert duplicate is not in the input bundle of circuit.");
+                    }
 
-                  w_dup = mgc.m_in.getWire(id_dup);
-                  w_dup->m_v = getbit(val, i) ^ 1;
+                    w_dup = mgc.m_in.getWire(id_dup);
+                    w_dup->m_v = getbit(val, i) ^ 1;
                 }
             }
-
 
         } else if (sym->m_type == ARRAY) {
             NOT_YET_IMPLEMENTED("dir_input : ARRAY");

@@ -250,20 +250,18 @@ namespace gashlang {
             if (m_in1->m_v >= 0) {
                 outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' << m_in0->m_id
                           << '(' << m_in0->m_v << ')' << ' ' << m_in1->m_id << '('
-                          << m_in1->m_v << ')' << ' ' << std::endl;
+                          << m_in1->m_v << ')' << std::endl;
             } else {
                 outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' << m_in0->m_id
-                          << '(' << m_in0->m_v << ')' << ' ' << m_in1->m_id << ' '
-                          << std::endl;
+                          << '(' << m_in0->m_v << ')' << ' ' << m_in1->m_id << std::endl;
             }
         } else {
             if (m_in1->m_v >= 0) {
                 outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' << m_in0->m_id
-                          << ' ' << m_in1->m_id << '(' << m_in1->m_v << ')' << ' '
-                          << std::endl;
+                          << ' ' << m_in1->m_id << '(' << m_in1->m_v << ')' << std::endl;
             } else {
                 outstream << evenify(m_out->m_id) << ' ' << m_op << ' ' << m_in0->m_id
-                          << ' ' << m_in1->m_id << ' ' << std::endl;
+                          << ' ' << m_in1->m_id << std::endl;
             }
         }
     }
@@ -359,7 +357,7 @@ namespace gashlang {
             // Do some consistency check along the way
             if (w->m_id == w_another->m_id) {
                 /* WARNING( */
-                    /* "Two wire pointers point to the same wire instance. ID:" << w->m_id); */
+                /* "Two wire pointers point to the same wire instance. ID:" << w->m_id); */
                 if (w->m_v != w->m_v) {
                     FATAL(
                         "Two wire pointers point to the same wire instance but have "

@@ -663,7 +663,7 @@ namespace gashlang {
                     } else {
                         ret = nextwire();
                         mgc.set_input_inv_dup(in, ret);
-                    }   
+                    }
                 } else {
                     in->invert();
                     ret = in;

@@ -74,17 +74,16 @@ namespace gashgc {
     void split(string str, const char* delim, StringVec& ret)
     {
 
-        char cstr[str.size()];
+        string delimiter = string(delim);
+        size_t pos = 0;
+        string token;
 
-        strcpy(cstr, str.c_str());
-
-        char* tok = strtok(cstr, delim);
-
-        while (tok) {
-
-            ret.push_back(string(tok));
-            tok = strtok(NULL, delim);
+        while ((pos = str.find(delimiter)) != string::npos) {
+          token = str.substr(0, pos);
+          ret.push_back(token);
+          str.erase(0, pos + delimiter.length());
         }
+        ret.push_back(str);
     }
 
     void srand_sse(u32 s_seed)
