@@ -200,6 +200,7 @@ namespace gashgc {
                     }
 
                     circ.m_out_id_set.emplace(id);
+                    circ.m_out_id_vec.emplace_back(id);
                 }
 
                 circ.m_wi_map.emplace(id, w);

@@ -57,6 +57,7 @@ namespace gashgc {
     IdSet m_in_id_set;
 
     IdSet m_out_id_set;
+    IdVec m_out_id_vec;        // This is for cases where a single output wire occupies multiple output port
 
     IdBoolMap m_out_const_map;
 

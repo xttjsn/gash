@@ -435,8 +435,11 @@ namespace gashgc {
     int Evaluator::report_output()
     {
 
-        for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
-            cout << it->first << ":" << it->second << endl;
+        u32 id;
+
+        for (auto it = m_c.m_out_id_vec.begin(); it != m_c.m_out_id_vec.end(); ++it) {
+            id = *it;
+            cout << id << ":" << m_out_val_map.find(id)->second << endl;
         }
 
         return 0;
