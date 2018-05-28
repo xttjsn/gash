@@ -1,5 +1,6 @@
 /*
- * exec_add.cc -- Unit testing for executing the generated circuit
+ * exec_ifelsearithmetic.cc -- Unit testing for arithmetics that have if else
+ * statements in them
  *
  * Author: Xiaoting Tang <tang_xiaoting@brown.edu>
  * Copyright: Xiaoting Tang (2018)
@@ -22,10 +23,10 @@
 
 #define g_ip           "127.0.0.1"
 #define e_ip           "127.0.0.1"
-#define g_circ         "billionaire_g.circ"
-#define g_dat          "billionaire_g.dat"
-#define e_circ         "billionaire_e.circ"
-#define e_dat          "billionaire_e.dat"
+#define g_circ         "ifelsearithmetic_g.circ"
+#define g_dat          "ifelsearithmetic_g.dat"
+#define e_circ         "ifelsearithmetic_e.circ"
+#define e_dat          "ifelsearithmetic_e.dat"
 #define port           7798
 #define ot_port        43667
 

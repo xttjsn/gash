@@ -518,13 +518,36 @@ namespace gashgc {
         int val;
         block lbl0;
         block lbl1;
+        WI* w;
 
         size = m_c.m_out_id_set.size();
+
+        for (auto it = m_c.m_out_id_set.begin(); it != m_c.m_out_id_set.end(); ++it) {
+
+          id = *it;
+          w = m_c.m_wi_map.find(id)->second;
+
+          if (w->get_val() == 0 || w->get_val() == 1) {
+            // Constant output
+            size--;
+          }
+
+        }
+
         REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&size, sizeof(u32)));
 
         for (auto it = m_c.m_out_id_set.begin(); it != m_c.m_out_id_set.end(); ++it) {
 
             id = *it;
+
+            w = m_c.m_wi_map.find(id)->second;
+
+            if (w->get_val() == 0 || w->get_val() == 1) {
+              // Constant output
+              continue;
+            }
+
+            // Non-constant output
             REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, 0, lbl0));
             REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, 1, lbl1));
 

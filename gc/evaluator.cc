@@ -403,11 +403,22 @@ namespace gashgc {
 
         u32 id;
         GWI* gw;
+        WI*  w;
         int val;
 
         for (auto it = m_c.m_out_id_set.begin(); it != m_c.m_out_id_set.end(); ++it) {
 
             id = *it;
+
+            w = m_c.m_wi_map.find(id)->second;
+
+            // If wire is constant
+            if (w->get_val() == 0 || w->get_val() == 1) {
+              m_out_val_map.emplace(id, w->get_val());
+              continue;
+            }
+
+            // Otherwise
             gw = m_gc.get_gwi(id);
 
             val = gw->recover_smtc();

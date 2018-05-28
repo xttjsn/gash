@@ -26,7 +26,7 @@ namespace gashlang {
 
   /* Arithmetic operations */
 #define AOP_PLUS   0x00
-#define AOP_SUB  0x01
+#define AOP_SUB    0x01
 #define AOP_UMINUS 0x02
 #define AOP_MUL    0x03
 #define AOP_DIV    0x04

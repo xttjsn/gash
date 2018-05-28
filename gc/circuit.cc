@@ -177,7 +177,7 @@ namespace gashgc {
                     idx = stoi(subitems[1]);
                     id = idx / 2;
 
-                    w = new WI(id, !is_odd(idx));
+                    w = new WI(id, is_odd(idx));
                     REQUIRE_GOOD_STATUS(circ.add_wireins(w));
 
                     if (subitems.size() > 2) {
@@ -192,7 +192,7 @@ namespace gashgc {
 
                     idx = stoi(subitems[1]);
                     id = idx / 2;
-                    w = new WI(id, !is_odd(idx));
+                    w = new WI(id, is_odd(idx));
 
                     if (subitems.size() == 3) {
                         val = stoi(subitems[2]);
