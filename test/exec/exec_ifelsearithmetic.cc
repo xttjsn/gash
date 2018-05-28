@@ -1,5 +1,5 @@
 /*
- * exec_billionaire.cc -- Unit testing for billionaire problem
+ * exec_add.cc -- Unit testing for executing the generated circuit
  *
  * Author: Xiaoting Tang <tang_xiaoting@brown.edu>
  * Copyright: Xiaoting Tang (2018)
@@ -29,15 +29,16 @@
 #define port           7798
 #define ot_port        43667
 
-TEST_F(EXECTest, Billionaire64)
+TEST_F(EXECTest, IfElseAddSub)
 {
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
-            "func billionaire(int64 a, int64 b) { "
-            " int1 ret = 0;                       "
-            " if (a > b) { ret = 1;             } "
-            " return ret;                       } ", 
-            "#definput     b    13                ",
+            "func ifelse(int64 a, int64 b) { "
+            " int64 ret = 0;                      "
+            " if (a > b) { ret = a + b; }         "
+            " else { ret = a - b; }               "
+            " return ret; }                       ",
+            "#definput     b    15                ",
             "#definput     a    14                ");
 }
 

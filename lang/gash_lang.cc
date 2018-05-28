@@ -312,7 +312,7 @@ namespace gashlang {
         case nIFEL: {
             Ifel* aifel = (Ifel*)ast;
             evalast_ifel(aifel, bret);
-        }
+        } break;
         case nFOR: {
             For* afor = (For*)ast;
             evalast_for(afor, bret);
@@ -563,9 +563,9 @@ namespace gashlang {
 
         if (bright.m_isconst) {
 
-          // Require the size of the left bundle larger than that of the right
+          // Require the size of the right bundle larger than or equal to that of the left
           // bundle
-          GASSERT(bleft->size() < bright.size());
+          GASSERT(bleft->size() <= bright.size());
 
           // Copy right to left, using only the size of the left bundle
           bleft->copyfrom(bright, 0, 0, bleft->size());
