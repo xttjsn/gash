@@ -103,17 +103,17 @@ namespace gashlang {
     /**
  * Bunble related functions
  */
-    Bundle::Bundle(vector<Wire*>& wires)
+    Bundle::Bundle(vector<Wire*>& wires) : m_isconst(false)
     {
         m_wires = wires;
     }
 
-    Bundle::Bundle(Wire* w)
+    Bundle::Bundle(Wire* w) : m_isconst(false)
     {
         m_wires.push_back(w);
     }
 
-    Bundle::Bundle(u32 len)
+    Bundle::Bundle(u32 len) : m_isconst(false)
     {
         for (u32 i = 0; i < len; i++) {
             Wire* w = nextwire();
@@ -203,6 +203,7 @@ namespace gashlang {
             this->m_wires_map.erase(w->m_id);
             wput(w);
         }
+        m_isconst = false;
     }
 
     void Bundle::clear_val()
@@ -230,7 +231,9 @@ namespace gashlang {
         bret.clear();
         while (i < 64 && i < n) {
             bret.add(getbit(v, i) == 1 ? onewire() : zerowire());
+            i++;
         }
+        bret.m_isconst = true;
     }
 
     void num2bundle(i64 v, Bundle& bret)
@@ -379,7 +382,7 @@ namespace gashlang {
         }
         m_input_dup.emplace(id_original, id_duplicate);
         m_input_dup.emplace(id_duplicate, id_original);
-        m_wires.emplace(id_duplicate, w_dup);
+        m_wires.insert(pair<u32, Wire*>(id_duplicate, w_dup));
         set_invert_wire(w, w_dup);
         add_input_wire(w_dup);
     }
@@ -430,6 +433,12 @@ namespace gashlang {
         case opDFF:
             m_prologue.numDFF++;
             break;
+        }
+    }
+
+    void print_idw_map(map<u32, Wire*> wires_map) {
+        for (auto it = wires_map.begin(); it != wires_map.end(); ++it) {
+            cout << it->first << ':' << it->second << endl;
         }
     }
 

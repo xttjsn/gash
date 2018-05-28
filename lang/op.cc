@@ -340,7 +340,7 @@ namespace gashlang {
         // Build (A_i ^ B_i)'
         Bundle xors;
         for (u32 i = 0; i < len; ++i) {
-            Wire* w;
+            Wire* w = nextwire();
             Wire* w_inv;
             int xor_status = evalw_XOR(in0[i], in1[i], w);
             if (xor_status < 0)
@@ -358,33 +358,25 @@ namespace gashlang {
         Wire* and_in0_in1;
         Wire* and_in0_in1_xor;
         for (u32 i = 0; i < len; ++i) {
-            if (i == 0)
+            if (i == 0) {
                 used_xor = onewire();
+                ret      = zerowire();
+            }
             else {
-                int and_status = evalw_AND(used_xor, xors[len - i], tmp);
-                if (and_status < 0)
-                    return and_status;
+                REQUIRE_GOOD_STATUS(evalw_AND(used_xor, xors[len - i], tmp));
                 used_xor = tmp;
             }
 
-            int inv_status = evalw_INV(in1[len - i - 1], tmp);
-            if (inv_status < 0)
-                return inv_status;
+            REQUIRE_GOOD_STATUS(evalw_INV(in1[len - i - 1], tmp));
             inv_in1 = tmp;
 
-            int and_status = evalw_AND(in0[len - i - 1], inv_in1, tmp);
-            if (and_status < 0)
-                return and_status;
+            REQUIRE_GOOD_STATUS(evalw_AND(in0[len - i - 1], inv_in1, tmp));
             and_in0_in1 = tmp;
 
-            and_status = evalw_AND(used_xor, and_in0_in1, tmp);
-            if (and_status < 0)
-                return and_status;
+            REQUIRE_GOOD_STATUS(evalw_AND(used_xor, and_in0_in1, tmp));
             and_in0_in1_xor = tmp;
 
-            int or_status = evalw_OR(ret, and_in0_in1_xor, tmp);
-            if (or_status < 0)
-                return or_status;
+            REQUIRE_GOOD_STATUS(evalw_OR(ret, and_in0_in1_xor, tmp));
             ret = tmp;
         }
 
@@ -474,25 +466,19 @@ namespace gashlang {
         Wire* w;
         Wire* cond_inv;
 
+        out.clear();
+
         for (u32 i = 0; i < len; ++i) {
-            int and_status = evalw_AND(cond, then_res[i], w);
-            if (and_status < 0)
-                return and_status;
+            REQUIRE_GOOD_STATUS(evalw_AND(cond, then_res[i], w));
             left.add(w);
         }
         for (u32 i = 0; i < len; ++i) {
-            int inv_status = evalw_INV(cond, cond_inv);
-            if (inv_status < 0)
-                return inv_status;
-            int and_status = evalw_AND(cond_inv, else_res[i], w);
-            if (and_status < 0)
-                return and_status;
-            left.add(w);
+            REQUIRE_GOOD_STATUS(evalw_INV(cond, cond_inv));
+            REQUIRE_GOOD_STATUS(evalw_AND(cond_inv, else_res[i], w));
+            right.add(w);
         }
         for (u32 i = 0; i < len; ++i) {
-            int or_status = evalw_OR(left[i], right[i], w);
-            if (or_status < 0)
-                return or_status;
+            REQUIRE_GOOD_STATUS(evalw_OR(left[i], right[i], w));
             out.add(w);
         }
         return 0;
@@ -630,18 +616,21 @@ namespace gashlang {
 
     int evalw_AND(Wire* in0, Wire* in1, Wire*& ret)
     {
+        ret = nextwire();
         write_gate(opAND, in0, in1, ret);
         return 0;
     }
 
     int evalw_OR(Wire* in0, Wire* in1, Wire*& ret)
     {
+        ret = nextwire();
         write_gate(opOR, in0, in1, ret);
         return 0;
     }
 
     int evalw_XOR(Wire* in0, Wire* in1, Wire*& ret)
     {
+        ret = nextwire();
         write_gate(opXOR, in0, in1, ret);
         return 0;
     }

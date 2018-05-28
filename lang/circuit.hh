@@ -109,6 +109,12 @@ namespace gashlang {
     vector<Wire*> m_wires;
     map<u32, Wire*> m_wires_map;
 
+    /// true if this bundle is derived from a constant value.
+    /// Default false.
+    /// If true, then during assignment, it is allowed to use only part
+    /// of the bundle
+    bool          m_isconst;
+
     Bundle() {}
 
     /**
@@ -442,6 +448,7 @@ namespace gashlang {
     void add_gate(int op, Wire* in0, Wire* in1, Wire* out);
   };
 
+    void print_idw_map(map<u32, Wire*> wires_map);
 }  // gashlang
 
 #endif

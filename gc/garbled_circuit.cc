@@ -259,9 +259,9 @@ namespace gashgc {
         int lbl1lsb = get_lsb(get_lbl1());
 
         if (lbl0lsb == lsb) {
-            return 0;
+            return m_inv ? 1 : 0;
         } else if (lbl1lsb == lsb) {
-            return 1;
+            return m_inv ? 0 : 1;
         } else {
             return -G_EINVAL;
         }

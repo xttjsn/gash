@@ -7,6 +7,8 @@
 
   extern "C" {int yyparse(void); int yylex(void); int yywrap() { return 1;} }
 
+  #define gcs get_current_scope
+
   using gashlang::Ast;
   using gashlang::Symbol;
   using gashlang::Vardef;
@@ -192,10 +194,10 @@ exp CMP exp                           { $$ = new_cop($2, $1, $3);             }
  /* Others */
 | '(' exp ')'					                { $$ = $2;							                }
 | I64						                      { $$ = new_num($1);					            }
-| NAME							                  { $$ = new_ref_int($1);	          }
+| NAME							                  { $$ = new_ref_int($1, gcs());	        }
 | exp '=' exp                         { $$ = new_asgn($1, $3);                }
 | vardef '=' exp                      { $$ = new_asgn($1, $3);                }
-| NAME '.' exp                        { $$ = new_ref_bit($1, $3);           }
+| NAME '.' exp                        { $$ = new_ref_bit($1, $3, gcs());      }
 ;
 
 ret: RETURN exp                 		  { $$ = new_ret($2);                  }

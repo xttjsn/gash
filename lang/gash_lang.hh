@@ -422,7 +422,7 @@ namespace gashlang {
    *
    * @return
    */
-  Ast* new_ref_int(Symbol* sym);
+  Ast* new_ref_int(Symbol* sym, Scope* scope);
 
   /**
    * Create new bit reference
@@ -432,7 +432,7 @@ namespace gashlang {
    *
    * @return
    */
-  Ast* new_ref_bit(Symbol* sym, Ast* bit_idx_ast);
+  Ast* new_ref_bit(Symbol* sym, Ast* bit_idx_ast, Scope* scope);
 
   /**
    * Create new assignment

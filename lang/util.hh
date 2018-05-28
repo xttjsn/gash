@@ -61,6 +61,7 @@ namespace gashlang {
       FATAL("i can only be 0 or 1");
   }
 
+
 }  // gashlang
 
 #endif

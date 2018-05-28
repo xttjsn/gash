@@ -41,7 +41,7 @@ $(lexer_CSRC): $(lexer_SRC) $(parser_HEAD)
 	@ echo "    Building lexer cc source"
 	@ flex --outfile=$@ $<
 
-%.o: %.cc %.hh
+%.o: %.cc %.hh util.hh
 	@ echo "    Compiling \"$<\""
 	@ $(CXX) $(CXXFLAGS) -c $< -o $@
 

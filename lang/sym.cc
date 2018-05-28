@@ -253,6 +253,7 @@ namespace gashlang {
                 return NULL;
         }
         Symbol* sym = scope->m_symbols.find(name)->second.back();
+
         return sym;
     }
 

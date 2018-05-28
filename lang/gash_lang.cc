@@ -40,10 +40,12 @@ namespace gashlang {
     void evalast_bop(Bop* bop, Bundle& bret);
     void evalast_cop(Cop* cop, Bundle& bret);
     void evalast_ref(Ref* ref, Bundle& bret);
+    Bundle* evalast_ref(Ref* ref);
     void evalast_asgn(Asgn* asgn, Bundle& bret);
     void evalast_num(Num* num, Bundle& bret);
     void evalast_ret(Ret* ret, Bundle& bret);
     void evalast_vdf(Vardef* vdf, Bundle& bret);
+    Bundle* evalast_vdf(Vardef* vdf);
     void evalast_if(If* aif, Bundle& bret);
     void evalast_ifel(Ifel* aifel, Bundle& bret);
     void evalast_for(For* afor, Bundle& bret);
@@ -118,20 +120,22 @@ namespace gashlang {
         return (Ast*)cop;
     }
 
-    Ast* new_ref_int(Symbol* sym)
+    Ast* new_ref_int(Symbol* sym, Scope* scope)
     {
         IntRef* ref = new IntRef;
         ref->m_reftype = rINT;
         ref->m_sym = sym;
+        ref->m_scope = scope;
         return (Ast*)ref;
     }
 
-    Ast* new_ref_bit(Symbol* sym, Ast* bit_idx_ast)
+    Ast* new_ref_bit(Symbol* sym, Ast* bit_idx_ast, Scope* scope)
     {
         BitRef* ref = new BitRef;
         ref->m_reftype = rBIT;
         ref->m_sym = sym;
         ref->m_bit_idx_ast = bit_idx_ast;
+        ref->m_scope = scope;
         return (Ast*)ref;
     }
 
@@ -324,6 +328,38 @@ namespace gashlang {
         }
     }
 
+    /**
+     * This is the evalast function used for left side arguments (assignable reference)
+     *
+     * @param ast
+     *
+     * @return The pointer to the assignable bundle
+     */
+    Bundle* evalast(Ast* ast) {
+
+        if (!ast) {
+            return NULL;
+        }
+
+        switch (ast->m_nodetype) {
+        case nNAME: {
+            FATAL("nNAME should never be evaluated, REF should have handled it.");
+        } break;
+        case nREF: {
+            Ref* ref = (Ref*)ast;
+            return evalast_ref(ref);
+        } break;
+        case nVDF: {
+            Vardef* vdf = (Vardef*)ast;
+            return evalast_vdf(vdf);
+        } break;
+        default:
+            FATAL("Unsupported nodetype : " << ast->m_nodetype);
+            break;
+        }
+
+    }
+
     void evalast_aop(Aop* aop, Bundle& bret)
     {
         Bundle bleft;
@@ -449,8 +485,16 @@ namespace gashlang {
 
     void evalast_ref(Ref* ref, Bundle& bret)
     {
+        /**
+         * The bundle attached to the symbol might already
+         * be an old version. So we should get the newest version
+         * of the same symbol
+         *
+         */
+
+        Symbol* new_sym = ref->m_scope->get_symbol_for_name(ref->m_sym->m_name);
         NumSymbol* sym;
-        FORCE_SYM_CAST(ref->m_sym, NUM, sym);
+        FORCE_SYM_CAST(new_sym, NUM, sym);
         if (ref->m_reftype == rINT) {
             bret = sym->m_bundle;
         } else if (ref->m_reftype == rBIT) {
@@ -463,18 +507,76 @@ namespace gashlang {
         }
     }
 
+    /**
+     * The assignable version of evalast_ref
+     * Will create a new symbol if *this* scope does not have the symbol
+     * Will not consider whether any of the ancestors has the symbol
+     *
+     * @param ref
+     *
+     * @return
+     */
+    Bundle* evalast_ref(Ref* ref) {
+
+        /**
+         * If the current scope does not has the symbol, create one with
+         * uninitialized values and wires (i.e. new wires).
+         * Otherwise, just use the old symbol
+         *
+         */
+
+        NumSymbol* nsym;
+
+        if (!ref->m_scope->has_symbol_for_name(ref->m_sym->m_name)) {
+            // Get the old symbol from ancestor scopes
+            Symbol* old_sym = ref->m_scope->get_symbol_for_name(ref->m_sym->m_name);
+
+            Symbol* new_sym = ref->m_scope->new_symbol(old_sym);
+            FORCE_SYM_CAST(new_sym, NUM, nsym);
+
+        } else {
+
+            Symbol* sym = ref->m_scope->get_symbol_for_name(ref->m_sym->m_name);
+            FORCE_SYM_CAST(sym, NUM, nsym);
+        }
+
+        if (ref->m_reftype == rINT) {
+            return &nsym->m_bundle;
+        } else {
+            FATAL("Not yet implemented");
+        }
+    }
+
     void evalast_asgn(Asgn* asgn, Bundle& bret)
     {
-        Bundle bleft;
+        Bundle* bleft;
         Bundle bright;
-        evalast(asgn->m_left, bleft);
+
+        // Use the assignable evalast to get the assignable bundle
+        // Otherwise we will only be able to get a copy
+        bleft = evalast(asgn->m_left);
         evalast(asgn->m_right, bright);
 
-        // Left and right must have same size
-        GASSERT(bleft.size() == bright.size());
+        if (bleft->m_isconst) {
+          FATAL("Left side bundle cannot be constant.");
+        }
 
-        // Copy right to left
-        bleft.copyfrom(bright, 0, 0, bright.size());
+        if (bright.m_isconst) {
+
+          // Require the size of the left bundle larger than that of the right
+          // bundle
+          GASSERT(bleft->size() < bright.size());
+
+          // Copy right to left, using only the size of the left bundle
+          bleft->copyfrom(bright, 0, 0, bleft->size());
+        } else {
+
+          // Left and right must have same size
+          GASSERT(bleft->size() == bright.size());
+
+          // Copy right to left
+          bleft->copyfrom(bright, 0, 0, bright.size());
+        }
 
         // one represents success
         bret = Bundle(onewire());
@@ -519,6 +621,23 @@ namespace gashlang {
                 mgc.add_input_wire(bret[i]);
             }
         }
+    }
+
+    Bundle* evalast_vdf(Vardef* vdf) {
+
+        // Num symbol: return its bundle
+        if (vdf->m_sym->m_type == NUM) {
+
+            NumSymbol* sym_n = (NumSymbol*)vdf->m_sym;
+
+            return &sym_n->m_bundle;
+
+        } else if (vdf->m_sym->m_type == ARRAY) { // Array symbol: return all its bundle as a single one
+            FATAL("Not yet implemented");
+        } else {
+            FATAL("Invalid symbol type" << vdf->m_sym->m_type);
+        }
+
     }
 
     void evalast_if(If* aif, Bundle& bret)

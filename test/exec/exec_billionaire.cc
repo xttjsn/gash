@@ -44,7 +44,7 @@ TEST_F(EXECTest, Billionaire64)
                           " int1 ret = 0;                       "
                           " if (a > b) { ret = 1;             } "
                           " return ret;                       } "
-                          "#definput     b    1                 ";
+                          "#definput     b    13                ";
 
         yyin = std::tmpfile();
         std::fputs(src, yyin);
@@ -81,7 +81,7 @@ TEST_F(EXECTest, Billionaire64)
                           " int1 ret = 0;                       "
                           " if (a > b) { ret = 1;             } "
                           " return ret;                       } "
-                          "#definput     a    0                 ";
+                          "#definput     a    14                ";
 
         yyin = std::tmpfile();
         std::fputs(src, yyin);
