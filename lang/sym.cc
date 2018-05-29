@@ -244,6 +244,19 @@ namespace gashlang {
         return sym;
     }
 
+    int Scope::get_ancestor_scope_that_has_symbol(string name, Scope*& pscope)
+    {
+        pscope = m_parent_scope;
+        while (!pscope->has_symbol_for_name(name)) {
+            pscope = pscope->m_parent_scope;
+            if (!pscope) {
+                pscope = NULL;
+                return -G_ENOENT;
+            }
+        }
+        return 1;
+    }
+
     Symbol* Scope::get_symbol_for_name(string name)
     {
         Scope* scope = this;

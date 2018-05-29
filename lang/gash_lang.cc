@@ -718,31 +718,26 @@ namespace gashlang {
             NumSymbol* if_sym;
             FORCE_SYM_CAST(if_scope->get_symbol_for_name(sym_name), NUM, if_sym);
 
-            // If this symbol was in prev_scope
-            if (prev_scope->has_symbol_for_name(sym_name)) {
-                // Get the symbol from prev_scope
-                NumSymbol* prev_sym;
-                FORCE_SYM_CAST(prev_scope->get_symbol_for_name(sym_name), NUM, prev_sym);
+            Scope* pscope;       // The pointer to an ancestor scope that has the symbol
+            if (if_scope->get_ancestor_scope_that_has_symbol(sym_name, pscope)) {
+                NumSymbol* p_sym;
+                FORCE_SYM_CAST(pscope->get_symbol_for_name(sym_name), NUM, p_sym);
 
-                // Create a new symbol
                 NumSymbol* new_sym;
-                FORCE_SYM_CAST(prev_scope->new_symbol(prev_sym), NUM, new_sym);
+                FORCE_SYM_CAST(pscope->new_symbol(p_sym), NUM, new_sym);
 
-                // If this symbol was in else_scope
                 if (else_scope->has_symbol_for_name(sym_name)) {
                     NumSymbol* else_sym;
-                    FORCE_SYM_CAST(else_scope->get_symbol_for_name(sym_name), NUM,
-                        else_sym);
+                    FORCE_SYM_CAST(else_scope->get_symbol_for_name(sym_name), NUM, else_sym);
 
-                    evalo_if(bcond[0], if_sym->m_bundle, else_sym->m_bundle,
-                        new_sym->m_bundle);
+                    evalo_if(bcond[0], if_sym->m_bundle, else_sym->m_bundle, new_sym->m_bundle);
+                } else {
 
-                } else { // If this symbol was not in else_scope
-
-                    evalo_if(bcond[0], if_sym->m_bundle, prev_sym->m_bundle,
-                        new_sym->m_bundle);
+                    evalo_if(bcond[0], if_sym->m_bundle, p_sym->m_bundle, new_sym->m_bundle);
                 }
+
             }
+
         }
 
         // Now that we handled symbols in if x else x prev, if x prev, we should
@@ -754,18 +749,18 @@ namespace gashlang {
             NumSymbol* else_sym;
             FORCE_SYM_CAST(else_scope->get_symbol_for_name(sym_name), NUM, else_sym);
 
-            // If this symbol was in prev_scope
-            if (prev_scope->has_symbol_for_name(sym_name)) {
-                // Get the symbol from prev_scope
-                NumSymbol* prev_sym;
-                FORCE_SYM_CAST(prev_scope->get_symbol_for_name(sym_name), NUM, prev_sym);
+            Scope* pscope;
+            if (else_scope->get_ancestor_scope_that_has_symbol(sym_name, pscope)) {
+
+                NumSymbol* p_sym;
+                FORCE_SYM_CAST(pscope->get_symbol_for_name(sym_name), NUM, p_sym);
 
                 // If this symbols was NOT in if_scope
                 if (!if_scope->has_symbol_for_name(sym_name)) {
                     NumSymbol* new_sym;
-                    FORCE_SYM_CAST(prev_scope->new_symbol(prev_sym), NUM, new_sym);
-                    evalo_if(bcond[0], else_sym->m_bundle, prev_sym->m_bundle,
-                        new_sym->m_bundle);
+                    FORCE_SYM_CAST(pscope->new_symbol(p_sym), NUM, new_sym);
+                    evalo_if(bcond[0], else_sym->m_bundle, p_sym->m_bundle,
+                             new_sym->m_bundle);
 
                 } else {
                     // Already handled in last for loop

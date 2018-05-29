@@ -43,19 +43,36 @@
 //             "#definput     a    14                ");
 // }
 
-TEST_F(EXECTest, IfElseAssgn)
+// TEST_F(EXECTest, IfElseAssgn)
+// {
+//   exec_test(g_ip,     e_ip,   g_circ, g_dat,
+//             e_circ,   e_dat,  port,   ot_port,
+//             "func ifelse(int4 a, int4 b) {      "
+//             " int4 ret = 0;                             "
+//             " int4 halfring = 5                  ;      "   // halfring = 12^59
+//             " int4 c = a + b;                           "
+//             " if ( halfring < c) { ret = 2; }           "
+//             " else { ret = 5; }                         "
+//             " return ret; }                              ",
+//             "#definput     b    3                       ",
+//             "#definput     a    2                       ");
+// }
+
+TEST_F(EXECTest, NestedIf)
 {
   exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func ifelse(int4 a, int4 b) {      "
             " int4 ret = 0;                             "
-            " int4 halfring = 5                  ;      "   // halfring = 12^59
             " int4 c = a + b;                           "
-            " if ( halfring < c) { ret = 2; }           "
-            " else { ret = 5; }                         "
-            " return ret; }                              ",
+            " int4 d = 6;                               "
+            " if ( a > d ) { ret = 2; }                 "
+            " else { if (a > b) { ret = 3; }            "
+            "        else  { ret = 1; }                 "
+            " }                                         "
+            " return ret; }                             ",
             "#definput     b    3                       ",
-            "#definput     a    2                       ");
+            "#definput     a    4                       ");
 }
 
 int main(int argc, char* argv[])

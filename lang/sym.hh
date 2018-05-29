@@ -213,6 +213,16 @@ namespace gashlang {
     Symbol* new_symbol(Symbol* sym_old);
 
     /**
+     * Get an ancestor scope that has a symbol with the name `name`.
+     *
+     * @param name
+     * @param pscope
+     *
+     * @return
+     */
+    int get_ancestor_scope_that_has_symbol(string name, Scope*& pscope);
+
+    /**
      * Get a symbol by searching from this scope downwards.
      * Will return NULL if nothing is found.
      *
