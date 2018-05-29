@@ -377,6 +377,10 @@ namespace gashgc {
 
         ObliviousSend(X, numOTs, bitlength, nsndvals, stype, rtype, crypt);
 
+        cout << "------ OT sender ------" << endl;
+        cout << "Send amount: " << m_vSocket->getSndCnt() << endl;
+        cout << "Recv amount: " << m_vSocket->getRcvCnt() << endl;
+
         Cleanup();
         delete crypt;
         delete glock;
@@ -477,6 +481,10 @@ namespace gashgc {
             REQUIRE_GOOD_STATUS(byte2label((char*)response_bytes, LABELSIZE * i, label));
             res_idlbl_map.emplace(id, label);
         }
+
+        cout << "------ OT receiver ------" << endl;
+        cout << "Send amount: " << m_vSocket->getSndCnt() << endl;
+        cout << "Recv amount: " << m_vSocket->getRcvCnt() << endl;
 
         Cleanup();
         delete crypt;

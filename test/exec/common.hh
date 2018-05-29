@@ -17,11 +17,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../gc/util.hh"
+
+#define EXPECT_EQ_with_Timer(val, expr, event_name)                        \
+    timer.tic(event_name);                                                 \
+    EXPECT_EQ(val, expr);                                                  \
+    timer.toc()
+
 #define exec_test(g_ip,		e_ip,	g_circ,	g_dat, 							\
 				  e_circ,	e_dat,	port, 	ot_port, 						\
 				  func_src, input_g, 	input_e)            				\
     srandom(time(0));														\
+    int role;                                    \
     if (fork() == 0) {														\
+        role = 1;                                 \
         sleep(0.5);															\
         m_circ_stream = ofstream(e_circ, std::ios::out | std::ios::trunc);	\
         m_data_stream = ofstream(e_dat, std::ios::out | std::ios::trunc);	\
@@ -32,23 +41,23 @@
         std::fputs(src, yyin);												\
         std::rewind(yyin);													\
         gashlang::set_ofstream(m_circ_stream, m_data_stream);				\
-        int parse_result = yyparse();										\
-        EXPECT_EQ(0, parse_result);											\
+        EXPECT_EQ_with_Timer(0, yyparse(), "Parsing");                          \
         Evaluator evaluator(g_ip, port, ot_port, e_circ, e_dat);			\
-        EXPECT_EQ(0, evaluator.build_circ());								\
-        EXPECT_EQ(0, evaluator.read_input());								\
-        EXPECT_EQ(0, evaluator.build_garbled_circuit());					\
-        EXPECT_EQ(0, evaluator.init_connection());							\
-        EXPECT_EQ(0, evaluator.recv_egtt());								\
+        EXPECT_EQ_with_Timer(0, evaluator.build_circ(), "Build circuit");								\
+        EXPECT_EQ_with_Timer(0, evaluator.read_input(), "Read input");								\
+        EXPECT_EQ_with_Timer(0, evaluator.build_garbled_circuit(), "Build garbled circuit");    \
+        EXPECT_EQ_with_Timer(0, evaluator.init_connection(), "Init connection");							\
+        EXPECT_EQ_with_Timer(0, evaluator.recv_egtt(), "Receive Encrypted Garbled Truth Tables");								\
         sleep(0.5);          												\
-        EXPECT_EQ(0, evaluator.recv_self_lbls());							\
-        EXPECT_EQ(0, evaluator.recv_peer_lbls());							\
-        EXPECT_EQ(0, evaluator.evaluate_circ());							\
-        EXPECT_EQ(0, evaluator.recv_output_map());							\
-        EXPECT_EQ(0, evaluator.recover_output());							\
-        EXPECT_EQ(0, evaluator.report_output());							\
-        EXPECT_EQ(0, evaluator.send_output());								\
+        EXPECT_EQ_with_Timer(0, evaluator.recv_self_lbls(), "Receive self labels");							\
+        EXPECT_EQ_with_Timer(0, evaluator.recv_peer_lbls(), "Receive peer labels");							\
+        EXPECT_EQ_with_Timer(0, evaluator.evaluate_circ(), "Evaluate circuit");							\
+        EXPECT_EQ_with_Timer(0, evaluator.recv_output_map(), "Receive output map");							\
+        EXPECT_EQ_with_Timer(0, evaluator.recover_output(), "Recover output");							\
+        EXPECT_EQ_with_Timer(0, evaluator.report_output(), "Report output");							\
+        EXPECT_EQ_with_Timer(0, evaluator.send_output(), "Send output");								\
     } else {																\
+        role = 0;                                                       \
         m_circ_stream = ofstream(g_circ, std::ios::out | std::ios::trunc);	\
         m_data_stream = ofstream(g_dat, std::ios::out | std::ios::trunc);	\
         extern FILE* yyin;													\
@@ -58,17 +67,16 @@
         std::fputs(src, yyin);												\
         std::rewind(yyin);													\
         gashlang::set_ofstream(m_circ_stream, m_data_stream);				\
-        int parse_result = yyparse();										\
-        EXPECT_EQ(0, parse_result);											\
+        EXPECT_EQ_with_Timer(0, yyparse(), "Parsing");											\
         Garbler garbler(e_ip, port, ot_port, g_circ, g_dat);				\
-        EXPECT_EQ(0, garbler.build_circ());									\
-        EXPECT_EQ(0, garbler.read_input());									\
-        EXPECT_EQ(0, garbler.garble_circ());								\
-        EXPECT_EQ(0, garbler.init_connection());							\
-        EXPECT_EQ(0, garbler.send_egtt());									\
-        EXPECT_EQ(0, garbler.send_peer_lbls());								\
-        EXPECT_EQ(0, garbler.send_self_lbls());								\
-        EXPECT_EQ(0, garbler.send_output_map());							\
-        EXPECT_EQ(0, garbler.recv_output());								\
-        EXPECT_EQ(0, garbler.report_output());								\
+        EXPECT_EQ_with_Timer(0, garbler.build_circ(), "Build circuit");									\
+        EXPECT_EQ_with_Timer(0, garbler.read_input(), "Read input");									\
+        EXPECT_EQ_with_Timer(0, garbler.garble_circ(), "Garble circuit");								\
+        EXPECT_EQ_with_Timer(0, garbler.init_connection(), "Init connection");							\
+        EXPECT_EQ_with_Timer(0, garbler.send_egtt(), "Send encrypted garbled truth tables");									\
+        EXPECT_EQ_with_Timer(0, garbler.send_peer_lbls(), "Send peer labels");								\
+        EXPECT_EQ_with_Timer(0, garbler.send_self_lbls(), "Send self labels");								\
+        EXPECT_EQ_with_Timer(0, garbler.send_output_map(), "Send output map");							\
+        EXPECT_EQ_with_Timer(0, garbler.recv_output(), "Receive output");								\
+        EXPECT_EQ_with_Timer(0, garbler.report_output(), "Report output");								\
     }

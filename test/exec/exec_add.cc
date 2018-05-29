@@ -32,6 +32,7 @@
 TEST_F(EXECTest, Add64)
 {
 
+    gashgc::Timer timer;
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func add(int64 a, int64 b) {       "
@@ -39,7 +40,7 @@ TEST_F(EXECTest, Add64)
             "}                                  ",
             "#definput     b    13              ",
             "#definput     a    14              ");
-    
+
 }
 
 int main(int argc, char* argv[])

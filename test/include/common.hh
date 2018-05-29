@@ -55,6 +55,7 @@ using gashgc::set_lsb;
 using gashgc::u32;
 using gashgc::u16;
 using gashgc::xor_block;
+using gashgc::tcp_report;
 
 using gashgc::OTParty;
 using gashgc::Garbler;
@@ -125,6 +126,17 @@ protected:
 
   ofstream m_circ_stream;
   ofstream m_data_stream;
+};
+
+class APITest : public ::testing::Test {
+protected:
+  virtual void SetUp() {
+
+  }
+
+  virtual void TearDown() {
+
+  }
 };
 
 #endif

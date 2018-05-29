@@ -69,6 +69,13 @@ namespace gashgc {
    */
   int tcp_recv_bytes(int socket, char* dest, u32 size);
 
+  /**
+   * Report send and recv statistics
+   *
+   *
+   * @return
+   */
+  int tcp_report();
 }
 
 #endif

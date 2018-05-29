@@ -22,6 +22,9 @@
 
 namespace gashgc {
 
+  static u32 ac_sent_amt = 0;
+  static u32 ac_recv_amt = 0;
+
     /**
    * Server init
    *
@@ -149,6 +152,7 @@ namespace gashgc {
             sent_amt += send_status;
         }
 
+        ac_sent_amt += sent_amt;
         return 0;
     }
 
@@ -181,6 +185,14 @@ namespace gashgc {
             recv_amt += recv_status;
         }
 
+        ac_recv_amt += recv_amt;
+        return 0;
+    }
+
+    int tcp_report()
+    {
+        cout << "Accumulated send amount:" << ac_sent_amt << endl;
+        cout << "Accumulated recv amount:" << ac_recv_amt << endl;
         return 0;
     }
 

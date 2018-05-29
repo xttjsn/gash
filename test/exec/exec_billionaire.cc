@@ -31,12 +31,13 @@
 
 TEST_F(EXECTest, Billionaire64)
 {
+    gashgc::Timer timer;
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func billionaire(int64 a, int64 b) { "
             " int1 ret = 0;                       "
             " if (a > b) { ret = 1;             } "
-            " return ret;                       } ", 
+            " return ret;                       } ",
             "#definput     b    13                ",
             "#definput     a    14                ");
 }

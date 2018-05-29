@@ -63,6 +63,8 @@ namespace gashgc {
 
     const char* m_curr_name;
 
+  public:
+
     void tic(const char*);
 
     void toc();

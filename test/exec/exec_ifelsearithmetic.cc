@@ -60,6 +60,8 @@
 
 TEST_F(EXECTest, NestedIf)
 {
+
+  gashgc::Timer timer;
   exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func ifelse(int4 a, int4 b) {      "

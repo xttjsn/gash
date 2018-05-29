@@ -32,6 +32,7 @@
 TEST_F(EXECTest, Sub64)
 {
 
+    gashgc::Timer timer;
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func sub(int64 a, int64 b) {       "
