@@ -318,11 +318,11 @@ namespace gashgc {
 
         if (block_eq(m_gw->m_lbl, get_lbl0())) {
 
-            return 0;
+            return 0 ^ get_inv();
 
         } else if (block_eq(m_gw->m_lbl, get_lbl1())) {
 
-            return 1;
+            return 1 ^ get_inv();
 
         } else {
 

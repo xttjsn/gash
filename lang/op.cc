@@ -190,13 +190,9 @@ namespace gashlang {
         GASSERT(in0.size() == in1.size());
         Bundle sub_res;
 
-        int sub_status = evala_SUB(in0, in1, sub_res);
-        if (sub_status < 0)
-            return sub_status;
+        REQUIRE_GOOD_STATUS(evala_SUB(in0, in1, sub_res));
 
-        int inv_status = evalw_INV(sub_res.back(), ret);
-        if (inv_status < 0)
-            return inv_status;
+        REQUIRE_GOOD_STATUS(evalw_INV(sub_res.back(), ret));
 
         out = sub_res;
         return 0;
@@ -211,9 +207,7 @@ namespace gashlang {
 
         // First, invert the bits
         for (u32 i = 0; i < len; ++i) {
-            int inv_status = evalw_INV(in[i], w);
-            if (inv_status < 0)
-                return inv_status;
+            REQUIRE_GOOD_STATUS(evalw_INV(in[i], w));
             tmp0.add(w);
         }
 
@@ -280,9 +274,8 @@ namespace gashlang {
 
         // Invert each wire
         for (u32 i = 0; i < len; ++i) {
-            int inv_status = evalw_INV(in[0], w);
-            if (inv_status < 0)
-                return inv_status;
+
+            REQUIRE_GOOD_STATUS(evalw_INV(in[0], w));
             out.add(w);
         }
         return 0;
@@ -340,14 +333,13 @@ namespace gashlang {
         // Build (A_i ^ B_i)'
         Bundle xors;
         for (u32 i = 0; i < len; ++i) {
-            Wire* w = nextwire();
+            Wire* w;
             Wire* w_inv;
-            int xor_status = evalw_XOR(in0[i], in1[i], w);
-            if (xor_status < 0)
-                return xor_status;
-            int inv_status = evalw_INV(w, w_inv);
-            if (inv_status < 0)
-                return inv_status;
+
+            REQUIRE_GOOD_STATUS(evalw_XOR(in0[i], in1[i], w));
+
+            REQUIRE_GOOD_STATUS(evalw_INV(w, w_inv));
+
             xors.add(w_inv);
         }
 
@@ -400,15 +392,13 @@ namespace gashlang {
         for (u32 i = 0; i < len; ++i) {
             Wire* w;
             Wire* w_inv;
-            int xor_status = evalw_XOR(in0[i], in1[i], w);
-            if (xor_status < 0)
-                return xor_status;
-            int inv_status = evalw_INV(w, w_inv);
-            if (inv_status < 0)
-                return inv_status;
-            int and_status = evalw_AND(w_inv, ret, tmp);
-            if (and_status < 0)
-                return and_status;
+
+            REQUIRE_GOOD_STATUS(evalw_XOR(in0[i], in1[i], w));
+
+            REQUIRE_GOOD_STATUS(evalw_INV(w, w_inv));
+
+            REQUIRE_GOOD_STATUS(evalw_AND(w_inv, ret, tmp));
+
             ret = tmp;
         }
 
@@ -421,16 +411,12 @@ namespace gashlang {
         Bundle ret_le;
         Bundle ret_eq;
         Wire* ret;
-        int le_status = evalc_LE(in0, in1, ret_le);
-        if (le_status < 0)
-            return le_status;
-        int eq_status = evalc_EQ(in0, in1, ret_eq);
-        if (eq_status < 0)
-            return eq_status;
 
-        int or_status = evalw_OR(ret_le[0], ret_eq[0], ret);
-        if (or_status < 0)
-            return or_status;
+        REQUIRE_GOOD_STATUS(evalc_LE(in0, in1, ret_le));
+
+        REQUIRE_GOOD_STATUS(evalc_EQ(in0, in1, ret_eq));
+
+        REQUIRE_GOOD_STATUS(evalw_OR(ret_le[0], ret_eq[0], ret));
 
         out.add(ret);
         return 0;
@@ -445,14 +431,13 @@ namespace gashlang {
     {
         Bundle ret_eq;
         Wire* ret;
-        int eq_status = evalc_EQ(in0, in1, ret_eq);
-        if (eq_status < 0)
-            return eq_status;
-        int inv_status = evalw_INV(ret_eq[0], ret);
-        if (inv_status < 0)
-            return inv_status;
+
+        REQUIRE_GOOD_STATUS(evalc_EQ(in0, in1, ret_eq));
+
+        REQUIRE_GOOD_STATUS(evalw_INV(ret_eq[0], ret));
 
         out.add(ret);
+
         return 0;
     }
 
@@ -486,9 +471,6 @@ namespace gashlang {
 
     void write_gate(int op, Wire* in0, Wire* in1, Wire*& out)
     {
-        // Mark both wires as used
-        in0->used();
-        in1->used();
 
         int v0 = in0->m_v;
         int v1 = in1->m_v;
@@ -580,6 +562,18 @@ namespace gashlang {
             // No wire is constant
             mgc.add_gate(op, in0, in1, out);
         }
+
+        /**
+         * Even if either in0 or in1 hasn't been actually 'used' in a gate,
+         * we should mark them as used. For example, if we assigned wire a to ret,
+         * and later we invert wire a, we want to only invert a but not ret. Therefore
+         * we should mark a as used at this point, so that the next time we invert a
+         * we will create a duplicate of a and not affect the ret we previously assigned.
+         *
+         */
+
+        in0->used();
+        in1->used();
     }
 
     int evalw_FADD(Wire* in0, Wire* in1, Wire*& cin, Wire*& ret)
@@ -635,66 +629,66 @@ namespace gashlang {
         return 0;
     }
 
+    /**
+     * "Used" means that this wire in in some gate
+     * When we can perform binary shortcuts, copy a pointer to the wire
+     * instead of using the original pointer. This is to prevent cases where
+     * we would like to re-use the old inverting status for that wire.
+     *
+     */
+
     int evalw_INV(Wire* in, Wire*& ret)
     {
-        // If `in` has not been used
-        if (!in->is_used_once()) {
-            // If `in` is constant wire
-            if (in->m_v >= 0) {
-                in->m_v ^= 1;
-                ret = in;
-            } else {
-                // Invert `in`'s id
 
-                if (mgc.is_input_wire(in)) {
-                    if (mgc.has_input_dup(in)) {
-                        ret = mgc.get_invert_wire(in);
-                    } else {
-                        ret = nextwire();
-                        mgc.set_input_inv_dup(in, ret);
-                    }
-                } else {
-                    in->invert();
-                    ret = in;
-                }
+        if (mgc.is_input_wire(in)) {
+
+            if (mgc.has_input_dup(in)) {
+
+                ret = mgc.get_invert_wire(in);
+            } else {
+
+                ret = nextwire();
+                mgc.set_input_inv_dup(in, ret);
             }
+
         } else {
-            // `in` is input wire
-            if (mgc.is_input_wire(in)) {
-                // If `in` has input invert duplicate
-                if (mgc.has_input_dup(in)) {
-                    ret = mgc.get_invert_wire(in);
-                } else {
-                    // `in` has no invert duplicate
-                    ret = nextwire();
-                    mgc.set_input_inv_dup(in, ret);
-                }
 
+            if (mgc.has_invert_wire(in)) {
+
+                ret = mgc.get_invert_wire(in);
             } else {
-                // If `in` is not input wire
-                // If `in` already has inverted wire
-                if (mgc.has_invert_wire(in)) {
-                    ret = mgc.get_invert_wire(in);
-                } else {
-                    // If `in` does not have inverted wire
 
-                    // If `in` is constant
-                    if (in->m_v >= 0) {
-                        ret = nextwire();
-                        ret->m_v = in->m_v ^ 1;
-                    } else {
-                        // `in` is not constant, make a duplicate of the gate
-                        Gate* parent_gate = in->m_parent_gate;
-                        REQUIRE_NOT_NULL(parent_gate);
-                        ret = nextwire();
-                        ret->invert_from(in);
-                        mgc.set_invert_wire(in, ret);
-                        write_gate(parent_gate->m_op, parent_gate->m_in0, parent_gate->m_in1,
-                            ret);
-                    }
+                if (in->m_v == 0 || in->m_v == 1) {
+                    /// Constant wires
+                    ret = nextwire();
+                    ret->copyfrom(in);
+                    ret->invert();
+                    mgc.add_wire(ret);
+                    mgc.set_invert_wire(in, ret);
+
+                } else {
+                    /// Non-constant wires
+
+                    Gate* parent_gate = in->m_parent_gate;
+                    REQUIRE_NOT_NULL(parent_gate);
+                    Wire* wcpy = nextwire();
+
+                    mgc.add_gate(parent_gate->m_op,
+                                 parent_gate->m_in0,
+                                 parent_gate->m_in1, wcpy);
+
+                    ret = nextwire();
+                    ret->copyfrom(wcpy);
+                    ret->invert();
+                    mgc.add_wire(ret);
+                    mgc.set_invert_wire(in, ret);
+
                 }
+
             }
+
         }
+
         return 0;
     }
 

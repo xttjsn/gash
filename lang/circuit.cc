@@ -43,10 +43,15 @@ namespace gashlang {
  */
     void Wire::invert()
     {
-        if (is_odd(this->m_id)) {
-            this->m_id--;
+        if (is_odd(m_id)) {
+            m_id--;
         } else {
-            this->m_id++;
+            m_id++;
+        }
+
+        /// If this is a constant wire, invert the value
+        if (m_v == 0 || m_v == 1) {
+            m_v ^= 1;
         }
     }
 
@@ -71,6 +76,15 @@ namespace gashlang {
         } else {
             this->set_id_odd();
         }
+    }
+
+    void Wire::copyfrom(Wire* w)
+    {
+        m_id = w->m_id;
+        m_v = w->m_v;
+        m_parent_gate = w->m_parent_gate;
+        m_children_gates = w->m_children_gates;
+        m_used_once = w->m_used_once;
     }
 
     void wput(Wire* w)
@@ -307,9 +321,9 @@ namespace gashlang {
             w = m_out[i];
             id = w->m_id;
             if (w->m_v == 0 || w->m_v == 1)
-              stream << "O:" << evenify(id) << ':' << w->m_v << endl;
+              stream << "O:" << id << ':' << w->m_v << endl;
             else
-              stream << "O:" << evenify(id) << endl;
+              stream << "O:" << id << endl;
         }
     }
 
@@ -338,6 +352,14 @@ namespace gashlang {
             stream << evenify(id) << ' ' << val << endl;
         }
 
+    }
+
+    void Circuit::add_wire(Wire* w)
+    {
+        if (m_wires.find(w->m_id) != m_wires.end()) {
+            FATAL("Wire already exists!");
+        }
+        m_wires.emplace(w->m_id, w);
     }
 
     void Circuit::add_input_wire(Wire* w)
@@ -418,6 +440,7 @@ namespace gashlang {
     void Circuit::add_gate(int op, Wire* in0, Wire* in1, Wire* out)
     {
         Gate* g = new Gate(op, in0, in1, out);
+
         m_gates.add(g);
         m_wires.emplace(out->m_id, out);
         switch (op) {

@@ -30,17 +30,32 @@
 #define port           7798
 #define ot_port        43667
 
-TEST_F(EXECTest, IfElseAddSub)
+// TEST_F(EXECTest, IfElseAddSub)
+// {
+//     exec_test(g_ip,     e_ip,   g_circ, g_dat,
+//             e_circ,   e_dat,  port,   ot_port,
+//             "func ifelse(int64 a, int64 b) { "
+//             " int64 ret = 0;                      "
+//             " if (a > b) { ret = a + b; }         "
+//             " else { ret = a - b; }               "
+//             " return ret; }                       ",
+//             "#definput     b    15                ",
+//             "#definput     a    14                ");
+// }
+
+TEST_F(EXECTest, IfElseAssgn)
 {
-    exec_test(g_ip,     e_ip,   g_circ, g_dat,
+  exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
-            "func ifelse(int64 a, int64 b) { "
-            " int64 ret = 0;                      "
-            " if (a > b) { ret = a + b; }         "
-            " else { ret = a - b; }               "
-            " return ret; }                       ",
-            "#definput     b    15                ",
-            "#definput     a    14                ");
+            "func ifelse(int4 a, int4 b) {      "
+            " int4 ret = 0;                             "
+            " int4 halfring = 5                  ;      "   // halfring = 12^59
+            " int4 c = a + b;                           "
+            " if ( halfring < c) { ret = 2; }           "
+            " else { ret = 5; }                         "
+            " return ret; }                              ",
+            "#definput     b    3                       ",
+            "#definput     a    2                       ");
 }
 
 int main(int argc, char* argv[])

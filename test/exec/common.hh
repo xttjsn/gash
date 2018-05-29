@@ -21,7 +21,7 @@
 				  e_circ,	e_dat,	port, 	ot_port, 						\
 				  func_src, input_g, 	input_e)            				\
     srandom(time(0));														\
-    if (fork() != 0) {														\
+    if (fork() == 0) {														\
         sleep(0.5);															\
         m_circ_stream = ofstream(e_circ, std::ios::out | std::ios::trunc);	\
         m_data_stream = ofstream(e_dat, std::ios::out | std::ios::trunc);	\

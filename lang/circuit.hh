@@ -83,6 +83,13 @@ namespace gashlang {
     void invert_from(Wire* w);
 
     /**
+     * Copy from another wire
+     *
+     * @param w
+     */
+    void copyfrom(Wire* w);
+
+    /**
      * Create indication that this wire is used.
      */
     inline void used() {
@@ -357,6 +364,13 @@ namespace gashlang {
      *
      */
     void write_input();
+
+    /**
+     * Add wire to circuit
+     *
+     * @param w
+     */
+    void add_wire(Wire* w);
 
     /**
      * Add input wire to the circuit.
