@@ -18,49 +18,30 @@
  */
 
 #include "../include/common.hh"
+#include "../../api/gash.hh"
+#include <gmpxx.h>
 
 #define g_ip "127.0.0.1"
 #define e_ip "127.0.0.1"
+#define c_ip "127.0.0.1"
 #define gc_port 44778
 #define ot_port 49887
 #define clt_gbl_port 56443
 #define clt_evl_port 46678
 
-TEST_F(APITest, Billionaire) {
+typedef vector<int> IntVec;
 
-    if (fork() == 0) {
-        // First child plays garbler
-        GarblerParty g(gc_port, ot_port, clt_gbl_port);
-        while (1) {
-            g.serve();
-        }
+gmp_randclass gmp_prn(gmp_randinit_default);
 
-    } else if (fork() == 0){
-        // Second child plays evaluator
-        EvaluatorParty e(gc_port, ot_port, clt_evl_port);
-        while (1) {
-            e.serve();
-        }
+TEST_F(APITest, Relu) {
 
-    } else {
-        // Parent plays client
+    mpz_class y = 10000;
+    gash_config_init();
+    gash_ss_client_init();
+    gash_ss_send_share(y);
+    gash_ss_recon_master(y);
 
-        // Sleep - wait for garbler and evaluator to set up
-        sleep(1);
-
-        ClientParty c(g_ip, e_ip, clt_gbl_port, clt_evl_port);
-
-        REQUIRE_GOOD_STATUS(c.connect_gbl());
-        REQUIRE_GOOD_STATUS(c.connect_evl());
-
-        REQUIRE_GOOD_STATUS(c.load_function("billionaire", 64));
-
-        u64 ret;
-        c.symbolic_call("billionaire", 64, 10, 20, ret);
-        EXPECT_EQ(0, ret);
-
-    }
-
+    printf("relu(x) = %s\n", y.get_str(10).c_str());
 }
 
 int main(int argc, char *argv[])

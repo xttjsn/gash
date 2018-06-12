@@ -2,6 +2,8 @@ BUILD_DIR      := build
 GC_LIB         := $(BUILD_DIR)/lib/libgash_gc.a
 LANG_LIB       := $(BUILD_DIR)/lib/libgash_lang.a
 MIRACL_LIB     := $(BUILD_DIR)/lib/libmiracl.a
+RES_LIB        := $(BUILD_DIR)/lib/libgash_res.a
+API_LIB        := $(BUILD_DIR)/lib/libgash_api.a
 GASH_SLIB      := $(BUILD_DIR)/lib/libgash.so
 HEAD           := $(parser_HEAD) $(lexer_HEAD) $(wildcard *.hh)
 SRC            := $(parser_CSRC) $(lexer_CSRC) $(filter-out main.cc, $(wildcard *.cc))
@@ -11,7 +13,7 @@ INSTALL_PREFIX := /usr/local
 CXX            := g++
 CXXFLAGS       := -std=c++11 -pthread -Wno-ignored-attributes -g -fPIC
 
-all: gc lang $(GASH_SLIB) test
+all: gc lang res api $(GASH_SLIB) test
 
 gc $(GC_LIB) $(MIRACL_LIB):
 	@ cd gc && make
@@ -19,7 +21,13 @@ gc $(GC_LIB) $(MIRACL_LIB):
 lang $(LANG_LIB):
 	@ cd lang && make
 
-$(GASH_SLIB): $(LANG_LIB) $(GC_LIB) $(MIRACL_LIB)
+res $(RES_LIB):
+	@ cd res && make
+
+api $(API_LIB):
+	@ cd api && make
+
+$(GASH_SLIB): $(LANG_LIB) $(GC_LIB) $(MIRACL_LIB) $(RES_LIB)
 	@ echo "    Building libgash.so"
 	@ echo "$(CXX) $^ -shared -o $@"
 	@ $(CXX) -g -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive
@@ -46,4 +54,4 @@ clean:
 	@ cd lang && $(MAKE) clean
 	@ cd gc && $(MAKE) clean
 
-.PHONY: all gc lang test clean cscope clang-format
+.PHONY: all gc lang api res test clean cscope clang-format

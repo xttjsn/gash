@@ -8,25 +8,26 @@ SRCS_OT           := $(wildcard OTExtension/ENCRYPTO_utils/*.cpp) \
 OBJS_OT           := $(addsuffix .o,$(basename $(SRCS_OT)))
 MIRACL_OLD_PATH   := OTExtension/ENCRYPTO_utils/miracl_lib/miracl.a
 MIRACL_LIB        := $(BUILD_DIR)/lib/libmiracl.a
+GC_LIB            := $(BUILD_DIR)/lib/libgash_gc.a
 
 CC                := gcc
 CXX               := g++
 CXXFLAGS          := -std=c++11 -maes -msse3 -pthread -O1 -Wno-ignored-attributes -fPIC -g
-LDFLAGS           := -lpthread -lssl -lcrypto -lgmp -lgmpxx
+LDFLAGS           := -lpthread -lssl -lcrypto -lgmp -lgmpxx -lboost
 CLANG-FORMAT      := clang-format
 
 .PHONY: all cscope clang-format clean
 
-all: otext libgash_gc.a
+all: otext $(GC_LIB)
 
-libgash_gc.a: $(OBJS) $(OBJS_OT)
+$(GC_LIB): $(OBJS) $(OBJS_OT)
 	@ echo "    Building $@"
+	@ mkdir -p ../build/lib
 ifeq ("$(wildcard $(MIRACL_LIB))","")
 	@ ./build_miracl.sh
 	@ mkdir -p ../build/lib && cp $(MIRACL_OLD_PATH) $(MIRACL_LIB)
 endif
 	@ ar rvs $@ $^
-	@ mkdir -p ../build/lib && cp $@ ../build/lib
 
 otext:
 	@ echo "     Building OTExtension"

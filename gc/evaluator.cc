@@ -445,6 +445,21 @@ namespace gashgc {
         return 0;
     }
 
+    int Evaluator::get_output(string& str)
+    {
+        u32 id;
+        for (auto it = m_c.m_out_id_vec.begin(); it != m_c.m_out_id_vec.end(); ++it) {
+            id = *it;
+            str += to_string(m_out_val_map.find(id)->second);
+        }
+
+        string cpy(str);
+        std::reverse(cpy.begin(), cpy.end());
+        str = cpy;
+
+        return 0;
+    }
+
     int Evaluator::send_output()
     {
 
@@ -466,6 +481,20 @@ namespace gashgc {
 
         return 0;
     }
+
+    int Evaluator::reset_circ()
+    {
+        m_gc = GC();
+        m_c = Circuit();
+        m_in_val_map = IdValueMap();
+        m_out_val_map = IdValueMap();
+        m_self_in_id_set = IdSet();
+        m_peer_in_id_set = IdSet();
+        m_circ_fpath = string();
+        m_input_fpath = string();
+        return 0;
+    }
+
 
     Evaluator::~Evaluator()
     {

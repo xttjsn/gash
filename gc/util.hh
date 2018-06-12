@@ -82,6 +82,8 @@ namespace gashgc {
 
   void split(string str, const char* delim, StringVec& ret);
 
+  string find_n_replace(string s, string pattern, string subst);
+
   /**
    * PRNG related
    *

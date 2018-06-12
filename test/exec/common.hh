@@ -28,6 +28,7 @@
 				  e_circ,	e_dat,	port, 	ot_port, 						\
 				  func_src, input_g, 	input_e)            				\
     srandom(time(0));														\
+    string output_str;                          \
     int role;                                    \
     if (fork() == 0) {														\
         role = 1;                                 \
@@ -56,6 +57,7 @@
         EXPECT_EQ_with_Timer(0, evaluator.recover_output(), "Recover output");							\
         EXPECT_EQ_with_Timer(0, evaluator.report_output(), "Report output");							\
         EXPECT_EQ_with_Timer(0, evaluator.send_output(), "Send output");								\
+        evaluator.get_output(output_str);                                      \
     } else {																\
         role = 0;                                                       \
         m_circ_stream = ofstream(g_circ, std::ios::out | std::ios::trunc);	\

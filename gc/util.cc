@@ -18,8 +18,8 @@
  */
 
 #include "util.hh"
-
 #include <cstring>
+#include <boost/algorithm/string/replace.hpp>
 
 namespace gashgc {
 
@@ -84,6 +84,12 @@ namespace gashgc {
           str.erase(0, pos + delimiter.length());
         }
         ret.push_back(str);
+    }
+
+    string find_n_replace(string s, string pattern, string subst)
+    {
+        boost::replace_all(s, pattern, subst);
+        return s;
     }
 
     void srand_sse(u32 s_seed)

@@ -52,10 +52,9 @@ using gashgc::get_lsb;
 using gashgc::new_tweak;
 using gashgc::random_block;
 using gashgc::set_lsb;
-using gashgc::u32;
-using gashgc::u16;
 using gashgc::xor_block;
 using gashgc::tcp_report;
+using gashgc::find_n_replace;
 
 using gashgc::OTParty;
 using gashgc::Garbler;

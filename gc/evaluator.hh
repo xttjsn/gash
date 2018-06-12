@@ -155,7 +155,30 @@ namespace gashgc {
      */
     int report_output();
 
-    /**
+      /**
+       * Get output as binary string
+       *
+       * @param str
+       *
+       * @return
+       */
+      int get_output(string& str);
+
+      /**
+       * Reset everything except TCP related information
+       *
+       *
+       * @return
+       */
+      int reset_circ();
+
+      /**
+       * Default constructor
+       *
+       */
+      Evaluator() {}
+
+      /**
      * Constructor
      *
      * @param peer_ip Ip address of garbler
@@ -164,13 +187,13 @@ namespace gashgc {
      * @param circ_file_path Circuit file path
      * @param input_file_path Input data file path
      */
-    Evaluator(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
+      Evaluator(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
-    /**
+      /**
      * Destructor
      *
      */
-    ~Evaluator();
+      ~Evaluator();
   };
 
 

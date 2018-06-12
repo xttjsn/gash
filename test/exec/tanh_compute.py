@@ -32,7 +32,6 @@ def compute_ts():
     t41 = -n2 * x1**2 / scale + c2 * x1 - 0 * (d2 * scale)
     t42 = -n2 * x2**2 / scale + c2 * x2 - 1 * (d2 * scale)
 
-
     bigX1  = x1
     bigX2  = x2 + ringsize if x2 < 0 else x2
 

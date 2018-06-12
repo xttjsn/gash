@@ -610,6 +610,19 @@ namespace gashgc {
 
     }
 
+    int Garbler::reset_circ()
+    {
+        m_gc = GC();
+        m_c = Circuit();
+        m_in_val_map = IdValueMap();
+        m_out_val_map = IdValueMap();
+        m_self_in_id_set = IdSet();
+        m_peer_in_id_set = IdSet();
+        m_circ_fpath = string();
+        m_input_fpath = string();
+        return 0;
+    }
+
     Garbler::~Garbler()
     {
 

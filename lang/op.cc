@@ -322,58 +322,129 @@ namespace gashlang {
 
     int evalc_LA(Bundle& in0, Bundle& in1, Bundle& out)
     {
-        // (A > B) = A_n & B_n' |
-        //           (A_n ^ B_n)' & ( A_{n-1} & B_{n-1}' ) |
-        //           (A_n ^ B_n)' & (A_{n-1} ^ B_{n-1})' & A_{n-2} & B_{n-2}' |
+        // Since we are using two's complement, modifications are made
+        // (A > B) = A_n' & B_n |    (<--- The MSB)
+        //           (A_n invand B_n) & (A_{n-1} & B_{n-1}')
+        //           (A_n invand B_n) & (A_{n-1} ^ B_{n-1})' & (A_{n-2} & B_{n-2}')
         //           ...
-        // Here & denotes AND, ^ denotes XOR, | denotes OR and ' denotes INV
+        //           (A_n and B_n) & (A_{n-1}' & B_{n-1})
+        //           (A_n and B_n) & (A_{n-1} ^ B_{n-1})' & (A_{n-2}' & B_{n-2})
+        //           ...
+        // Here & denotes AND, ^ denotes XOR, | denotes OR and ' denotes INV, invand denotes
+        // the binary operation where output is 1 iff both inputs are 0
+
+
         GASSERT(in0.size() == in1.size());
         u32 len = in0.size();
+        if (len < 2) {
+            FATAL("Cannot perform comparison for a single bit, I don't know whether \
+                    you are using two's complement or not.");
+        }
 
-        // Build (A_i ^ B_i)'
+
+        // 1) Build (A_i ^ B_i)'
         Bundle xors;
-        for (u32 i = 0; i < len; ++i) {
-            Wire* w;
-            Wire* w_inv;
-
+        for (u32 i = 0; i < len - 1; ++i)
+        {
+            Wire* w, *w_inv;
             REQUIRE_GOOD_STATUS(evalw_XOR(in0[i], in1[i], w));
-
             REQUIRE_GOOD_STATUS(evalw_INV(w, w_inv));
-
             xors.add(w_inv);
         }
 
+        // 2) Build the loop
         Wire* ret;
-        Wire* used_xor;
         Wire* tmp;
+        Wire* used_xor;
+        Wire* inv_in0;
         Wire* inv_in1;
         Wire* and_in0_in1;
-        Wire* and_in0_in1_xor;
-        for (u32 i = 0; i < len; ++i) {
-            if (i == 0) {
-                used_xor = onewire();
-                ret      = zerowire();
-            }
-            else {
-                REQUIRE_GOOD_STATUS(evalw_AND(used_xor, xors[len - i], tmp));
-                used_xor = tmp;
-            }
+        Wire* iand_in0_in1;
+        Wire* and_in0_iin1;
+        Wire* and_iin0_in1;
+        Wire* and_in0_iin1_xor;
+        Wire* and_iin0_in1_xor;
+        Wire* irow;
+        Wire* jrow;
 
-            REQUIRE_GOOD_STATUS(evalw_INV(in1[len - i - 1], tmp));
-            inv_in1 = tmp;
+        REQUIRE_GOOD_STATUS(evalw_INV(in0[len - 1], inv_in0));
+        REQUIRE_GOOD_STATUS(evalw_AND(in1[len - 1], inv_in0, ret));
+        used_xor = onewire();
 
-            REQUIRE_GOOD_STATUS(evalw_AND(in0[len - i - 1], inv_in1, tmp));
-            and_in0_in1 = tmp;
+        REQUIRE_GOOD_STATUS(evalw_IAND(in0[len - 1], in1[len - 1], iand_in0_in1));
+        REQUIRE_GOOD_STATUS(evalw_AND(in0[len - 1], in1[len - 1], and_in0_in1));
 
-            REQUIRE_GOOD_STATUS(evalw_AND(used_xor, and_in0_in1, tmp));
-            and_in0_in1_xor = tmp;
+        for (u32 i = 1; i < len; ++i) {
 
-            REQUIRE_GOOD_STATUS(evalw_OR(ret, and_in0_in1_xor, tmp));
+            REQUIRE_GOOD_STATUS(evalw_INV(in1[len - i - 1], inv_in1));
+            REQUIRE_GOOD_STATUS(evalw_AND(in0[len - i - 1], inv_in1, and_in0_iin1));
+            REQUIRE_GOOD_STATUS(evalw_AND(and_in0_iin1, used_xor, and_in0_iin1_xor));
+            REQUIRE_GOOD_STATUS(evalw_AND(and_in0_iin1_xor, iand_in0_in1, irow));
+            REQUIRE_GOOD_STATUS(evalw_OR(ret, irow, tmp));
             ret = tmp;
+
+            REQUIRE_GOOD_STATUS(evalw_INV(in0[len - i - 1], inv_in0));
+            REQUIRE_GOOD_STATUS(evalw_AND(in1[len - i - 1], inv_in0, and_iin0_in1));
+            REQUIRE_GOOD_STATUS(evalw_AND(and_iin0_in1, used_xor, and_iin0_in1_xor));
+            REQUIRE_GOOD_STATUS(evalw_AND(and_iin0_in1_xor, and_in0_in1, jrow));
+            REQUIRE_GOOD_STATUS(evalw_OR(ret, jrow, tmp));
+            ret = tmp;
+
+            REQUIRE_GOOD_STATUS(evalw_AND(used_xor, xors[len - i - 1], tmp));
+            used_xor = tmp;
+
         }
 
         out.add(ret);
         return 0;
+
+        // GASSERT(in0.size() == in1.size());
+        // u32 len = in0.size();
+
+        // // Build (A_i ^ B_i)'
+        // // Bundle xors;
+        // // for (u32 i = 0; i < len; ++i) {
+        // //     Wire* w;
+        // //     Wire* w_inv;
+
+        // //     REQUIRE_GOOD_STATUS(evalw_XOR(in0[i], in1[i], w));
+
+        // //     REQUIRE_GOOD_STATUS(evalw_INV(w, w_inv));
+
+        // //     xors.add(w_inv);
+        // // }
+
+        // Wire* ret;
+        // Wire* used_xor;
+        // Wire* tmp;
+        // Wire* inv_in1;
+        // Wire* and_in0_in1;
+        // Wire* and_in0_in1_xor;
+        // for (u32 i = 0; i < len; ++i) {
+        //     if (i == 0) {
+        //         used_xor = onewire();
+        //         ret      = zerowire();
+        //     }
+        //     else {
+        //         REQUIRE_GOOD_STATUS(evalw_AND(used_xor, xors[len - i], tmp));
+        //         used_xor = tmp;
+        //     }
+
+        //     REQUIRE_GOOD_STATUS(evalw_INV(in1[len - i - 1], tmp));
+        //     inv_in1 = tmp;
+
+        //     REQUIRE_GOOD_STATUS(evalw_AND(in0[len - i - 1], inv_in1, tmp));
+        //     and_in0_in1 = tmp;
+
+        //     REQUIRE_GOOD_STATUS(evalw_AND(used_xor, and_in0_in1, tmp));
+        //     and_in0_in1_xor = tmp;
+
+        //     REQUIRE_GOOD_STATUS(evalw_OR(ret, and_in0_in1_xor, tmp));
+        //     ret = tmp;
+        // }
+
+        // out.add(ret);
+        // return 0;
     }
 
     int evalc_LE(Bundle& in0, Bundle& in1, Bundle& out)
@@ -515,6 +586,16 @@ namespace gashlang {
                 }
                 break;
 
+            case opIAND:
+
+                if (v0 == 1) {
+                    out->m_v = 0;
+                } else {
+                    delete out;
+                    evalw_INV(in1, out);
+                }
+                break;
+
             default:
                 NOT_YET_IMPLEMENTED("Write gate : " << op);
                 break;
@@ -550,6 +631,16 @@ namespace gashlang {
                 if (v1 == 0) {
                     out = in0;
                 } else {
+                    evalw_INV(in0, out);
+                }
+                break;
+
+            case opIAND:
+
+                if (v1 == 1) {
+                    out->m_v = 0;
+                } else {
+                    delete out;
                     evalw_INV(in0, out);
                 }
                 break;
@@ -612,6 +703,13 @@ namespace gashlang {
     {
         ret = nextwire();
         write_gate(opAND, in0, in1, ret);
+        return 0;
+    }
+
+    int evalw_IAND(Wire* in0, Wire* in1, Wire*& ret)
+    {
+        ret = nextwire();
+        write_gate(opIAND, in0, in1, ret);
         return 0;
     }
 

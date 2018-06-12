@@ -261,9 +261,14 @@ namespace gashlang {
     {
         Scope* scope = this;
         while (!scope->has_symbol_for_name(name)) {
-            scope = scope->m_parent_scope;
-            if (!scope)
+            try {
+                scope = scope->m_parent_scope;
+                if (!scope)
+                    return NULL;
+            } catch (std::exception& e)
+            {
                 return NULL;
+            }
         }
         Symbol* sym = scope->m_symbols.find(name)->second.back();
 

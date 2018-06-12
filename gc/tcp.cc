@@ -72,6 +72,57 @@ namespace gashgc {
         return 0;
     }
 
+    int tcp_server_init2(u16 port, int& listen_sock, int& p0_sock, int& p1_sock)
+    {
+
+        int result;
+        int opt_val = 1;
+        struct sockaddr_in address;
+
+        listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        memset(&address, 0, sizeof(address));
+
+        address.sin_family = AF_INET;
+        address.sin_port = htons(port);
+        address.sin_addr.s_addr = INADDR_ANY;
+
+        setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
+        setsockopt(listen_sock, SOL_TCP, TCP_NODELAY, &opt_val, sizeof(opt_val));
+
+        result = bind(listen_sock, (struct sockaddr*)&address, sizeof(address));
+        if (result != 0) {
+            perror("bind() failed.");
+            WARNING("bind() failed.");
+            return -G_ETCP;
+        }
+
+        result = listen(listen_sock, 5);
+        if (result != 0) {
+            perror("listen() failed.");
+            WARNING("listen() fail.");
+            return -G_ETCP;
+        }
+
+        // Accept
+        size_t size = sizeof(address);
+        p0_sock = accept(listen_sock, (struct sockaddr*)&address, (socklen_t*)&size);
+        if (p0_sock < 0) {
+            perror("accept() failed");
+            WARNING("accept() failed");
+            return -G_ETCP;
+        }
+
+        p1_sock = accept(listen_sock, (struct sockaddr*)&address, (socklen_t*)&size);
+        if (p1_sock < 0) {
+            perror("accept() failed");
+            WARNING("accept() failed");
+            return -G_ETCP;
+        }
+        return 0;
+
+    }
+
     /**
    * Client init
    *
@@ -186,6 +237,33 @@ namespace gashgc {
         }
 
         ac_recv_amt += recv_amt;
+        return 0;
+    }
+
+    int tcp_send_mpz(int sock, mpz_class& mpz)
+    {
+        string buf = mpz.get_str(10);
+        int size = buf.size();
+        char cbuf[size];
+        memcpy(cbuf, buf.c_str(), size + 1);
+
+        REQUIRE_GOOD_STATUS(tcp_send_bytes(sock, (char*)&size, sizeof(size)));
+        REQUIRE_GOOD_STATUS(tcp_send_bytes(sock, cbuf, size));
+
+        return 0;
+    }
+
+    int tcp_recv_mpz(int sock, mpz_class& mpz)
+    {
+        int size;
+        REQUIRE_GOOD_STATUS(tcp_recv_bytes(sock, (char*)&size, sizeof(size)));
+
+        char cbuf[size+1];
+        memset(cbuf, 0, size+1);
+        REQUIRE_GOOD_STATUS(tcp_recv_bytes(sock, cbuf, size));
+
+        mpz_set_str(mpz.get_mpz_t(), cbuf, 10);
+
         return 0;
     }
 

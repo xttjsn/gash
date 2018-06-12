@@ -136,6 +136,20 @@ namespace gashgc {
      */
     int report_output();
 
+
+      /**
+       * Reset everything but tcp related information
+       *
+       * @return
+       */
+      int reset_circ();
+
+      /**
+       * Default constructor
+       *
+       */
+      Garbler() {}
+
     /**
      * Constructor
      *
