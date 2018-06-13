@@ -596,6 +596,21 @@ namespace gashgc {
         return 0;
     }
 
+    int Garbler::get_output(string& str)
+    {
+        u32 id;
+        for (auto it = m_c.m_out_id_vec.begin(); it != m_c.m_out_id_vec.end(); ++it) {
+            id = *it;
+            str += to_string(m_out_val_map.find(id)->second);
+        }
+
+        string cpy(str);
+        std::reverse(cpy.begin(), cpy.end());
+        str = cpy;
+
+        return 0;
+    }
+
     int Garbler::report_output()
     {
 

@@ -135,66 +135,121 @@ namespace gashlang {
     {
         GASSERT(in0.size() == in1.size());
         u32 len = in0.size();
-        u32 biglen = len * 2 - 1;
         Wire* r;
+        Wire* sign_different;
+        Wire* sign_same;
+        Wire* in0_positive;
+        Wire* in1_positive;
+        Wire* in0_negative;
+        Wire* in1_negative;
+        Bundle inv_in0;
+        Bundle inv_in1;
+        Bundle active_in0;
+        Bundle active_in1;
         Bundle tmp0;
         Bundle tmp1;
         Bundle sub_res;
-        for (u32 i = 0; i < len; i++) {
-            if (i == 0) {
-                // tmp0 = 000...in0
-                for (u32 j = 0; j < len; j++) {
-                    tmp0.add(in0[j]);
-                }
-                for (u32 j = 0; j < biglen - len; j++) {
-                    tmp0.add(zerowire());
-                }
 
-                // tmp1 = 000...in1
-                for (u32 j = 0; j < len; j++) {
-                    tmp1.add(in1[j]);
-                }
-                for (u32 j = 0; j < biglen - len; j++) {
-                    tmp1.add(zerowire());
-                }
+        // 1) Determine whether signs are different
+        evalw_XOR(in0.back(), in1.back(), sign_different);
+        evalw_INV(sign_different, sign_same);
+        in0_negative = in0.back();
+        in1_negative = in1.back();
+        evalw_INV(in0_negative, in0_positive);
+        evalw_INV(in1_negative, in1_positive);
 
-                int dvg_status = evala_DVG(tmp0, tmp1, sub_res, r);
-                if (dvg_status < 0)
-                    return dvg_status;
+        // 2) Compensate different signs
+        evala_UMINUS(in0, inv_in0);
+        evala_UMINUS(in1, inv_in1);
 
-            } else {
-                // tmp0 = 000..0 in1 000...0
-                for (u32 j = 0; j < len - i - 1; j++) {
-                    tmp0.add(zerowire());
-                }
-                for (u32 j = 0; j < len; j++) {
-                    tmp0.add(in1[j]);
-                }
-                for (u32 j = 0; j < i; j++) {
-                    tmp0.add(zerowire());
-                }
-
-                int dvg_status = evala_DVG(sub_res, tmp0, sub_res, r);
-                if (dvg_status < 0)
-                    return dvg_status;
-            }
-            out.add(r);
-            tmp0 = Bundle();
-            tmp1 = Bundle();
+        // 3) If an input is negative, then use the inverted version of the input
+        //   w* = (w & positive) | (w_inv & 'positive)
+        for (u32 i = 0; i < len; ++i)
+        {
+            Wire* w, *w_inv, *w_final;
+            REQUIRE_GOOD_STATUS(evalw_AND(in0[i], in0_positive, w));
+            REQUIRE_GOOD_STATUS(evalw_AND(inv_in0[i], in0_negative, w_inv));
+            REQUIRE_GOOD_STATUS(evalw_OR(w, w_inv, w_final));
+            active_in0.add(w_final);
         }
+        for (u32 i = 0; i < len; ++i)
+        {
+            Wire* w, *w_inv, *w_final;
+            REQUIRE_GOOD_STATUS(evalw_AND(in1[i], in1_positive, w));
+            REQUIRE_GOOD_STATUS(evalw_AND(inv_in1[i], in1_negative, w_inv));
+            REQUIRE_GOOD_STATUS(evalw_OR(w, w_inv, w_final));
+            active_in1.add(w_final);
+        }
+
+        // Prepare
+        for (u32 j = 0; j < len - 1; ++j)
+        {
+            sub_res.add(zerowire());
+        }
+
+        for (u32 i = 0; i < len; ++i)
+        {
+
+            // 1)
+            tmp0.add(active_in0[len - i - 1]);
+            for (u32 j = 0; j < len - 1; ++j)
+            {
+                tmp0.add(sub_res[j]);
+            }
+
+            // 2)
+            sub_res = Bundle();
+            REQUIRE_GOOD_STATUS(evala_DVG(tmp0, in1, sub_res, r));
+            out.push_front(r);
+            tmp0 = Bundle();
+        }
+
+        // Set sign back
+        Bundle out_inv;
+        evala_UMINUS(out, out_inv);
+        for (u32 i = 0; i < out.size(); ++i)
+        {
+            Wire* w, *w_inv, *w_final;
+            REQUIRE_GOOD_STATUS(evalw_AND(out[i], sign_same, w));
+            REQUIRE_GOOD_STATUS(evalw_AND(out_inv[i], sign_different, w_inv));
+            REQUIRE_GOOD_STATUS(evalw_OR(w, w_inv, w_final));
+            // out.setWire(w_final, i);
+        }
+
+        out = Bundle(out_inv);
+        // out = Bundle(active_in1);
+
         return 0;
     }
 
     int evala_DVG(Bundle& in0, Bundle& in1, Bundle& out, Wire*& ret)
     {
         GASSERT(in0.size() == in1.size());
-        Bundle sub_res;
 
-        REQUIRE_GOOD_STATUS(evala_SUB(in0, in1, sub_res));
+        Bundle bret;
+        Bundle bsub;
+        Wire* in0_LAE_in1;
+        Wire* in0_LE_in1;
 
-        REQUIRE_GOOD_STATUS(evalw_INV(sub_res.back(), ret));
+        // We can safely perform comparison since both in0 and in1 are
+        // guaranteed to be in positive / uncomplement form
+        REQUIRE_GOOD_STATUS(evalc_LAE(in0, in1, bret));
+        in0_LAE_in1 = bret[0];
+        REQUIRE_GOOD_STATUS(evalw_INV(in0_LAE_in1, in0_LE_in1));
 
-        out = sub_res;
+        REQUIRE_GOOD_STATUS(evala_SUB(in0, in1, bsub));
+
+        for (u32 i = 0; i < bsub.size(); ++i)
+        {
+            Wire *w, *w_original, *w_final;
+            evalw_AND(in0_LAE_in1, bsub[i], w);
+            evalw_AND(in0_LE_in1, in0[i], w_original);
+            evalw_OR(w, w_original, w_final);
+            out.add(w_final);
+        }
+
+        ret = in0_LAE_in1;
+
         return 0;
     }
 
@@ -495,7 +550,18 @@ namespace gashlang {
 
     int evalc_LAE(Bundle& in0, Bundle& in1, Bundle& out)
     {
-        return evalc_LEE(in1, in0, out);
+        Bundle ret_la;
+        Bundle ret_eq;
+        Wire* ret;
+
+        REQUIRE_GOOD_STATUS(evalc_LA(in0, in1, ret_la));
+
+        REQUIRE_GOOD_STATUS(evalc_EQ(in0, in1, ret_eq));
+
+        REQUIRE_GOOD_STATUS(evalw_OR(ret_la[0], ret_eq[0], ret));
+
+        out.add(ret);
+        return 0;
     }
 
     int evalc_NEQ(Bundle& in0, Bundle& in1, Bundle& out)

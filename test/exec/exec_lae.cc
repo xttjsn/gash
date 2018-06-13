@@ -1,5 +1,5 @@
 /*
- * exec.cc -- Unit testing for executing the generated circuit
+ * exec_neg.cc
  *
  * Author: Xiaoting Tang <tang_xiaoting@brown.edu>
  * Copyright: Xiaoting Tang (2018)
@@ -22,24 +22,28 @@
 
 #define g_ip           "127.0.0.1"
 #define e_ip           "127.0.0.1"
-#define g_circ         "sub_g.circ"
-#define g_dat          "sub_g.dat"
-#define e_circ         "sub_e.circ"
-#define e_dat          "sub_e.dat"
+#define g_circ         "lae_g.circ"
+#define g_dat          "lae_g.dat"
+#define e_circ         "lae_e.circ"
+#define e_dat          "lae_e.dat"
 #define port           7798
 #define ot_port        43667
 
-TEST_F(EXECTest, Sub64)
+TEST_F(EXECTest, Div64)
 {
 
     gashgc::Timer timer;
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
-            "func sub(int64 a, int64 b) {       "
-            "    return a - b;                  "
-            "}                                  ",
-            "#definput     b    15              ",
-            "#definput     a    14              ");
+            "func lae(int8 a, int8 b) {         "
+            "    int1 ret = 0;                    "
+            "    if (a >= b) { ret = 1; }         "
+            "    return ret;                      "
+            "}                                    ",
+            "#definput     a    56                ",
+            "#definput     b    1                 ");
+
+
 }
 
 int main(int argc, char* argv[])

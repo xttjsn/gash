@@ -35,15 +35,14 @@ gmp_randclass gmp_prn(gmp_randinit_default);
 
 TEST_F(APITest, Relu) {
 
-    mpz_class x1;
+    mpz_class x = -10000;
+    gmp_printf("x = %Zd\n", x);
     gash_config_init();
-    gash_init_as_evaluator(g_ip);
-    gash_connect_peer();
-    gash_ss_evaluator_init(c_ip, g_ip);
-    gash_ss_recv_share(x1);
+    gash_ss_client_init();
+    gash_ss_send_share(x);
+    gash_ss_recon_master(x);
 
-    mpz_class y1 = gash_ss_relu(x1, 64);
-    gash_ss_recon_slave(y1);
+    printf("relu(x) = %s\n", x.get_str(10).c_str());
 }
 
 int main(int argc, char *argv[])

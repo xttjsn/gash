@@ -25,6 +25,10 @@
 #include "../gc/garbler.hh"
 #include "../gc/evaluator.hh"
 #include "../lang/gash_lang.hh"
+#include <stack>
+
+using std::stack;
+
 
 #define GASH_GC_PORT  47768
 #define GASH_OT_PORT  48901
@@ -36,6 +40,15 @@
 #define CONFIG_K 40
 #define CONFIG_L_S 20
 
+#define TRIPLET_BATCH_SZ 1000
+
+typedef struct triplet {
+    mpz_class m_u;
+    mpz_class m_v;
+    mpz_class m_z;
+} triplet_t;
+
+
 // Initialization
 int gash_config_init();
 
@@ -46,13 +59,53 @@ int gash_connect_peer();
 int gash_ss_garbler_init(string client_ip);
 int gash_ss_evaluator_init(string client_ip, string peer_ip);
 int gash_ss_client_init();
+int gash_ss_recon_p2p(mpz_class share, mpz_class& ret);
 int gash_ss_recon_slave(mpz_class& share);
 int gash_ss_recon_master(mpz_class& ret);
 int gash_ss_send_share(mpz_class& x);
 int gash_ss_recv_share(mpz_class& share);
+int gash_ss_rescale_p2p(mpz_class& x);
+void gash_ss_generate_triplet();
+void gash_ss_share_triplet_master();
+void gash_ss_share_triplet_slave();
+triplet_t gash_ss_get_next_triplet();
 
 // Circuit functions
-mpz_class gash_ss_relu(mpz_class x, int ringsize);
-mpz_class gash_ss_relugrad(mpz_class x, int ringsize);
+mpz_class gash_ss_mul(mpz_class a, mpz_class b);
+mpz_class gash_ss_div(mpz_class a, mpz_class b);
+int gash_ss_la(mpz_class a, mpz_class b);
+mpz_class gash_ss_relu(mpz_class x);
+mpz_class gash_ss_relugrad(mpz_class x);
+/* mpz_class gash_ss_approx_exp(mpz_class x); */
+
+// Secdouble
+class secdouble
+{
+public:
+    mpz_class m_mpz;
+    secdouble(){}
+    secdouble(int i);
+    secdouble(double d);
+    secdouble(mpz_class mpz) : m_mpz(mpz) {}
+
+    void scaleup();
+    void scaledown();
+
+    secdouble& operator*(double& y) {
+        // Simple multiplication, y is assumed to have no scaling factor
+        m_mpz *= y;
+        return *this;
+    }
+    secdouble operator+(secdouble rhs);
+    secdouble operator+=(secdouble rhs);
+    secdouble operator*(secdouble rhs);  // Secure multiplication
+    secdouble operator*=(secdouble rhs);
+    secdouble operator/(secdouble rhs);
+    secdouble operator-(secdouble rhs);
+    secdouble operator-=(secdouble rhs);
+    int operator>(secdouble rhs);
+    secdouble& operator=(secdouble rhs);
+
+};
 
 #endif

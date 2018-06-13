@@ -1,5 +1,5 @@
 /*
- * exec_la.cc
+ * exec_neg.cc
  *
  * Author: Xiaoting Tang <tang_xiaoting@brown.edu>
  * Copyright: Xiaoting Tang (2018)
@@ -29,18 +29,20 @@
 #define port           7798
 #define ot_port        43667
 
-TEST_F(EXECTest, Relu64)
+TEST_F(EXECTest, Sub64)
 {
 
     gashgc::Timer timer;
-    exec_test(g_ip, e_ip, g_circ, g_dat,
-              e_circ, e_dat, port, ot_port,
-              "func  la(int64 in0, int64 in1 ) {                          "
-              "     int64 ret = 0;                                      "
-              "     if (in0 > in1) { ret = 1; }                         "
-              "     return ret; }                                       ",
-              "#definput in0 0                                          ",
-              "#definput in1 -1                                         ");
+    exec_test(g_ip,     e_ip,   g_circ, g_dat,
+            e_circ,   e_dat,  port,   ot_port,
+            "func la(int64 a, int64 b) {       "
+            "    int1 ret = 0;                  "
+            "    if (a > b) { ret = 1; }        "
+            "    return ret;                    "
+            "}                                  ",
+            "#definput     a    10000000000000000",
+            "#definput     b    100000000000000");
+
 }
 
 int main(int argc, char* argv[])

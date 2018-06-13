@@ -36,10 +36,11 @@ TEST_F(EXECTest, Sub64)
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
             "func sub(int64 a, int64 b) {       "
-            "    return a - b;                  "
+            "    return - b;                    "
             "}                                  ",
-            "#definput     b    15              ",
+            "#definput     b    13              ",
             "#definput     a    14              ");
+
 }
 
 int main(int argc, char* argv[])

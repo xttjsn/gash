@@ -25,132 +25,139 @@
 
 namespace gashgc {
 
-  class Garbler {
-  public:
+    class Garbler {
+    public:
+        /// The garbled circuit instance
+        GC m_gc;
 
-    /// The garbled circuit instance
-    GC                    m_gc;
+        /// The circuit instance
+        Circuit m_c;
 
-    /// The circuit instance
-    Circuit               m_c;
+        /// Number of inputs
+        u32 m_n_self_in;
+        u32 m_n_peer_in;
 
-    /// Number of inputs
-    u32                   m_n_self_in;
-    u32                   m_n_peer_in;
+        /// Map wire id to values (0/1)
+        IdValueMap m_in_val_map;
+        IdValueMap m_out_val_map;
 
-    /// Map wire id to values (0/1)
-    IdValueMap            m_in_val_map;
-    IdValueMap            m_out_val_map;
+        /// The set of input/output ids //TODO: remove value map if don't need them
+        IdSet m_self_in_id_set;
+        IdSet m_peer_in_id_set;
 
-    /// The set of input/output ids //TODO: remove value map if don't need them
-    IdSet                 m_self_in_id_set;
-    IdSet                 m_peer_in_id_set;
+        /// Network related stuff
+        int m_peer_sock;
+        int m_peer_ot_sock;
+        int m_listen_sock;
+        string m_self_ip;
+        string m_peer_ip;
+        u16 m_port;
+        u16 m_ot_port;
 
-    /// Network related stuff
-    int                   m_peer_sock;
-    int                   m_peer_ot_sock;
-    int                   m_listen_sock;
-    string                m_self_ip;
-    string                m_peer_ip;
-    u16                   m_port;
-    u16                   m_ot_port;
+        /// File paths
+        string m_circ_fpath;
+        string m_input_fpath;
 
-    /// File paths
-    string                m_circ_fpath;
-    string                m_input_fpath;
-
-    /**
+        /**
      * Read circuit file and build a circuit
      *
      *
      * @return
      */
-    int build_circ();
+        int build_circ();
 
-    /**
+        /**
      * Read input data from input data file
      *
      *
      * @return
      */
-    int read_input();
+        int read_input();
 
-    /**
+        /**
      * Garble the circuit
      *
      * @return
      */
-    int garble_circ();
+        int garble_circ();
 
-    /**
+        /**
      * Build connection with evaluator
      *
      * @return
      */
-    int init_connection();
+        int init_connection();
 
-    /**
+        /**
      * Send encrypted garbled truth table to evaluator
      *
      * @return
      */
-    int send_egtt();
+        int send_egtt();
 
-    /**
+        /**
      * Send garbler's labels, directly.
      *
      *
      * @return
      */
-    int send_self_lbls();
+        int send_self_lbls();
 
-    /**
+        /**
      * Send evaluator's labels, through Oblivious Transfer
      *
      *
      * @return
      */
-    int send_peer_lbls();
+        int send_peer_lbls();
 
-    /**
+        /**
      * Send output map to evaluator
      *
      *
      * @return
      */
-    int send_output_map();
+        int send_output_map();
 
-    /**
+        /**
      * Receive output from evaluator
      *
      *
      * @return
      */
-    int recv_output();
+        int recv_output();
 
-    /**
+        /**
+       * Get output as binary string
+       *
+       * @param str
+       *
+       * @return
+       */
+        int get_output(string& str);
+
+        /**
      * Report received output
      *
      *
      * @return
      */
-    int report_output();
+        int report_output();
 
-
-      /**
+        /**
        * Reset everything but tcp related information
        *
        * @return
        */
-      int reset_circ();
+        int reset_circ();
 
-      /**
+        /**
        * Default constructor
        *
        */
-      Garbler() {}
+        Garbler() {}
 
-    /**
+        /**
      * Constructor
      *
      * @param peer_ip The ip of peer (currently only useful for oblivious transfer)
@@ -159,17 +166,15 @@ namespace gashgc {
      * @param circ_file_path
      * @param input_file_path
      */
-    Garbler(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
+        Garbler(string peer_ip, u16 port, u16 ot_port, string circ_file_path, string input_file_path);
 
-    /**
+        /**
      * Destructor
      *
      */
-    ~Garbler();
+        ~Garbler();
+    };
 
-
-  };
-
-}
+} // namespace gashgc
 
 #endif

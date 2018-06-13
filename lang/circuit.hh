@@ -178,6 +178,13 @@ namespace gashlang {
      */
     Wire* operator[](u32 i);
 
+      /**
+       * Insert wire at the front
+       *
+       * @param w
+       */
+      void push_front(Wire* w);
+
     /**
      * Return the last wire
      *
@@ -203,6 +210,14 @@ namespace gashlang {
      * @return
      */
     Wire* getWire(u32 i);
+
+      /**
+       * Set wire
+       *
+       * @param w
+       * @param i
+       */
+      int setWire(Wire* w, u32 i);
 
     /**
      * Size of the bundle.

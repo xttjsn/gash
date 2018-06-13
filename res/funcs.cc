@@ -58,9 +58,25 @@ namespace gashres {
         "func ss_relugrad (intXXX in0, intXXX in1, intXXX r) {    "
         "     intXXX sum = in0 + in1;                             "
         "     intXXX ret = 0;                                     "
-        "     if (sum > 0) { ret = sum - r; }                       "
+        "     if (sum > 0) { ret = sum - r; }                     "
         "     else { ret = 0 - r; }                               "
         "     return ret; }                                       ";
+
+    const string fsrc_ss_la =
+        "func ss_la(intXXX a0, intXXX b0, intXXX a1, intXXX b1) { "
+        "    intXXX a = a0 + a1;                                  "
+        "    intXXX b = b0 + b1;                                  "
+        "    int1   ret = 0;                                      "
+        "    if (a > b) { ret = 1; }                              "
+        "    return ret;                                          ";
+
+    const string fsrc_ss_div =
+        "func ss_div(intXXX a0, intXXX b0, intXXX a1, intXX b1, intXXX r) { "
+        "    intXXX a = a0 + a1;                                            "
+        "    intXXX b = b0 + b1;                                            "
+        "    int div = a / b;                                               "
+        "    ret = div - r;                                                 "
+        "    return ret;                                                    ";
 
 
     string find_n_replace(string s, string pattern, string subst)

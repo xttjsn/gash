@@ -27,7 +27,7 @@ res $(RES_LIB):
 api $(API_LIB):
 	@ cd api && make
 
-$(GASH_SLIB): $(LANG_LIB) $(GC_LIB) $(MIRACL_LIB) $(RES_LIB)
+$(GASH_SLIB): $(LANG_LIB) $(GC_LIB) $(MIRACL_LIB) $(RES_LIB) $(API_LIB)
 	@ echo "    Building libgash.so"
 	@ echo "$(CXX) $^ -shared -o $@"
 	@ $(CXX) -g -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive

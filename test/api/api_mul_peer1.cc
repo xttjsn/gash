@@ -1,5 +1,5 @@
 /*
- * api_connect.cc -- Unit tests for api
+ * api_mul.cc -- Unit tests for api
  *
  * Author: Xiaoting Tang <tang_xiaoting@brown.edu>
  * Copyright: Xiaoting Tang (2018)
@@ -19,7 +19,6 @@
 
 #include "../include/common.hh"
 #include "../../api/gash.hh"
-#include <gmpxx.h>
 
 #define g_ip "127.0.0.1"
 #define e_ip "127.0.0.1"
@@ -33,15 +32,22 @@ typedef vector<int> IntVec;
 
 gmp_randclass gmp_prn(gmp_randinit_default);
 
-TEST_F(APITest, Relu) {
+TEST_F(APITest, SecMul) {
 
-    mpz_class y = 10000;
+    // Second child is peer1 / evaluator
+
+    mpz_class a1;
+    mpz_class b1;
     gash_config_init();
-    gash_ss_client_init();
-    gash_ss_send_share(y);
-    gash_ss_recon_master(y);
+    gash_init_as_evaluator(g_ip);
+    gash_connect_peer();
+    gash_ss_evaluator_init(c_ip, g_ip);
+    gash_ss_recv_share(a1);
+    gash_ss_recv_share(b1);
+    gash_ss_share_triplet_slave();
 
-    printf("relu(x) = %s\n", y.get_str(10).c_str());
+    mpz_class y1 = gash_ss_mul(a1, b1);
+    gash_ss_recon_slave(y1);
 }
 
 int main(int argc, char *argv[])

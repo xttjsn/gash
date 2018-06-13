@@ -145,10 +145,17 @@ namespace gashlang {
     void Bundle::add(Wire* w, u32 i)
     {
         GASSERT(i <= size());
-        // Cannot add duplicate wire
         GASSERT(m_wires_map.find(w->m_id) == m_wires_map.end());
         m_wires.insert(m_wires.begin() + i, w);
-        m_wires_map.insert(make_pair(w->m_id, w));
+        m_wires_map.emplace(w->m_id, w);
+        wref(w);
+    }
+
+    void Bundle::push_front(Wire* w)
+    {
+        GASSERT(m_wires_map.find(w->m_id) == m_wires_map.end());
+        m_wires.insert(m_wires.begin(), w);
+        m_wires_map.emplace(w->m_id, w);
         wref(w);
     }
 
@@ -163,6 +170,13 @@ namespace gashlang {
             return NULL;
         }
         return m_wires_map.find(i)->second;
+    }
+
+    int Bundle::setWire(Wire* w, u32 i)
+    {
+        m_wires_map[w->m_id] = w;
+        m_wires[i] = w;
+        return 0;
     }
 
     Wire* Bundle::back()

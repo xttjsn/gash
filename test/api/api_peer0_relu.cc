@@ -42,7 +42,7 @@ TEST_F(APITest, Relu) {
     gash_ss_garbler_init(c_ip);
     gash_ss_recv_share(x0);
 
-    mpz_class y0 = gash_ss_relu(x0, 64);
+    mpz_class y0 = gash_ss_relu(x0);
     gash_ss_recon_slave(y0);
 }
 
