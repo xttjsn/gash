@@ -213,11 +213,91 @@ namespace gashlang {
             REQUIRE_GOOD_STATUS(evalw_AND(out[i], sign_same, w));
             REQUIRE_GOOD_STATUS(evalw_AND(out_inv[i], sign_different, w_inv));
             REQUIRE_GOOD_STATUS(evalw_OR(w, w_inv, w_final));
-            // out.setWire(w_final, i);
+            out.setWire(w_final, i);
         }
 
-        out = Bundle(out_inv);
-        // out = Bundle(active_in1);
+
+        // Bundle out_inv;
+        // Bundle one;
+        // Bundle ret;
+        // evalb_INV(out, out_inv);
+        // one.add(zerowire());
+        // for (int i = 1; i < out.size()-3; ++i)
+        // {
+        //     one.add(zerowire());
+        // }
+        // one.add(onewire());
+        // one.add(zerowire());
+        // one.add(zerowire());
+
+        // Wire *a, *b, *cin, *w_xor, *w_s, *w_and1, *w_and2, *w_newcin;
+        // cin = zerowire();
+        // for (int i = 3; i < 6; ++i)
+        // {
+        //     w_xor = nextwire();
+        //     w_s = nextwire();
+        //     w_newcin = nextwire();
+        //     w_and1 = nextwire();
+        //     w_and2 = nextwire();
+        //     a = one[i];
+        //     b = out_inv[i];
+        //     write_gate(opXOR, a, b, w_xor);
+        //     write_gate(opXOR, w_xor, cin, w_s);
+        //     write_gate(opAND, w_xor, cin, w_and1);
+        //     write_gate(opAND, a, b, w_and2);
+        //     write_gate(opOR, w_and1, w_and2, w_newcin);
+        //     cin = w_newcin;
+        //     out_inv.setWire(w_s, i);
+        // }
+
+        // out = Bundle(out_inv);
+
+        // w_xor = nextwire();
+        // w_s = nextwire();
+        // w_newcin = nextwire();
+        // w_and1 = nextwire();
+        // w_and2 = nextwire();
+        // a = one[3];
+        // b = out_inv[3];
+        // write_gate(opXOR, a, b, w_xor);
+        // write_gate(opXOR, w_xor, cin, w_s);
+        // write_gate(opAND, w_xor, cin, w_and1);
+        // write_gate(opAND, a, b, w_and2);
+        // write_gate(opOR, w_and1, w_and2, w_newcin);
+        // cin = w_newcin;
+
+        // w_xor = nextwire();
+        // w_s = nextwire();
+        // w_newcin = nextwire();
+        // w_and1 = nextwire();
+        // w_and2 = nextwire();
+        // a = one[4];
+        // b = out_inv[4];
+        // write_gate(opXOR, a, b, w_xor);
+        // write_gate(opXOR, w_xor, cin, w_s);
+        // write_gate(opAND, w_xor, cin, w_and1);
+        // write_gate(opAND, a, b, w_and2);
+        // write_gate(opOR, w_and1, w_and2, w_newcin);
+        // cin = w_newcin;
+
+        // w_xor = nextwire();
+        // w_s = nextwire();
+        // w_newcin = nextwire();
+        // w_and1 = nextwire();
+        // w_and2 = nextwire();
+        // a = one[5];
+        // b = out_inv[5];
+        // write_gate(opXOR, a, b, w_xor);
+        // write_gate(opXOR, w_xor, cin, w_s);
+        // write_gate(opAND, w_xor, cin, w_and1);
+        // write_gate(opAND, a, b, w_and2);
+        // write_gate(opOR, w_and1, w_and2, w_newcin);
+
+        // // We expect it to be 101
+        // out = Bundle();
+        // out.add(w_xor);
+        // out.add(cin);
+        // out.add(w_s);
 
         return 0;
     }
@@ -330,7 +410,7 @@ namespace gashlang {
         // Invert each wire
         for (u32 i = 0; i < len; ++i) {
 
-            REQUIRE_GOOD_STATUS(evalw_INV(in[0], w));
+            REQUIRE_GOOD_STATUS(evalw_INV(in[i], w));
             out.add(w);
         }
         return 0;

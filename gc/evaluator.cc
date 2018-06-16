@@ -391,8 +391,8 @@ namespace gashgc {
                 return -G_ENOENT;
             }
 
-            gw->set_lbl0(lbl0);
-            gw->set_lbl1(lbl1);
+            gw->set_orig_lbl0(lbl0);
+            gw->set_orig_lbl1(lbl1);
         }
 
         return 0;

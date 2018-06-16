@@ -548,8 +548,8 @@ namespace gashgc {
             }
 
             // Non-constant output
-            REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, 0, lbl0));
-            REQUIRE_GOOD_STATUS(m_gc.get_lbl(id, 1, lbl1));
+            REQUIRE_GOOD_STATUS(m_gc.get_orig_lbl(id, 0, lbl0));
+            REQUIRE_GOOD_STATUS(m_gc.get_orig_lbl(id, 1, lbl1));
 
             REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&id, sizeof(u32)));
             REQUIRE_GOOD_STATUS(tcp_send_bytes(m_peer_sock, (char*)&lbl0, LABELSIZE));

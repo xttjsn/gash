@@ -41,6 +41,21 @@ TEST_F(EXECTest, Add64)
             "#definput     b    13              ",
             "#definput     a    14              ");
 
+    mpz_class mpz1 = 1;
+    mpz_class m_config_l = 1;
+    mpz_class m_config_l_1 = 1;
+    mpz_mul_2exp(m_config_l.get_mpz_t(), mpz1.get_mpz_t(), 64);
+    mpz_mul_2exp(m_config_l_1.get_mpz_t(), mpz1.get_mpz_t(), 63);
+
+    mpz_class output;
+    mpz_set_str(output.get_mpz_t(), output_str.c_str(), 2);
+    printf("output_str = %s\n", output_str.c_str());
+
+    if (output > m_config_l_1) {
+        output = m_config_l - output;
+    }
+    gmp_printf("output is %Zd\n", output);
+
 }
 
 int main(int argc, char* argv[])

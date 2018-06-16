@@ -148,6 +148,17 @@ namespace gashgc {
         return -G_ENOENT;
     }
 
+    int GC::get_orig_lbl(u32 id, int val, block& lbl)
+    {
+        GASSERT(val == 0 || val == 1);
+        auto it = m_gwi_map.find(id);
+        if (it != m_gwi_map.end()) {
+            lbl = it->second->get_orig_lbl_w_smtc(val);
+            return 0;
+        }
+        return -G_ENOENT;
+    }
+
     void GC::init()
     {
         srand_sse(time(NULL));
@@ -260,8 +271,10 @@ namespace gashgc {
 
         if (lbl0lsb == lsb) {
             return m_inv ? 1 : 0;
+            // return 0;
         } else if (lbl1lsb == lsb) {
             return m_inv ? 0 : 1;
+            // return 1;
         } else {
             return -G_EINVAL;
         }
@@ -273,6 +286,15 @@ namespace gashgc {
             return get_lbl0();
         } else {
             return get_lbl1();
+        }
+    }
+
+    block GWI::get_orig_lbl_w_smtc(int smtc)
+    {
+        if (smtc == 0) {
+            return get_orig_lbl0();
+        } else {
+            return get_orig_lbl1();
         }
     }
 
@@ -305,8 +327,10 @@ namespace gashgc {
         }
 
         if (smtc == 0) {
+            // m_gw->m_lbl0 = lbl;
             set_lbl0(lbl);
         } else {
+            // m_gw->m_lbl1 = lbl;
             set_lbl1(lbl);
         }
 
@@ -318,11 +342,13 @@ namespace gashgc {
 
         if (block_eq(m_gw->m_lbl, get_lbl0())) {
 
-            return 0 ^ get_inv();
+            // return 0 ^ get_inv();
+            return 0;
 
         } else if (block_eq(m_gw->m_lbl, get_lbl1())) {
 
-            return 1 ^ get_inv();
+            // return 1 ^ get_inv();
+            return 1;
 
         } else {
 

@@ -150,6 +150,8 @@ namespace gashgc {
      */
     int get_lbl(u32 id, int val, block& lbl);
 
+      int get_orig_lbl(u32 id, int val, block& lbl);
+
     /**
      * Init R
      *
@@ -250,6 +252,10 @@ namespace gashgc {
       return m_inv ? m_gw->m_lbl1: m_gw->m_lbl0;
     }
 
+      block get_orig_lbl0() {
+          return m_gw->m_lbl0;
+      }
+
     /**
      * Get label 1
      *
@@ -259,6 +265,9 @@ namespace gashgc {
       return m_inv ? m_gw->m_lbl0: m_gw->m_lbl1;
     }
 
+      block get_orig_lbl1() {
+          return m_gw->m_lbl1;
+      }
     /**
      * Get label
      *
@@ -279,7 +288,16 @@ namespace gashgc {
       } else {
         m_gw->m_lbl0 = lbl0;
       }
+        // m_gw->m_lbl0 = lbl0;
     }
+
+      void set_orig_lbl0(block lbl) {
+          m_gw->m_lbl0 = lbl;
+      }
+
+      void set_orig_lbl1(block lbl) {
+          m_gw->m_lbl1 = lbl;
+      }
 
     /**
      * Set label 1
@@ -292,6 +310,7 @@ namespace gashgc {
       } else {
         m_gw->m_lbl1 = lbl1;
       }
+      // m_gw->m_lbl1 = lbl1;
     }
 
     /**

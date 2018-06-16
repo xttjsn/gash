@@ -35,10 +35,10 @@ TEST_F(EXECTest, Div64)
     gashgc::Timer timer;
     exec_test(g_ip,     e_ip,   g_circ, g_dat,
             e_circ,   e_dat,  port,   ot_port,
-            "func div(int6 a, int6 b) {         "
+            "func div(int64 a, int64 b) {         "
             "    return a / b;                    "
             "}                                    ",
-            "#definput     a    -17               ",
+            "#definput     a    17               ",
             "#definput     b    2                ");
 
     mpz_class mpz1 = 1;
