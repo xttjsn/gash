@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0293D3558D51726567D2A078 /* Pods_gash.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37AA3D7374097AAEB3EF69EB /* Pods_gash.framework */; };
+		7119F89B207335078978B2B8 /* Pods_gashTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4261F32B5D6F8CC3250B5D6 /* Pods_gashTests.framework */; };
+		EFC2EE0BC23D957D4964DC8B /* Pods_gashUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66E6FA363A380BFB44197B63 /* Pods_gashUITests.framework */; };
+		F33D23D420D6F35F00E5F494 /* Circuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D120D6F35F00E5F494 /* Circuit.swift */; };
+		F33D23D520D6F35F00E5F494 /* DivCircuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D220D6F35F00E5F494 /* DivCircuit.swift */; };
+		F33D23D620D6F35F00E5F494 /* StreamReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D320D6F35F00E5F494 /* StreamReader.swift */; };
+		F33D23DA20D6F38300E5F494 /* gash_swift_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D820D6F38300E5F494 /* gash_swift_api.cpp */; };
 		F3D404E420D6F19800FCFF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404E320D6F19800FCFF08 /* AppDelegate.swift */; };
 		F3D404E620D6F19800FCFF08 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404E520D6F19800FCFF08 /* ViewController.swift */; };
 		F3D404E820D6F19900FCFF08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3D404E720D6F19900FCFF08 /* Assets.xcassets */; };
@@ -33,6 +40,127 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		37AA3D7374097AAEB3EF69EB /* Pods_gash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		66E6FA363A380BFB44197B63 /* Pods_gashUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gashUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		92199474312CE9604B2FF986 /* Pods-gashUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-gashUITests/Pods-gashUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		978EAC949AF025D037938CEE /* Pods-gashTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-gashTests/Pods-gashTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A033B21F34ADF5B0F633E5B9 /* Pods-gash.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gash.release.xcconfig"; path = "Pods/Target Support Files/Pods-gash/Pods-gash.release.xcconfig"; sourceTree = "<group>"; };
+		B4261F32B5D6F8CC3250B5D6 /* Pods_gashTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gashTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1EF319033E428DC1DBC9E9E /* Pods-gash.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gash.debug.xcconfig"; path = "Pods/Target Support Files/Pods-gash/Pods-gash.debug.xcconfig"; sourceTree = "<group>"; };
+		CF6EF4A9C36FBA0E17D173CA /* Pods-gashTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-gashTests/Pods-gashTests.release.xcconfig"; sourceTree = "<group>"; };
+		EAAA7792318BEC698D1101EC /* Pods-gashUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-gashUITests/Pods-gashUITests.release.xcconfig"; sourceTree = "<group>"; };
+		F33D23D120D6F35F00E5F494 /* Circuit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Circuit.swift; sourceTree = "<group>"; };
+		F33D23D220D6F35F00E5F494 /* DivCircuit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DivCircuit.swift; sourceTree = "<group>"; };
+		F33D23D320D6F35F00E5F494 /* StreamReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamReader.swift; sourceTree = "<group>"; };
+		F33D23D720D6F38200E5F494 /* gash-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gash-Bridging-Header.h"; sourceTree = "<group>"; };
+		F33D23D820D6F38300E5F494 /* gash_swift_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gash_swift_api.cpp; sourceTree = "<group>"; };
+		F33D23D920D6F38300E5F494 /* gash_swift_api.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = gash_swift_api.hpp; sourceTree = "<group>"; };
+		F33D23DB20D6F3B900E5F494 /* div_circuit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = div_circuit.hpp; sourceTree = "<group>"; };
+		F33D23DC20D6F3B900E5F494 /* garbler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = garbler.hpp; sourceTree = "<group>"; };
+		F33D23DD20D6F3B900E5F494 /* garbled_circuit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = garbled_circuit.hpp; sourceTree = "<group>"; };
+		F33D23DE20D6F3B900E5F494 /* util.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = util.hpp; sourceTree = "<group>"; };
+		F33D23DF20D6F3B900E5F494 /* ot.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ot.hpp; sourceTree = "<group>"; };
+		F33D23E020D6F3B900E5F494 /* aes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = aes.hpp; sourceTree = "<group>"; };
+		F33D23E120D6F3B900E5F494 /* tcp.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tcp.hpp; sourceTree = "<group>"; };
+		F33D23E220D6F3B900E5F494 /* circuit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = circuit.hpp; sourceTree = "<group>"; };
+		F33D2CB320D6F5A800E5F494 /* codewords.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = codewords.h; sourceTree = "<group>"; };
+		F33D2CB420D6F5A800E5F494 /* graycode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = graycode.h; sourceTree = "<group>"; };
+		F33D2CB520D6F5A800E5F494 /* parse_options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = parse_options.h; sourceTree = "<group>"; };
+		F33D2CB620D6F5A900E5F494 /* cbitvector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cbitvector.h; sourceTree = "<group>"; };
+		F33D2CB720D6F5A900E5F494 /* connection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = connection.h; sourceTree = "<group>"; };
+		F33D2CB820D6F5A900E5F494 /* rcvthread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rcvthread.h; sourceTree = "<group>"; };
+		F33D2CB920D6F5A900E5F494 /* constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = constants.h; sourceTree = "<group>"; };
+		F33D2CBA20D6F5A900E5F494 /* thread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = thread.h; sourceTree = "<group>"; };
+		F33D2CBB20D6F5A900E5F494 /* channel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = channel.h; sourceTree = "<group>"; };
+		F33D2CBC20D6F5A900E5F494 /* sndthread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sndthread.h; sourceTree = "<group>"; };
+		F33D2CBD20D6F5AA00E5F494 /* timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
+		F33D2CBE20D6F5AA00E5F494 /* circular_queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = circular_queue.h; sourceTree = "<group>"; };
+		F33D2CBF20D6F5AA00E5F494 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		F33D2CC020D6F5AA00E5F494 /* powmod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = powmod.h; sourceTree = "<group>"; };
+		F33D2CC120D6F5AA00E5F494 /* fileops.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileops.h; sourceTree = "<group>"; };
+		F33D2CC220D6F5AA00E5F494 /* typedefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = typedefs.h; sourceTree = "<group>"; };
+		F33D2CC320D6F5AA00E5F494 /* socket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
+		F33D2CC520D6F5FE00E5F494 /* pk-crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "pk-crypto.h"; sourceTree = "<group>"; };
+		F33D2CC620D6F5FE00E5F494 /* TedKrovetzAesNiWrapperC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TedKrovetzAesNiWrapperC.h; sourceTree = "<group>"; };
+		F33D2CC720D6F5FE00E5F494 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
+		F33D2CC820D6F5FE00E5F494 /* dgk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dgk.h; sourceTree = "<group>"; };
+		F33D2CC920D6F5FE00E5F494 /* gmp-pk-crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gmp-pk-crypto.h"; sourceTree = "<group>"; };
+		F33D2CCA20D6F5FE00E5F494 /* crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
+		F33D2CCB20D6F5FE00E5F494 /* djn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = djn.h; sourceTree = "<group>"; };
+		F33D2CCC20D6F5FE00E5F494 /* intrin_sequential_enc8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = intrin_sequential_enc8.h; sourceTree = "<group>"; };
+		F33D2CCD20D6F5FF00E5F494 /* ecc-pk-crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ecc-pk-crypto.h"; sourceTree = "<group>"; };
+		F33D2CDC20D6F6B100E5F494 /* asharov-lindell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "asharov-lindell.h"; sourceTree = "<group>"; };
+		F33D2CDD20D6F6B100E5F494 /* ot-ext-snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ot-ext-snd.h"; sourceTree = "<group>"; };
+		F33D2CDE20D6F6B100E5F494 /* kk-ot-ext-rec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "kk-ot-ext-rec.h"; sourceTree = "<group>"; };
+		F33D2CDF20D6F6B100E5F494 /* pvwddh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pvwddh.h; sourceTree = "<group>"; };
+		F33D2CE020D6F6B100E5F494 /* kk-ot-ext-snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "kk-ot-ext-snd.h"; sourceTree = "<group>"; };
+		F33D2CE120D6F6B100E5F494 /* nnob-ot-ext-rec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "nnob-ot-ext-rec.h"; sourceTree = "<group>"; };
+		F33D2CE220D6F6B100E5F494 /* maskingfunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maskingfunction.h; sourceTree = "<group>"; };
+		F33D2CE320D6F6B200E5F494 /* alsz-ot-ext-rec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "alsz-ot-ext-rec.h"; sourceTree = "<group>"; };
+		F33D2CE420D6F6B200E5F494 /* naor-pinkas_noro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "naor-pinkas_noro.h"; sourceTree = "<group>"; };
+		F33D2CE520D6F6B200E5F494 /* iknp-ot-ext-rec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "iknp-ot-ext-rec.h"; sourceTree = "<group>"; };
+		F33D2CE620D6F6B200E5F494 /* kk-ot-ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "kk-ot-ext.h"; sourceTree = "<group>"; };
+		F33D2CE720D6F6B200E5F494 /* naor-pinkas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "naor-pinkas.h"; sourceTree = "<group>"; };
+		F33D2CE820D6F6B200E5F494 /* ot-ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ot-ext.h"; sourceTree = "<group>"; };
+		F33D2CE920D6F6B200E5F494 /* alsz-ot-ext-snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "alsz-ot-ext-snd.h"; sourceTree = "<group>"; };
+		F33D2CEA20D6F6B200E5F494 /* baseOT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseOT.h; sourceTree = "<group>"; };
+		F33D2CEB20D6F6B300E5F494 /* xormasking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xormasking.h; sourceTree = "<group>"; };
+		F33D2CEC20D6F6B300E5F494 /* nnob-ot-ext-snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "nnob-ot-ext-snd.h"; sourceTree = "<group>"; };
+		F33D2CED20D6F6B300E5F494 /* iknp-ot-ext-snd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "iknp-ot-ext-snd.h"; sourceTree = "<group>"; };
+		F33D2CEE20D6F6B300E5F494 /* simpleot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simpleot.h; sourceTree = "<group>"; };
+		F33D2CEF20D6F6B300E5F494 /* ot-ext-rec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ot-ext-rec.h"; sourceTree = "<group>"; };
+		F33D2CF020D6F6B300E5F494 /* OTconstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTconstants.h; sourceTree = "<group>"; };
+		F33D2CF220D6F75D00E5F494 /* zzn2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn2.h; sourceTree = "<group>"; };
+		F33D2CF320D6F75D00E5F494 /* ecn6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn6.h; sourceTree = "<group>"; };
+		F33D2CF420D6F75D00E5F494 /* octet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = octet.h; sourceTree = "<group>"; };
+		F33D2CF520D6F75E00E5F494 /* gf2m6x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gf2m6x.h; sourceTree = "<group>"; };
+		F33D2CF620D6F75E00E5F494 /* zzn4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn4.h; sourceTree = "<group>"; };
+		F33D2CF720D6F75E00E5F494 /* brick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = brick.h; sourceTree = "<group>"; };
+		F33D2CF820D6F75E00E5F494 /* ps_big.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ps_big.h; sourceTree = "<group>"; };
+		F33D2CF920D6F75E00E5F494 /* ebrick2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ebrick2.h; sourceTree = "<group>"; };
+		F33D2CFA20D6F75E00E5F494 /* zzn18.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn18.h; sourceTree = "<group>"; };
+		F33D2CFB20D6F75E00E5F494 /* ecn4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn4.h; sourceTree = "<group>"; };
+		F33D2CFC20D6F75F00E5F494 /* zzn24.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn24.h; sourceTree = "<group>"; };
+		F33D2CFD20D6F75F00E5F494 /* zzn6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn6.h; sourceTree = "<group>"; };
+		F33D2CFE20D6F75F00E5F494 /* gf2m12x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gf2m12x.h; sourceTree = "<group>"; };
+		F33D2CFF20D6F75F00E5F494 /* flash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flash.h; sourceTree = "<group>"; };
+		F33D2D0020D6F75F00E5F494 /* ebrick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ebrick.h; sourceTree = "<group>"; };
+		F33D2D0120D6F75F00E5F494 /* gf2m.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gf2m.h; sourceTree = "<group>"; };
+		F33D2D0220D6F75F00E5F494 /* pairing_3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pairing_3.h; sourceTree = "<group>"; };
+		F33D2D0320D6F76000E5F494 /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly.h; sourceTree = "<group>"; };
+		F33D2D0420D6F76000E5F494 /* gf2m4x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gf2m4x.h; sourceTree = "<group>"; };
+		F33D2D0520D6F76000E5F494 /* complex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = complex.h; sourceTree = "<group>"; };
+		F33D2D0620D6F76000E5F494 /* floating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = floating.h; sourceTree = "<group>"; };
+		F33D2D0720D6F76000E5F494 /* poly2mod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly2mod.h; sourceTree = "<group>"; };
+		F33D2D0820D6F76000E5F494 /* zzn3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn3.h; sourceTree = "<group>"; };
+		F33D2D0920D6F76000E5F494 /* zzn12b.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn12b.h; sourceTree = "<group>"; };
+		F33D2D0A20D6F76100E5F494 /* zzn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn.h; sourceTree = "<group>"; };
+		F33D2D0B20D6F76100E5F494 /* ec2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ec2.h; sourceTree = "<group>"; };
+		F33D2D0C20D6F76100E5F494 /* ecn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn.h; sourceTree = "<group>"; };
+		F33D2D0D20D6F76100E5F494 /* variable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = variable.h; sourceTree = "<group>"; };
+		F33D2D0E20D6F76100E5F494 /* zzn36.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn36.h; sourceTree = "<group>"; };
+		F33D2D0F20D6F76100E5F494 /* polymod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = polymod.h; sourceTree = "<group>"; };
+		F33D2D1020D6F76200E5F494 /* zzn8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn8.h; sourceTree = "<group>"; };
+		F33D2D1120D6F76200E5F494 /* zzn12a.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn12a.h; sourceTree = "<group>"; };
+		F33D2D1220D6F76200E5F494 /* ecn3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn3.h; sourceTree = "<group>"; };
+		F33D2D1320D6F76200E5F494 /* zzn12.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn12.h; sourceTree = "<group>"; };
+		F33D2D1420D6F76200E5F494 /* ecn8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn8.h; sourceTree = "<group>"; };
+		F33D2D1520D6F76200E5F494 /* pairing_1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pairing_1.h; sourceTree = "<group>"; };
+		F33D2D1620D6F76300E5F494 /* crt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crt.h; sourceTree = "<group>"; };
+		F33D2D1720D6F76300E5F494 /* poly2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly2.h; sourceTree = "<group>"; };
+		F33D2D1820D6F76300E5F494 /* ecnzzn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecnzzn.h; sourceTree = "<group>"; };
+		F33D2D1920D6F76300E5F494 /* ecdh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecdh.h; sourceTree = "<group>"; };
+		F33D2D1A20D6F76300E5F494 /* ecn2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecn2.h; sourceTree = "<group>"; };
+		F33D2D1B20D6F76300E5F494 /* flpoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flpoly.h; sourceTree = "<group>"; };
+		F33D2D1C20D6F76400E5F494 /* sf2m12x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sf2m12x.h; sourceTree = "<group>"; };
+		F33D2D1D20D6F76400E5F494 /* ps_zzn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ps_zzn.h; sourceTree = "<group>"; };
+		F33D2D1E20D6F76400E5F494 /* polyxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = polyxy.h; sourceTree = "<group>"; };
+		F33D2D1F20D6F76400E5F494 /* poly2xy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly2xy.h; sourceTree = "<group>"; };
+		F33D2D2020D6F76400E5F494 /* p1363.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = p1363.h; sourceTree = "<group>"; };
+		F33D2D2120D6F76500E5F494 /* zzn6a.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zzn6a.h; sourceTree = "<group>"; };
+		F33D2D2220D6F7A400E5F494 /* big.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = big.h; sourceTree = "<group>"; };
+		F33D2D2320D6F7F500E5F494 /* mirdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mirdef.h; sourceTree = "<group>"; };
+		F33D2D2420D6F82E00E5F494 /* miracl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miracl.h; sourceTree = "<group>"; };
 		F3D404E020D6F19800FCFF08 /* gash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3D404E320D6F19800FCFF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F3D404E520D6F19800FCFF08 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -53,6 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0293D3558D51726567D2A078 /* Pods_gash.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +189,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7119F89B207335078978B2B8 /* Pods_gashTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,12 +197,173 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EFC2EE0BC23D957D4964DC8B /* Pods_gashUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3883300510762525A837B3BE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				37AA3D7374097AAEB3EF69EB /* Pods_gash.framework */,
+				B4261F32B5D6F8CC3250B5D6 /* Pods_gashTests.framework */,
+				66E6FA363A380BFB44197B63 /* Pods_gashUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C8C247EDE53002C790262FFE /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C1EF319033E428DC1DBC9E9E /* Pods-gash.debug.xcconfig */,
+				A033B21F34ADF5B0F633E5B9 /* Pods-gash.release.xcconfig */,
+				978EAC949AF025D037938CEE /* Pods-gashTests.debug.xcconfig */,
+				CF6EF4A9C36FBA0E17D173CA /* Pods-gashTests.release.xcconfig */,
+				92199474312CE9604B2FF986 /* Pods-gashUITests.debug.xcconfig */,
+				EAAA7792318BEC698D1101EC /* Pods-gashUITests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		F33D2C9F20D6F50C00E5F494 /* OTExtension */ = {
+			isa = PBXGroup;
+			children = (
+				F33D2CCE20D6F61C00E5F494 /* ot */,
+				F33D2CB220D6F59900E5F494 /* ENCRYPTO_utils */,
+			);
+			path = OTExtension;
+			sourceTree = "<group>";
+		};
+		F33D2CB220D6F59900E5F494 /* ENCRYPTO_utils */ = {
+			isa = PBXGroup;
+			children = (
+				F33D2CF120D6F6D400E5F494 /* miracl_lib */,
+				F33D2CC420D6F5D000E5F494 /* crypto */,
+				F33D2CB620D6F5A900E5F494 /* cbitvector.h */,
+				F33D2CBB20D6F5A900E5F494 /* channel.h */,
+				F33D2CBE20D6F5AA00E5F494 /* circular_queue.h */,
+				F33D2CB320D6F5A800E5F494 /* codewords.h */,
+				F33D2CB720D6F5A900E5F494 /* connection.h */,
+				F33D2CB920D6F5A900E5F494 /* constants.h */,
+				F33D2CC120D6F5AA00E5F494 /* fileops.h */,
+				F33D2CB420D6F5A800E5F494 /* graycode.h */,
+				F33D2CB520D6F5A800E5F494 /* parse_options.h */,
+				F33D2CC020D6F5AA00E5F494 /* powmod.h */,
+				F33D2CB820D6F5A900E5F494 /* rcvthread.h */,
+				F33D2CBC20D6F5A900E5F494 /* sndthread.h */,
+				F33D2CC320D6F5AA00E5F494 /* socket.h */,
+				F33D2CBA20D6F5A900E5F494 /* thread.h */,
+				F33D2CBD20D6F5AA00E5F494 /* timer.h */,
+				F33D2CC220D6F5AA00E5F494 /* typedefs.h */,
+				F33D2CBF20D6F5AA00E5F494 /* utils.h */,
+			);
+			path = ENCRYPTO_utils;
+			sourceTree = "<group>";
+		};
+		F33D2CC420D6F5D000E5F494 /* crypto */ = {
+			isa = PBXGroup;
+			children = (
+				F33D2CC720D6F5FE00E5F494 /* Config.h */,
+				F33D2CCA20D6F5FE00E5F494 /* crypto.h */,
+				F33D2CC820D6F5FE00E5F494 /* dgk.h */,
+				F33D2CCB20D6F5FE00E5F494 /* djn.h */,
+				F33D2CCD20D6F5FF00E5F494 /* ecc-pk-crypto.h */,
+				F33D2CC920D6F5FE00E5F494 /* gmp-pk-crypto.h */,
+				F33D2CCC20D6F5FE00E5F494 /* intrin_sequential_enc8.h */,
+				F33D2CC520D6F5FE00E5F494 /* pk-crypto.h */,
+				F33D2CC620D6F5FE00E5F494 /* TedKrovetzAesNiWrapperC.h */,
+			);
+			path = crypto;
+			sourceTree = "<group>";
+		};
+		F33D2CCE20D6F61C00E5F494 /* ot */ = {
+			isa = PBXGroup;
+			children = (
+				F33D2CE320D6F6B200E5F494 /* alsz-ot-ext-rec.h */,
+				F33D2CE920D6F6B200E5F494 /* alsz-ot-ext-snd.h */,
+				F33D2CDC20D6F6B100E5F494 /* asharov-lindell.h */,
+				F33D2CEA20D6F6B200E5F494 /* baseOT.h */,
+				F33D2CE520D6F6B200E5F494 /* iknp-ot-ext-rec.h */,
+				F33D2CED20D6F6B300E5F494 /* iknp-ot-ext-snd.h */,
+				F33D2CDE20D6F6B100E5F494 /* kk-ot-ext-rec.h */,
+				F33D2CE020D6F6B100E5F494 /* kk-ot-ext-snd.h */,
+				F33D2CE620D6F6B200E5F494 /* kk-ot-ext.h */,
+				F33D2CE220D6F6B100E5F494 /* maskingfunction.h */,
+				F33D2CE420D6F6B200E5F494 /* naor-pinkas_noro.h */,
+				F33D2CE720D6F6B200E5F494 /* naor-pinkas.h */,
+				F33D2CE120D6F6B100E5F494 /* nnob-ot-ext-rec.h */,
+				F33D2CEC20D6F6B300E5F494 /* nnob-ot-ext-snd.h */,
+				F33D2CEF20D6F6B300E5F494 /* ot-ext-rec.h */,
+				F33D2CDD20D6F6B100E5F494 /* ot-ext-snd.h */,
+				F33D2CE820D6F6B200E5F494 /* ot-ext.h */,
+				F33D2CF020D6F6B300E5F494 /* OTconstants.h */,
+				F33D2CDF20D6F6B100E5F494 /* pvwddh.h */,
+				F33D2CEE20D6F6B300E5F494 /* simpleot.h */,
+				F33D2CEB20D6F6B300E5F494 /* xormasking.h */,
+			);
+			path = ot;
+			sourceTree = "<group>";
+		};
+		F33D2CF120D6F6D400E5F494 /* miracl_lib */ = {
+			isa = PBXGroup;
+			children = (
+				F33D2D2420D6F82E00E5F494 /* miracl.h */,
+				F33D2D2320D6F7F500E5F494 /* mirdef.h */,
+				F33D2D2220D6F7A400E5F494 /* big.h */,
+				F33D2CF720D6F75E00E5F494 /* brick.h */,
+				F33D2D0520D6F76000E5F494 /* complex.h */,
+				F33D2D1620D6F76300E5F494 /* crt.h */,
+				F33D2D0020D6F75F00E5F494 /* ebrick.h */,
+				F33D2CF920D6F75E00E5F494 /* ebrick2.h */,
+				F33D2D0B20D6F76100E5F494 /* ec2.h */,
+				F33D2D1920D6F76300E5F494 /* ecdh.h */,
+				F33D2D0C20D6F76100E5F494 /* ecn.h */,
+				F33D2D1A20D6F76300E5F494 /* ecn2.h */,
+				F33D2D1220D6F76200E5F494 /* ecn3.h */,
+				F33D2CFB20D6F75E00E5F494 /* ecn4.h */,
+				F33D2CF320D6F75D00E5F494 /* ecn6.h */,
+				F33D2D1420D6F76200E5F494 /* ecn8.h */,
+				F33D2D1820D6F76300E5F494 /* ecnzzn.h */,
+				F33D2CFF20D6F75F00E5F494 /* flash.h */,
+				F33D2D0620D6F76000E5F494 /* floating.h */,
+				F33D2D1B20D6F76300E5F494 /* flpoly.h */,
+				F33D2D0120D6F75F00E5F494 /* gf2m.h */,
+				F33D2D0420D6F76000E5F494 /* gf2m4x.h */,
+				F33D2CF520D6F75E00E5F494 /* gf2m6x.h */,
+				F33D2CFE20D6F75F00E5F494 /* gf2m12x.h */,
+				F33D2CF420D6F75D00E5F494 /* octet.h */,
+				F33D2D2020D6F76400E5F494 /* p1363.h */,
+				F33D2D1520D6F76200E5F494 /* pairing_1.h */,
+				F33D2D0220D6F75F00E5F494 /* pairing_3.h */,
+				F33D2D0320D6F76000E5F494 /* poly.h */,
+				F33D2D1720D6F76300E5F494 /* poly2.h */,
+				F33D2D0720D6F76000E5F494 /* poly2mod.h */,
+				F33D2D1F20D6F76400E5F494 /* poly2xy.h */,
+				F33D2D0F20D6F76100E5F494 /* polymod.h */,
+				F33D2D1E20D6F76400E5F494 /* polyxy.h */,
+				F33D2CF820D6F75E00E5F494 /* ps_big.h */,
+				F33D2D1D20D6F76400E5F494 /* ps_zzn.h */,
+				F33D2D1C20D6F76400E5F494 /* sf2m12x.h */,
+				F33D2D0D20D6F76100E5F494 /* variable.h */,
+				F33D2D0A20D6F76100E5F494 /* zzn.h */,
+				F33D2CF220D6F75D00E5F494 /* zzn2.h */,
+				F33D2D0820D6F76000E5F494 /* zzn3.h */,
+				F33D2CF620D6F75E00E5F494 /* zzn4.h */,
+				F33D2CFD20D6F75F00E5F494 /* zzn6.h */,
+				F33D2D2120D6F76500E5F494 /* zzn6a.h */,
+				F33D2D1020D6F76200E5F494 /* zzn8.h */,
+				F33D2D1320D6F76200E5F494 /* zzn12.h */,
+				F33D2D1120D6F76200E5F494 /* zzn12a.h */,
+				F33D2D0920D6F76000E5F494 /* zzn12b.h */,
+				F33D2CFA20D6F75E00E5F494 /* zzn18.h */,
+				F33D2CFC20D6F75F00E5F494 /* zzn24.h */,
+				F33D2D0E20D6F76100E5F494 /* zzn36.h */,
+			);
+			path = miracl_lib;
+			sourceTree = "<group>";
+		};
 		F3D404D720D6F19800FCFF08 = {
 			isa = PBXGroup;
 			children = (
@@ -80,6 +371,8 @@
 				F3D404F520D6F19A00FCFF08 /* gashTests */,
 				F3D4050020D6F19A00FCFF08 /* gashUITests */,
 				F3D404E120D6F19800FCFF08 /* Products */,
+				C8C247EDE53002C790262FFE /* Pods */,
+				3883300510762525A837B3BE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -96,12 +389,27 @@
 		F3D404E220D6F19800FCFF08 /* gash */ = {
 			isa = PBXGroup;
 			children = (
+				F33D2C9F20D6F50C00E5F494 /* OTExtension */,
+				F33D23E020D6F3B900E5F494 /* aes.hpp */,
+				F33D23E220D6F3B900E5F494 /* circuit.hpp */,
+				F33D23DB20D6F3B900E5F494 /* div_circuit.hpp */,
+				F33D23DD20D6F3B900E5F494 /* garbled_circuit.hpp */,
+				F33D23DC20D6F3B900E5F494 /* garbler.hpp */,
+				F33D23DF20D6F3B900E5F494 /* ot.hpp */,
+				F33D23E120D6F3B900E5F494 /* tcp.hpp */,
+				F33D23DE20D6F3B900E5F494 /* util.hpp */,
+				F33D23D120D6F35F00E5F494 /* Circuit.swift */,
+				F33D23D220D6F35F00E5F494 /* DivCircuit.swift */,
+				F33D23D320D6F35F00E5F494 /* StreamReader.swift */,
 				F3D404E320D6F19800FCFF08 /* AppDelegate.swift */,
 				F3D404E520D6F19800FCFF08 /* ViewController.swift */,
 				F3D404E720D6F19900FCFF08 /* Assets.xcassets */,
 				F3D404E920D6F19900FCFF08 /* Main.storyboard */,
 				F3D404EC20D6F19900FCFF08 /* Info.plist */,
 				F3D404ED20D6F19900FCFF08 /* gash.entitlements */,
+				F33D23D820D6F38300E5F494 /* gash_swift_api.cpp */,
+				F33D23D920D6F38300E5F494 /* gash_swift_api.hpp */,
+				F33D23D720D6F38200E5F494 /* gash-Bridging-Header.h */,
 			);
 			path = gash;
 			sourceTree = "<group>";
@@ -131,9 +439,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3D4050620D6F19A00FCFF08 /* Build configuration list for PBXNativeTarget "gash" */;
 			buildPhases = (
+				37B6284E9D0958B5DCA2F017 /* [CP] Check Pods Manifest.lock */,
 				F3D404DC20D6F19800FCFF08 /* Sources */,
 				F3D404DD20D6F19800FCFF08 /* Frameworks */,
 				F3D404DE20D6F19800FCFF08 /* Resources */,
+				B3D86E40986512BAFE762C51 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -148,6 +458,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3D4050920D6F19A00FCFF08 /* Build configuration list for PBXNativeTarget "gashTests" */;
 			buildPhases = (
+				E64CE60C1E50CA6F35D33B7D /* [CP] Check Pods Manifest.lock */,
 				F3D404EE20D6F19A00FCFF08 /* Sources */,
 				F3D404EF20D6F19A00FCFF08 /* Frameworks */,
 				F3D404F020D6F19A00FCFF08 /* Resources */,
@@ -166,6 +477,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3D4050C20D6F19A00FCFF08 /* Build configuration list for PBXNativeTarget "gashUITests" */;
 			buildPhases = (
+				EB1C5AC6F6303FE255A89B29 /* [CP] Check Pods Manifest.lock */,
 				F3D404F920D6F19A00FCFF08 /* Sources */,
 				F3D404FA20D6F19A00FCFF08 /* Frameworks */,
 				F3D404FB20D6F19A00FCFF08 /* Resources */,
@@ -192,6 +504,7 @@
 				TargetAttributes = {
 					F3D404DF20D6F19800FCFF08 = {
 						CreatedOnToolsVersion = 9.4;
+						LastSwiftMigration = 0940;
 					};
 					F3D404F120D6F19A00FCFF08 = {
 						CreatedOnToolsVersion = 9.4;
@@ -249,11 +562,92 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		37B6284E9D0958B5DCA2F017 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-gash-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B3D86E40986512BAFE762C51 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-gash/Pods-gash-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BigInt/BigInt.framework",
+				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BigInt.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-gash/Pods-gash-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E64CE60C1E50CA6F35D33B7D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-gashTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EB1C5AC6F6303FE255A89B29 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-gashUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		F3D404DC20D6F19800FCFF08 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F33D23D620D6F35F00E5F494 /* StreamReader.swift in Sources */,
+				F33D23D420D6F35F00E5F494 /* Circuit.swift in Sources */,
+				F33D23D520D6F35F00E5F494 /* DivCircuit.swift in Sources */,
+				F33D23DA20D6F38300E5F494 /* gash_swift_api.cpp in Sources */,
 				F3D404E620D6F19800FCFF08 /* ViewController.swift in Sources */,
 				F3D404E420D6F19800FCFF08 /* AppDelegate.swift in Sources */,
 			);
@@ -417,44 +811,106 @@
 		};
 		F3D4050720D6F19A00FCFF08 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1EF319033E428DC1DBC9E9E /* Pods-gash.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = gash/gash.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U6V3P7868L;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = gash/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(PROJECT_DIR)/gash/OTExtension/ENCRYPTO_utils/miracl_lib",
+				);
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-iquote",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/BigInt/BigInt.framework/Headers\"",
+					"-iquote",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SipHash/SipHash.framework/Headers\"",
+					"-maes",
+					"-msse3",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-maes",
+					"-msse3",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"BigInt\"",
+					"-framework",
+					"\"SipHash\"",
+					"-lgmp",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conggroup.gash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "gash/gash-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
 		F3D4050820D6F19A00FCFF08 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A033B21F34ADF5B0F633E5B9 /* Pods-gash.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = gash/gash.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = U6V3P7868L;
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INFOPLIST_FILE = gash/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					"$(PROJECT_DIR)/gash/OTExtension/ENCRYPTO_utils/miracl_lib",
+				);
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-iquote",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/BigInt/BigInt.framework/Headers\"",
+					"-iquote",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/SipHash/SipHash.framework/Headers\"",
+					"-maes",
+					"-msse3",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-maes",
+					"-msse3",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"BigInt\"",
+					"-framework",
+					"\"SipHash\"",
+					"-lgmp",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conggroup.gash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "gash/gash-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
 		F3D4050A20D6F19A00FCFF08 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 978EAC949AF025D037938CEE /* Pods-gashTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -476,6 +932,7 @@
 		};
 		F3D4050B20D6F19A00FCFF08 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CF6EF4A9C36FBA0E17D173CA /* Pods-gashTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -497,6 +954,7 @@
 		};
 		F3D4050D20D6F19A00FCFF08 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 92199474312CE9604B2FF986 /* Pods-gashUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -517,6 +975,7 @@
 		};
 		F3D4050E20D6F19A00FCFF08 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EAAA7792318BEC698D1101EC /* Pods-gashUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
