@@ -9,23 +9,40 @@
 import Cocoa
 import BigInt
 
-class ViewController: NSViewController {
+class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
     
-    @IBOutlet weak var m_data1_btn: NSButton!
-    @IBOutlet weak var m_data0_btn: NSButton!
-    @IBOutlet weak var m_circ_btn: NSButton!
+    @IBOutlet weak var m_btn_data1: NSButton!
+    @IBOutlet weak var m_btn_data0: NSButton!
+    @IBOutlet weak var m_btn_circ: NSButton!
     @IBOutlet weak var m_circ_fname: NSTextField!
     @IBOutlet weak var m_data0_fname: NSTextField!
     @IBOutlet weak var m_data1_fname: NSTextField!
-    @IBOutlet weak var m_output: NSTextField!
-    @IBOutlet weak var m_bitsize: NSTextField!
-    @IBOutlet weak var m_denominator: NSTextField!
-    @IBOutlet weak var m_numeritor: NSTextField!
-    @IBOutlet weak var m_divres: NSTextField!
+    @IBOutlet weak var m_txt_output: NSTextField!
+    @IBOutlet weak var m_txt_bitsize: NSTextField!
+    @IBOutlet weak var m_txt_denominator: NSTextField!
+    @IBOutlet weak var m_txt_numerator: NSTextField!
+    @IBOutlet weak var m_txt_div_result: NSTextField!
+    @IBOutlet weak var m_combo_circ: NSComboBox!
+    @IBOutlet weak var m_txt_garbler_raw_output: NSTextField!
+    @IBOutlet weak var m_txt_evaluator_raw_output: NSTextField!
+    @IBOutlet weak var m_txt_garbler_output: NSTextField!
+    @IBOutlet weak var m_txt_evaluator_output: NSTextField!
+    @IBOutlet weak var m_txt_garbler_ip: NSTextField!
+    @IBOutlet weak var m_img_garbler_status: NSImageView!
+    @IBOutlet weak var m_img_evaluator_status: NSImageView!
+    @IBOutlet var m_txt_circ: NSTextView!
+    
+    var m_circ_name : String!
+    var m_bitsize   : Int!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Do any additional setup after loading the view.
+        let items = ["add", "sub", "div", "mul", "uminus", "relu"]
+        m_combo_circ.removeAllItems()
+        m_combo_circ.addItems(withObjectValues: items);
+        m_combo_circ.selectItem(at: 0)
+        
     }
     
     override var representedObject: Any? {
@@ -53,11 +70,11 @@ class ViewController: NSViewController {
             if (result != nil) {
                 let path = result!.path
                 
-                if ((sender as! NSButton).tag == m_circ_btn.tag) {
+                if ((sender as! NSButton).tag == m_btn_circ.tag) {
                     m_circ_fname.stringValue = path
-                } else if ((sender as! NSButton).tag == m_data0_btn.tag) {
+                } else if ((sender as! NSButton).tag == m_btn_data0.tag) {
                     m_data0_fname.stringValue = path
-                } else if ((sender as! NSButton).tag == m_data1_btn.tag) {
+                } else if ((sender as! NSButton).tag == m_btn_data1.tag) {
                     m_data1_fname.stringValue = path
                 }
             }
@@ -79,26 +96,26 @@ class ViewController: NSViewController {
         let outstr = circ.get_output_str()
         
         var output = BigInt(outstr, radix: 2)
-        let ring = BigInt(String(repeating: "1", count: Int(m_bitsize.stringValue)!), radix: 2)
+        let ring = BigInt(String(repeating: "1", count: Int(m_txt_bitsize.stringValue)!), radix: 2)
         
         if (Array(outstr)[0] == "1") {
             output = ring! - output!
             output = -output!
         }
         
-        m_output.stringValue = output!.description
+        m_txt_output.stringValue = output!.description
     }
     
     @IBAction func calc_div(_ sender: Any) {
-        let denom = Int(m_denominator.stringValue, radix: 10)
-        let nume = Int(m_numeritor.stringValue, radix: 10)
+        let denom = Int(m_txt_denominator.stringValue, radix: 10)
+        let nume = Int(m_txt_numerator.stringValue, radix: 10)
         
         var circ : OpaquePointer? = nil
-        circ = CreateCDivCircuit(CInt(m_bitsize.stringValue)!, CInt(denom!), CInt(nume!))
+        circ = CreateCDivCircuit(CInt(m_txt_bitsize.stringValue)!, CInt(denom!), CInt(nume!))
         BuildDivCircuit(circ)
         ExecuteCircuit(circ)
         let outstr = String(cString: GetOutputString(circ));
-        let ring = BigInt(String(repeating: "1", count: Int(m_bitsize.stringValue)!), radix: 2)
+        let ring = BigInt(String(repeating: "1", count: Int(m_txt_bitsize.stringValue)!), radix: 2)
 
         var output = BigInt(outstr, radix: 2)
         if (Array(outstr)[0] == "1") {
@@ -106,16 +123,16 @@ class ViewController: NSViewController {
             output = -output! - 1
         }
 
-        m_divres.stringValue = output!.description
+        m_txt_div_result.stringValue = output!.description
 
     }
     
     
     @IBAction func calc_div_orig(_ sender: Any) {
-        let denom = Int(m_denominator.stringValue, radix: 10)
-        let nume = Int(m_numeritor.stringValue, radix: 10)
+        let denom = Int(m_txt_denominator.stringValue, radix: 10)
+        let nume = Int(m_txt_numerator.stringValue, radix: 10)
         
-        let circ = DivCircuit(bitsize: Int(m_bitsize.stringValue)!)
+        let circ = DivCircuit(bitsize: Int(m_txt_bitsize.stringValue)!)
         circ.set_denom(denom: denom!)
         circ.set_nume(nume: nume!)
         circ.build()
@@ -124,16 +141,69 @@ class ViewController: NSViewController {
         let outstr = circ.get_output_str()
         
         var output = BigInt(outstr, radix: 2)
-        let ring = BigInt(String(repeating: "1", count: Int(m_bitsize.stringValue)!), radix: 2)
+        let ring = BigInt(String(repeating: "1", count: Int(m_txt_bitsize.stringValue)!), radix: 2)
         
         if (Array(outstr)[0] == "1") {
             output = ring! - output!
             output = -output! - 1
         }
         
-        m_divres.stringValue = output!.description
+        m_txt_div_result.stringValue = output!.description
     }
     
+    @IBAction func garbler_start(_ sender: Any) {
+        m_img_garbler_status.image = #imageLiteral(resourceName: "Yellow")
+        
+        StartGarbler()
+        m_txt_garbler_raw_output.stringValue = String(cString: GetGarblerRawOutput())
+        m_txt_garbler_output.stringValue = String(cString: GetGarblerOutput())
+        
+        m_img_garbler_status.image = #imageLiteral(resourceName: "GreenLight")
+    }
+    
+    @IBAction func evaluator_start(_ sender: Any) {
+        m_img_evaluator_status.image = #imageLiteral(resourceName: "Yellow")
+        
+        StartEvaluator(m_txt_garbler_ip.stringValue.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue)))
+        m_txt_evaluator_raw_output.stringValue = String(cString: GetEvaluatorRawOutput())
+        m_txt_evaluator_output.stringValue = String(cString: GetEvaluatorOutput())
+        
+        m_img_evaluator_status.image = #imageLiteral(resourceName: "GreenLight")
+    }
+    
+    func set_circuit_name(circname: String) {
+        m_circ_name = circname
+    }
+    
+    func set_bitsize(bitsize: Int?) {
+        if bitsize == nil {
+            m_bitsize = 64  // Default value
+        } else {
+            m_bitsize = bitsize
+        }
+        load_circuit()
+    }
+    
+    func load_circuit() {
+        let m_circ_str = String(cString: LoadCircuitFunc(m_circ_name.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue)), Int32(m_bitsize)))
+        m_txt_circ.textStorage?.mutableString.setString(m_circ_str)
+    }
+    
+    func comboBoxSelectionDidChange(_ notification: Notification) {
+        let val = m_combo_circ.objectValueOfSelectedItem as! String
+        set_bitsize(bitsize: Int(m_txt_bitsize.stringValue))
+        set_circuit_name(circname: val)
+        load_circuit()
+    }
+    
+    func textDidEndEditing(_ notification: Notification) {
+        guard let editor = notification.object as? NSTextView else { return }
+        SetCircuitFunc(m_txt_circ.textStorage?.mutableString.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue).rawValue))
+    }
+    
+    @IBAction func bitsize_change(_ sender: Any) {
+        set_bitsize(bitsize: Int(m_txt_bitsize.stringValue))
+    }
     
 }
 

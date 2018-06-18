@@ -15,6 +15,7 @@
 #include <gmpxx.h>
 #include <vector>
 #include <map>
+#include <boost/algorithm/string/replace.hpp>
 #include "aes.hpp"
 
 #define LABELSIZE 128
@@ -205,7 +206,10 @@ int label_vec_marshal(vector<block>& lblvec, char* dest) {
     return 0;
 }
 
-
-
+string find_n_replace(string s, string pattern, string subst)
+{
+    boost::replace_all(s, pattern, subst);
+    return s;
+}
 
 #endif /* util_hpp */

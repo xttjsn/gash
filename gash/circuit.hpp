@@ -219,7 +219,7 @@ public:
                                       in1->m_inv ? in1->m_wire->m_val ^ 1 :
                                                     in1->m_wire->m_val
                                       );
-            printf("out wire %d val:  %d\n", out->m_wire->m_id, out->m_wire->m_val);
+//            printf("out wire %d val:  %d\n", out->m_wire->m_id, out->m_wire->m_val);
         }
     }
     string get_output_str();

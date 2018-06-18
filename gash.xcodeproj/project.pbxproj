@@ -161,6 +161,8 @@
 		F33D2D2220D6F7A400E5F494 /* big.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = big.h; sourceTree = "<group>"; };
 		F33D2D2320D6F7F500E5F494 /* mirdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mirdef.h; sourceTree = "<group>"; };
 		F33D2D2420D6F82E00E5F494 /* miracl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miracl.h; sourceTree = "<group>"; };
+		F33D2D2620D6F8B200E5F494 /* evaluator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = evaluator.hpp; sourceTree = "<group>"; };
+		F33D2D2C20D70E9C00E5F494 /* func.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = func.hpp; sourceTree = "<group>"; };
 		F3D404E020D6F19800FCFF08 /* gash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3D404E320D6F19800FCFF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F3D404E520D6F19800FCFF08 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -391,13 +393,18 @@
 			children = (
 				F33D2C9F20D6F50C00E5F494 /* OTExtension */,
 				F33D23E020D6F3B900E5F494 /* aes.hpp */,
+				F33D2D2C20D70E9C00E5F494 /* func.hpp */,
 				F33D23E220D6F3B900E5F494 /* circuit.hpp */,
 				F33D23DB20D6F3B900E5F494 /* div_circuit.hpp */,
 				F33D23DD20D6F3B900E5F494 /* garbled_circuit.hpp */,
 				F33D23DC20D6F3B900E5F494 /* garbler.hpp */,
+				F33D2D2620D6F8B200E5F494 /* evaluator.hpp */,
 				F33D23DF20D6F3B900E5F494 /* ot.hpp */,
 				F33D23E120D6F3B900E5F494 /* tcp.hpp */,
 				F33D23DE20D6F3B900E5F494 /* util.hpp */,
+				F33D23D820D6F38300E5F494 /* gash_swift_api.cpp */,
+				F33D23D920D6F38300E5F494 /* gash_swift_api.hpp */,
+				F33D23D720D6F38200E5F494 /* gash-Bridging-Header.h */,
 				F33D23D120D6F35F00E5F494 /* Circuit.swift */,
 				F33D23D220D6F35F00E5F494 /* DivCircuit.swift */,
 				F33D23D320D6F35F00E5F494 /* StreamReader.swift */,
@@ -407,9 +414,6 @@
 				F3D404E920D6F19900FCFF08 /* Main.storyboard */,
 				F3D404EC20D6F19900FCFF08 /* Info.plist */,
 				F3D404ED20D6F19900FCFF08 /* gash.entitlements */,
-				F33D23D820D6F38300E5F494 /* gash_swift_api.cpp */,
-				F33D23D920D6F38300E5F494 /* gash_swift_api.hpp */,
-				F33D23D720D6F38200E5F494 /* gash-Bridging-Header.h */,
 			);
 			path = gash;
 			sourceTree = "<group>";

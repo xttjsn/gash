@@ -23,6 +23,15 @@ extern "C" {
     CDivCircuit* CreateCDivCircuit(int bitsize, int denom, int nume);
     void BuildDivCircuit(CDivCircuit*);
     
+    const char* LoadCircuitFunc(const char* circ, int bitsize);
+    void SetCircuitFunc(const char* circ_func);
+    void StartGarbler();
+    void StartEvaluator(const char* garbler_ip);
+    const char* GetGarblerRawOutput();
+    const char* GetEvaluatorRawOutput();
+    const char* GetGarblerOutput();
+    const char* GetEvaluatorOutput();
+    
     
 #ifdef __cplusplus
 }
