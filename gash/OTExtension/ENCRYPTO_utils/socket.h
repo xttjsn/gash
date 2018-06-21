@@ -91,7 +91,7 @@ public:
 		shutdown(m_hSock, SD_SEND);
 		closesocket(m_hSock);
 #else
-		shutdown(m_hSock, SHUT_WR);
+		shutdown(m_hSock, SHUT_RDWR);
 		close(m_hSock);
 #endif
 
