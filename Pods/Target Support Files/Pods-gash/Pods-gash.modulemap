@@ -1,0 +1,6 @@
+framework module Pods_gash {
+  umbrella header "Pods-gash-umbrella.h"
+
+  export *
+  module * { export * }
+}
