@@ -13,6 +13,7 @@
 #include "circuit.hpp"
 #include "garbled_circuit.hpp"
 #include "ot.hpp"
+#include "common.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -23,26 +24,55 @@ class Evaluator {
 public:
     
     /// The garbled circuit instance
-    GC                    m_gc;
-    
-    /// Map wire id to values
-    IdValMap            m_in_val_map;
-    IdValMap            m_out_val_map;
+    GC                          m_gc;
     
     /// The set of input ids
-    IdSet                 m_self_in_id_set;
-    IdSet                 m_peer_in_id_set;
+    IdSet                       m_self_in_id_set;
+    IdSet                       m_peer_in_id_set;
     
     /// Network related stuff
-    int                   m_peer_sock;
-    int                   m_peer_ot_sock;
-    string                m_self_ip;      // For debug purpose
-    string                m_peer_ip;
-    uint16_t                   m_port;
-    uint16_t                   m_ot_port;
+    int                         m_peer_sock;
+    int                         m_peer_ot_sock;
+    string                      m_self_ip;      // For debug purpose
+    string                      m_peer_ip;
+    uint16_t                    m_ot_port;
     
     void init_connection() {
-        tcp_client_init(m_peer_ip, m_port, m_peer_sock);
+        tcp_client_init(m_peer_ip, PORT_GC, m_peer_sock);
+    }
+    
+    void check_ids() {
+        for (auto it = m_gc.m_in_id_set.begin(); it != m_gc.m_in_id_set.end(); ++it) {
+            WI* wi = m_gc.get_wi(*it);
+            if (wi->m_wire->m_val == 0 || wi->m_wire->m_val == 1) {
+                m_self_in_id_set.insert(*it);
+            } else {
+                m_peer_in_id_set.insert(*it);
+            }
+        }
+    }
+    
+    void build_garble_circuit() {
+        for (auto it = m_gc.m_wi_map.begin(); it != m_gc.m_wi_map.end(); ++it) {
+            WI* wi = it->second;
+            GWI* gwi = new GWI(wi);
+            m_gc.add_gwi(gwi);
+        }
+        
+        for (auto it = m_gc.m_gate_map.begin(); it != m_gc.m_gate_map.end(); ++it) {
+            Gate* g = it->second;
+            WI* in0 = g->m_in0;
+            WI* in1 = g->m_in1;
+            WI* out = g->m_out;
+            GWI* gin0 = m_gc.get_gwi(in0->m_wire->m_id);
+            GWI* gin1 = m_gc.get_gwi(in1->m_wire->m_id);
+            GWI* gout = m_gc.get_gwi(out->m_wire->m_id);
+            GG* gg = new GG(g->m_func, gin0, gin1, gout);
+            m_gc.add_gg(gg);
+        }
+        
+        m_gc.m_gwi_one = m_gc.get_gwi(m_gc.m_wi_one->m_wire->m_id);
+        m_gc.m_gwi_zero = m_gc.get_gwi(m_gc.m_wi_zero->m_wire->m_id);
     }
     
     void recv_egtt() {
@@ -90,14 +120,24 @@ public:
     
     void recv_self_lbls() {
         map<int, block> idlblmap;
+        map<int, int>  in_val_map;
         GWI* gw;
         uint32_t size;
         
+        // Build in_val_map
+        for (auto it = m_gc.m_gwi_map.begin(); it != m_gc.m_gwi_map.end(); ++it) {
+            GWI* gwi = it->second;
+            if (gwi->m_wire->m_val == 0 || gwi->m_wire->m_val == 1) {
+                if (gwi == m_gc.m_gwi_one || gwi == m_gc.m_gwi_zero)
+                    continue;
+                in_val_map.emplace(gwi->m_wire->m_id, gwi->m_wire->m_val);
+            }
+        }
+        
         tcp_recv_bytes(m_peer_sock, (char*)&size, sizeof(uint32_t));
-        assert(size == m_in_val_map.size());
         
         OTParty otp;
-        otp.OTRecv(m_peer_ip, m_ot_port, m_in_val_map, idlblmap);
+        otp.OTRecv(m_peer_ip, PORT_OT, in_val_map, idlblmap);
         
         for (auto it = idlblmap.begin(); it != idlblmap.end(); ++it) {
             gw = m_gc.get_gwi(it->first);
@@ -129,7 +169,10 @@ public:
             gw->set_lbl(lbl);
         }
         
-        
+        tcp_recv_bytes(m_peer_sock, (char*)&lbl, LABELSIZE);
+        m_gc.m_gwi_zero->set_lbl(lbl);
+        tcp_recv_bytes(m_peer_sock, (char*)&lbl, LABELSIZE);
+        m_gc.m_gwi_one->set_lbl(lbl);
     }
     
     void recv_output_map() {
@@ -158,8 +201,8 @@ public:
                 abort();
             }
             
-            gw->set_orig_lbl0(lbl0);
-            gw->set_orig_lbl1(lbl1);
+            gw->set_lbl0(lbl0);
+            gw->set_lbl1(lbl1);
         }
     }
     
@@ -173,22 +216,21 @@ public:
             
             id = *it;
             w = m_gc.m_wi_map.find(id)->second;
+            gw = m_gc.get_gwi(id);
             
             // If wire is constant
             if (w->m_wire->m_val == 0 || w->m_wire->m_val == 1) {
-                m_out_val_map.emplace(id, w->m_wire->m_val);
+                gw->m_wire->m_val = w->m_wire->m_val;
                 continue;
             }
             
             // Otherwise
-            gw = m_gc.get_gwi(id);
             val = gw->recover_smtc();
             if (val < 0) {
                 perror("Negative value");
                 abort();
             }
             
-            m_out_val_map.emplace(id, val);
         }
     }
     
@@ -197,13 +239,14 @@ public:
         uint32_t size;
         int val;
         
-        size = m_out_val_map.size();
+        size = m_gc.m_out_id_vec.size();
         tcp_send_bytes(m_peer_sock, (char*)&size, sizeof(uint32_t));
         
-        for (auto it = m_out_val_map.begin(); it != m_out_val_map.end(); ++it) {
+        for (auto it = m_gc.m_out_id_vec.begin(); it != m_gc.m_out_id_vec.end(); ++it) {
             
-            id = it->first;
-            val = it->second;
+            id = *it;
+            GWI* gwi = m_gc.get_gwi(id);
+            val = gwi->m_gw->m_val;
             
             tcp_send_bytes(m_peer_sock, (char*)&id, sizeof(uint32_t));
             tcp_send_bytes(m_peer_sock, (char*)&val, sizeof(int));
@@ -215,7 +258,9 @@ public:
         
         for (auto it = m_gc.m_out_id_vec.begin(); it != m_gc.m_out_id_vec.end(); ++it) {
             id = *it;
-            cout << id << ":" << m_out_val_map.find(id)->second << endl;
+            GWI* gwi = m_gc.get_gwi(id);
+            int val = gwi->m_gw->m_val;
+            cout << id << ":" << val << endl;
         }
     }
     
@@ -223,34 +268,32 @@ public:
         uint32_t id;
         for (auto it = m_gc.m_out_id_vec.begin(); it != m_gc.m_out_id_vec.end(); ++it) {
             id = *it;
-            str += to_string(m_out_val_map.find(id)->second);
+            GWI* gwi = m_gc.get_gwi(id);
+            int val = gwi->m_gw->m_val;
+            str += to_string(val);
         }
         
         string cpy(str);
         std::reverse(cpy.begin(), cpy.end());
         str = cpy;
     }
-    
-    void reset_circ() {
-        m_gc = GC();
-        m_in_val_map.clear();
-        m_out_val_map.clear();
+
+    void clear() {
+        m_gc.clear();
         m_self_in_id_set.clear();
         m_peer_in_id_set.clear();
+        shutdown(m_peer_sock, SHUT_WR);
+        close(m_peer_sock);
+        m_peer_sock = INVALID_SOCKET;
     }
-
+    
     Evaluator() {}
-    Evaluator(string peer_ip, uint16_t port, uint16_t ot_port) {
+    Evaluator(string peer_ip) {
         m_peer_ip = peer_ip;
-        m_port = port;
-        m_ot_port = ot_port;
     }
     
     ~Evaluator() {
-        shutdown(m_peer_sock, SHUT_WR);
-        close(m_peer_sock);
-        
-        m_peer_sock = INVALID_SOCKET;
+        clear();
     }
 };
 

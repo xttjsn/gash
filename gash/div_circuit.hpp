@@ -39,8 +39,8 @@ public:
         }
         
         Bundle* out = evala_DIV(*in0, *in1);
-        for (auto it = out->begin(); it != out->end(); ++it) {
-            m_out_id_vec.push_back((*it)->m_wire->m_id);
+        for (int i = 0; i < out->size(); ++i) {
+            m_out_id_vec.push_back((*out)[i]->m_wire->m_id);
         }
     }
 };

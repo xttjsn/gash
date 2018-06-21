@@ -28,6 +28,7 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
     @IBOutlet weak var m_txt_garbler_output: NSTextField!
     @IBOutlet weak var m_txt_evaluator_output: NSTextField!
     @IBOutlet weak var m_txt_garbler_ip: NSTextField!
+    @IBOutlet weak var m_txt_evaluator_ip: NSTextField!
     @IBOutlet weak var m_img_garbler_status: NSImageView!
     @IBOutlet weak var m_img_evaluator_status: NSImageView!
     @IBOutlet var m_txt_circ: NSTextView!
@@ -38,7 +39,7 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let items = ["add", "sub", "div", "mul", "uminus", "relu"]
+        let items = ["billionaire", "add", "sub", "div", "mul", "relu"]
         m_combo_circ.removeAllItems()
         m_combo_circ.addItems(withObjectValues: items);
         m_combo_circ.selectItem(at: 0)
@@ -111,11 +112,11 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
         let nume = Int(m_txt_numerator.stringValue, radix: 10)
         
         var circ : OpaquePointer? = nil
-        circ = CreateCDivCircuit(CInt(m_txt_bitsize.stringValue)!, CInt(denom!), CInt(nume!))
+        circ = CreateCDivCircuit(CInt(m_bitsize), CInt(denom!), CInt(nume!))
         BuildDivCircuit(circ)
         ExecuteCircuit(circ)
         let outstr = String(cString: GetOutputString(circ));
-        let ring = BigInt(String(repeating: "1", count: Int(m_txt_bitsize.stringValue)!), radix: 2)
+        let ring = BigInt(String(repeating: "1", count: m_bitsize ), radix: 2)
 
         var output = BigInt(outstr, radix: 2)
         if (Array(outstr)[0] == "1") {
@@ -127,6 +128,15 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
 
     }
     
+    func recover_binary_output(outstr: String) -> String {
+        let ring = BigInt(String(repeating: "1", count: m_bitsize), radix: 2)
+        var output = BigInt(outstr, radix: 2)
+        if (Array(outstr)[0] == "1") {
+            output = ring! - output!
+            output = -output! - 1
+        }
+        return output!.description
+    }
     
     @IBAction func calc_div_orig(_ sender: Any) {
         let denom = Int(m_txt_denominator.stringValue, radix: 10)
@@ -139,24 +149,18 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
         circ.execute()
         
         let outstr = circ.get_output_str()
-        
-        var output = BigInt(outstr, radix: 2)
-        let ring = BigInt(String(repeating: "1", count: Int(m_txt_bitsize.stringValue)!), radix: 2)
-        
-        if (Array(outstr)[0] == "1") {
-            output = ring! - output!
-            output = -output! - 1
-        }
-        
-        m_txt_div_result.stringValue = output!.description
+        m_txt_div_result.stringValue = recover_binary_output(outstr: outstr)
     }
+    
     
     @IBAction func garbler_start(_ sender: Any) {
         m_img_garbler_status.image = #imageLiteral(resourceName: "Yellow")
         
-        StartGarbler()
+        SetCircuitFunc(m_txt_circ.textStorage?.mutableString.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue).rawValue))
+        StartGarbler(m_txt_evaluator_ip.stringValue.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue)))
         m_txt_garbler_raw_output.stringValue = String(cString: GetGarblerRawOutput())
-        m_txt_garbler_output.stringValue = String(cString: GetGarblerOutput())
+        ResetGarbler();
+        m_txt_garbler_output.stringValue = recover_binary_output(outstr: m_txt_garbler_raw_output.stringValue)
         
         m_img_garbler_status.image = #imageLiteral(resourceName: "GreenLight")
     }
@@ -164,9 +168,11 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
     @IBAction func evaluator_start(_ sender: Any) {
         m_img_evaluator_status.image = #imageLiteral(resourceName: "Yellow")
         
+        SetCircuitFunc(m_txt_circ.textStorage?.mutableString.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue).rawValue))
         StartEvaluator(m_txt_garbler_ip.stringValue.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue)))
         m_txt_evaluator_raw_output.stringValue = String(cString: GetEvaluatorRawOutput())
-        m_txt_evaluator_output.stringValue = String(cString: GetEvaluatorOutput())
+        ResetEvaluator();
+        m_txt_evaluator_output.stringValue = recover_binary_output(outstr: m_txt_evaluator_raw_output.stringValue)
         
         m_img_evaluator_status.image = #imageLiteral(resourceName: "GreenLight")
     }
@@ -181,7 +187,10 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
         } else {
             m_bitsize = bitsize
         }
-        load_circuit()
+        
+        if m_circ_name != nil {
+            load_circuit()
+        }
     }
     
     func load_circuit() {
@@ -196,13 +205,13 @@ class ViewController: NSViewController, NSComboBoxDelegate, NSTextViewDelegate {
         load_circuit()
     }
     
-    func textDidEndEditing(_ notification: Notification) {
-        guard let editor = notification.object as? NSTextView else { return }
-        SetCircuitFunc(m_txt_circ.textStorage?.mutableString.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue).rawValue))
-    }
-    
     @IBAction func bitsize_change(_ sender: Any) {
         set_bitsize(bitsize: Int(m_txt_bitsize.stringValue))
+    }
+    
+    @IBAction func cross_check(_ sender: Any) {
+        SetCircuitFunc(m_txt_circ.textStorage?.mutableString.cString(using: String.Encoding(rawValue: String.Encoding.ascii.rawValue).rawValue))
+        CrossCheck();
     }
     
 }

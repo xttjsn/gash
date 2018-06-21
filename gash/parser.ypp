@@ -1,0 +1,182 @@
+/* Parser of gashlang */
+
+%{
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include "lang.hpp"
+    
+    extern "C" {int yyparse(void); int yylex(void); int yywrap() { return 1;} }
+    #define gcs get_current_scope
+%}
+
+/* Enable tracing. Disable it in release version. */
+%debug
+
+/* Set debug level to verbose. */
+%error-verbose
+
+/* Keep track of current location during parsing. */
+%locations
+
+/* Union of yylval */
+%union {
+    int32_t yy_val_i32;
+    int64_t yy_val_i64;
+    uint32_t yy_val_u32;
+    uint64_t yy_val_u64;
+    uint32_t yy_cmp;
+    uint32_t yy_intlen;
+    Ast* yy_ast;
+    Symbol* yy_sym;
+    Vardef* yy_vardef;
+    Scope* yy_scope;
+    char* yy_ip;
+    RoleType yy_role;
+}
+
+/*** Declare tokens ***/
+
+/* Basic numeric types */
+%token <yy_val_i32> I32
+%token <yy_val_i64> I64
+%token <yy_val_u32> U32
+%token <yy_val_u64> U64
+
+/* Vardef support */
+%token <yy_intlen> T_INT
+
+/* User defined name/symbol */
+%token <yy_sym> NAME
+
+/* IP as charater array */
+%token <yy_ip> IP
+
+/* Function and flow control */
+%token FUNCTION
+%token IF
+%token THEN
+%token ELSE
+%token FOR
+%token RETURN
+
+/* Directives */
+%token DEF_INPUT
+%token DEF_ROLE
+%token DEF_PORT
+%token DEF_OT_PORT
+%token DEF_IP
+%token DEF_START
+%token <yy_role> GARBLER
+%token <yy_role> EVALUATOR
+
+/* Non-associative operator */
+%nonassoc <yy_cmp> CMP
+%nonassoc <yy_scope> S_START
+%nonassoc S_END
+%nonassoc UMINUS UNEG
+
+/* Associative operators */
+%right '='
+%left '+' '-' '|' '&' '^' '.' "<<" ">>" '<' '>'
+%left '*' '/'
+
+/* Grammar elements */
+%type <yy_ast> exp
+%type <yy_ast> stmt
+%type <yy_ast> stmtlist
+%type <yy_ast> ret
+%type <yy_ast> dir
+%type <yy_ast> dirlist
+%type <yy_ast> vardef
+%type <yy_ast> vardeflist
+%start program
+
+%%
+
+stmt: IF exp S_START stmtlist S_END {
+    // create a if statement with the original scope and the inner scope.
+    $$ = new_if($2, $4, $3, get_current_scope());
+}
+| IF exp S_START stmtlist S_END ELSE S_START stmtlist S_END {
+    $$ = new_ifelse($2, $4, $8, $3, $7, get_current_scope());
+}
+| FOR '(' exp ';' exp ';' exp ')' S_START stmtlist S_END {
+    $$ = new_for($3, $5, $7, $10, $9, get_current_scope());
+}
+| exp ';'                             // Nothing, default behavior is assigning $1 to $$
+| vardef ';'                          { $$=NULL;                           }
+| ret ';'                             // Default behavior
+;
+
+
+stmtlist: stmt                                  { $$ = new_ast($1, NULL);               }
+| stmt  stmtlist                      { $$ = new_ast($1, $2);              }
+;
+
+dir : '#' DEF_INPUT NAME I64          { $$ = new_dir_input($3, $4);        }
+| '#' DEF_IP IP                       { dir_ip($3);                        }
+;
+
+vardef: T_INT NAME                    { $$ = new_vdf($2, $1);             }
+;
+
+exp:
+/* Comparison operations */
+exp CMP exp                           { $$ = new_cop($2, $1, $3);             }
+| exp '<' exp                         { $$ = new_cop(COP_LE, $1, $3);         }
+| exp '>' exp                         { $$ = new_cop(COP_LA, $1, $3);         }
+/* Arithmetic operations */
+| exp '+' exp                                { $$ = new_aop(AOP_PLUS, $1, $3);                }
+| exp '-' exp                                  { $$ = new_aop(AOP_SUB, $1, $3);              }
+| exp '*' exp                                  { $$ = new_aop(AOP_MUL, $1, $3);                  }
+| exp '/' exp                                  { $$ = new_aop(AOP_DIV, $1, $3);                  }
+| '-' exp %prec UMINUS                      { $$ = new_aop(AOP_UMINUS, $2, NULL);        }
+/* Binary operations */
+| exp '|' exp                         { $$ = new_bop(BOP_OR, $1, $3);           }
+| exp '&' exp                         { $$ = new_bop(BOP_AND, $1, $3);          }
+| exp '^' exp                         { $$ = new_bop(BOP_XOR, $1, $3);          }
+| exp "<<" exp                        { $$ = new_bop(BOP_SHL, $1, $3);        }
+| exp ">>" exp                        { $$ = new_bop(BOP_SHR, $1, $3);        }
+| '~' exp %prec UNEG                  { $$ = new_bop(BOP_INV, $2, NULL);              }
+/* Others */
+| '(' exp ')'                                    { $$ = $2;                                            }
+| I64                                              { $$ = new_num($1);                                }
+| NAME                                              { $$ = new_ref_int($1, gcs());            }
+| exp '=' exp                         { $$ = new_asgn($1, $3);                }
+| vardef '=' exp                      { $$ = new_asgn($1, $3);                }
+| NAME '.' exp                        { $$ = new_ref_bit($1, $3, gcs());      }
+;
+
+ret: RETURN exp                           { $$ = new_ret($2);                  }
+;
+
+vardeflist: vardef                    { $$ = new_ast($1, NULL);        }
+| vardef ',' vardeflist               { $$ = new_ast($1, $3);          }
+;
+
+dirlist: dir                          { $$ = new_ast($1, NULL);        }
+| dir dirlist                         { $$ = new_ast($1, $2);          }
+;
+
+program: FUNCTION NAME '(' vardeflist ')' S_START stmtlist S_END dirlist {
+    
+    // Define function, which will puts everything under the func struct named NAME
+    // However, current we don't support function call, so it's useless
+    Func* func = defun($2, $4, $7);
+    
+    // Recursively executing the `list`
+    Bundle bret;
+    evalast((Ast*) func, bret);
+    
+    // Evaluate the directives
+    Bundle bret_dir;
+    evalast($9, bret_dir);
+    
+    // Remove all dynamically allocated memory
+    cleanup();
+    
+    // Parse finished
+    return 0;
+}
+;
+

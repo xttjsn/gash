@@ -7,18 +7,23 @@
 //
 
 #include "gash_swift_api.hpp"
+#include "tcp.hpp"
 #include "circuit.hpp"
 #include "div_circuit.hpp"
 #include "garbled_circuit.hpp"
 #include "garbler.hpp"
 #include "evaluator.hpp"
 #include "func.hpp"
+#include "util.hpp"
+#include "lang.hpp"
+
 
 static Garbler m_garbler;
 static Evaluator m_evaluator;
 static string m_circ;
 static string m_circ_name;
 static string m_data_name;
+static Timer timer;
 
 CCircuit* CreateCircuit() {
     return new CCircuit();
@@ -62,46 +67,100 @@ void SetCircuitFunc(const char* circ_func) {
     m_circ = string(circ_func);
 }
 
-void StartGarbler() {
-    
-//    m_garbler.init_connection();
-//    ofstream m_circ_stream = ofstream(m_circ_name, std::ios::out | std::ios::trunc);
-//    ofstream m_data_stream = ofstream(m_data_name, std::ios::out | std::ios::trunc);
-//    extern FILE* yyin;
-//    const char* src = m_circ;
-//    yyin = std::tmpfile();
-//    std::fputs(src, yyin);
-//    std::rewind(yyin);
-//    set_ofstream(m_circ_stream, m_data_stream);
-//    EXPECT_EQ_with_Timer(0, yyparse(), "Parsing");
-//    Garbler garbler(e_ip, port, ot_port, g_circ, g_dat);
-//    EXPECT_EQ_with_Timer(0, garbler.build_circ(), "Build circuit");
-//    EXPECT_EQ_with_Timer(0, garbler.read_input(), "Read input");
-//    EXPECT_EQ_with_Timer(0, garbler.garble_circ(), "Garble circuit");
-//    EXPECT_EQ_with_Timer(0, garbler.init_connection(), "Init connection");
-//    EXPECT_EQ_with_Timer(0, garbler.send_egtt(), "Send encrypted garbled truth tables");
-//    EXPECT_EQ_with_Timer(0, garbler.send_peer_lbls(), "Send peer labels");
-//    EXPECT_EQ_with_Timer(0, garbler.send_self_lbls(), "Send self labels");
-//    EXPECT_EQ_with_Timer(0, garbler.send_output_map(), "Send output map");
-//    EXPECT_EQ_with_Timer(0, garbler.recv_output(), "Receive output");
-//    EXPECT_EQ_with_Timer(0, garbler.report_output(), "Report output");
+void StartGarbler(const char* evaluator_ip) {
+    extern FILE* yyin;
+    const char* src = m_circ.c_str();
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    set_garbler(&m_garbler);
+    m_garbler.m_peer_ip = string(evaluator_ip);
+    TimeIt(yyparse(), "Parsing");
+    m_garbler.check_ids();
+    TimeIt(m_garbler.m_gc.garble(), "Garbling circuit");
+    TimeIt(m_garbler.init_connection(), "Init connection");
+    TimeIt(m_garbler.send_egtt(), "Send encrypted garbled truth tables");
+    TimeIt(m_garbler.send_self_lbls(), "Send self labels");
+    TimeIt(m_garbler.send_peer_lbls(), "Send peer labels");
+    TimeIt(m_garbler.send_output_map(), "Send output map");
+    TimeIt(m_garbler.recv_output(), "Receive output");
+    parse_clean();
 }
 
 void StartEvaluator(const char* garbler_ip) {
+    extern FILE* yyin;
+    const char* src = m_circ.c_str();
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    set_evaluator(&m_evaluator);
+    m_evaluator.m_peer_ip = string(garbler_ip);
+    TimeIt(yyparse(), "Parsing");
+    m_evaluator.check_ids();
+    TimeIt(m_evaluator.build_garble_circuit(), "Build garbled circuit");
+    TimeIt(m_evaluator.init_connection(), "Init connection");
+    TimeIt(m_evaluator.recv_egtt(), "Send encrypted garbled truth tables");
+    TimeIt(m_evaluator.recv_peer_lbls(), "Send self labels");
+    TimeIt(m_evaluator.recv_self_lbls(), "Send peer labels");
+    TimeIt(m_evaluator.recv_output_map(), "Send output map");
+    TimeIt(m_evaluator.m_gc.evaluate(), "Evaluating");
+    TimeIt(m_evaluator.recover_output(), "Recovering output");
+    TimeIt(m_evaluator.send_output(), "Send output");
+    parse_clean();
 }
 
 const char* GetGarblerRawOutput() {
-    return "000000001";
+    string output;
+    char* outstr = new char[2048];
+    m_garbler.get_output(output);
+    memcpy(outstr, output.c_str(), output.size() + 1);
+    return outstr;
 }
 const char* GetEvaluatorRawOutput() {
-    return "111110000";
+    string output;
+    char* outstr = new char[2048];
+    m_evaluator.get_output(output);
+    memcpy(outstr, output.c_str(), output.size() + 1);
+    return outstr;
 }
 
-const char* GetGarblerOutput() {
-    return "13";
+void ResetGarbler() {
+    m_garbler.clear();
 }
 
-const char* GetEvaluatorOutput() {
-    return "22";
+void ResetEvaluator() {
+    m_evaluator.clear();
 }
 
+void CrossCheck() {
+    extern FILE* yyin;
+    const char* src = m_circ.c_str();
+    yyin = std::tmpfile();
+    std::fputs(src, yyin);
+    std::rewind(yyin);
+    set_evaluator(&m_evaluator);
+    TimeIt(yyparse(), "Parsing");
+    m_evaluator.m_gc.execute();
+    m_evaluator.m_gc.garble();
+
+    m_evaluator.m_gc.evaluate_and_check();
+    for (int i = 0; i < m_evaluator.m_gc.m_out_id_vec.size(); ++i) {
+        WI* wi = m_evaluator.m_gc.get_wi(m_evaluator.m_gc.m_out_id_vec[i]);
+        printf("%d", wi->m_inv ? wi->m_wire->m_val ^ 1 : wi->m_wire->m_val);
+    }
+    printf("\n");
+    
+    for (int i = 0; i < m_evaluator.m_gc.m_out_id_vec.size(); ++i) {
+        WI* wi = m_evaluator.m_gc.get_wi(m_evaluator.m_gc.m_out_id_vec[i]);
+        GWI* gwi = m_evaluator.m_gc.get_gwi(m_evaluator.m_gc.m_out_id_vec[i]);
+        if (wi->m_wire->m_val != gwi->m_wire->m_val) {
+            perror("Gotcha!");
+            abort();
+        } else {
+            printf("%d", wi->m_inv ? wi->m_wire->m_val ^ 1 : wi->m_wire->m_val);
+        }
+    }
+    
+    parse_clean();
+    m_evaluator.clear();
+}

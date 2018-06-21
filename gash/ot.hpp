@@ -60,6 +60,7 @@ public:
     
     void Cleanup()
     {
+        m_vSocket->Close();
         delete m_sndthread;
         delete m_rcvthread;
         delete m_vSocket;
@@ -101,6 +102,7 @@ public:
             }
             
             // locate the socket appropriately
+            m_vSocket->Close();
             m_vSocket->AttachFrom(sock);
             sock.Detach();
         }
@@ -131,7 +133,7 @@ public:
                     if (k == 0) {
                         
                         cout << "connected" << endl;
-                        abort();
+                        return 1;
                         
                     } else {
                         break;

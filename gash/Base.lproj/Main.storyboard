@@ -943,7 +943,7 @@
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="M1g-Uu-oyr">
                                 <rect key="frame" x="1095" y="348" width="96" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="4UR-Rp-yLv">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="127.0.0.1" drawsBackground="YES" id="4UR-Rp-yLv">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -1052,14 +1052,14 @@
                                 <rect key="frame" x="679" y="374" width="341" height="135"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <clipView key="contentView" ambiguous="YES" id="J32-3e-TWE">
-                                    <rect key="frame" x="1" y="1" width="339" height="133"/>
+                                    <rect key="frame" x="1" y="1" width="324" height="133"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView ambiguous="YES" importsGraphics="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="Phq-Os-Wky">
-                                            <rect key="frame" x="0.0" y="0.0" width="339" height="133"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="324" height="133"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="339" height="133"/>
+                                            <size key="minSize" width="324" height="133"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <connections>
@@ -1074,10 +1074,39 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="68I-l3-xLV">
-                                    <rect key="frame" x="324" y="1" width="16" height="133"/>
+                                    <rect key="frame" x="325" y="1" width="15" height="133"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fXD-58-XQt">
+                                <rect key="frame" x="1095" y="442" width="96" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="127.0.0.1" drawsBackground="YES" id="mJn-Yk-mCa">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gR6-6r-jfD">
+                                <rect key="frame" x="1095" y="472" width="76" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Evaluator IP" id="0wh-Qj-VnD">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XHJ-Gx-fYU">
+                                <rect key="frame" x="1035" y="208" width="117" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Cross Check" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ErV-cg-Bee">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="cross_check:" target="XfG-lQ-9wD" id="Gev-uA-LOD"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
@@ -1094,6 +1123,7 @@
                         <outlet property="m_txt_circ" destination="Phq-Os-Wky" id="NJI-Kl-gM5"/>
                         <outlet property="m_txt_denominator" destination="6rl-Nt-BFy" id="gUa-mx-fCK"/>
                         <outlet property="m_txt_div_result" destination="wYQ-Bw-7JO" id="Gdf-i2-hY3"/>
+                        <outlet property="m_txt_evaluator_ip" destination="fXD-58-XQt" id="XHw-ws-vNj"/>
                         <outlet property="m_txt_evaluator_output" destination="s7z-M2-3HW" id="E0f-mZ-Kkg"/>
                         <outlet property="m_txt_evaluator_raw_output" destination="0Ev-4I-5sY" id="lLM-Pi-sKz"/>
                         <outlet property="m_txt_garbler_ip" destination="M1g-Uu-oyr" id="0xB-Y4-LXS"/>

@@ -10,9 +10,13 @@
 #define garbled_circuit_hpp
 
 #include <stdio.h>
+#include <iostream>
 #include "circuit.hpp"
 #include "aes.hpp"
 #include "util.hpp"
+
+using std::cout;
+using std::endl;
 
 class GarbledCircuit;
 class GarbledGate;
@@ -25,6 +29,8 @@ typedef GarbledGate GG;
 typedef GarbledCircuit GC;
 typedef map<int, GWI*> IdGWIMap;
 typedef map<int, GG*>  IdGGMap;
+
+extern block AESkey;
 
 class GarbledWire : public Wire {
 public:
@@ -50,47 +56,23 @@ public:
     }
     
     inline block get_lbl0() {
-        return m_inv ? m_gw->m_lbl1: m_gw->m_lbl0;
-    }
-    
-    inline block get_orig_lbl0() {
         return m_gw->m_lbl0;
     }
     
     inline block get_lbl1() {
-        return m_inv ? m_gw->m_lbl0: m_gw->m_lbl1;
-    }
-    
-    inline block get_orig_lbl1() {
         return m_gw->m_lbl1;
     }
-
+    
     inline block get_lbl() {
         return m_gw->m_lbl;
     }
     
     inline void set_lbl0(block lbl0) {
-        if (m_inv) {
-            m_gw->m_lbl1 = lbl0;
-        } else {
-            m_gw->m_lbl0 = lbl0;
-        }
-    }
-    
-    inline void set_orig_lbl0(block lbl) {
-        m_gw->m_lbl0 = lbl;
-    }
-    
-    inline void set_orig_lbl1(block lbl) {
-        m_gw->m_lbl1 = lbl;
+        m_gw->m_lbl0 = lbl0;
     }
     
     inline void set_lbl1(block lbl1) {
-        if (m_inv) {
-            m_gw->m_lbl0 = lbl1;
-        } else {
-            m_gw->m_lbl1 = lbl1;
-        }
+        m_gw->m_lbl1 = lbl1;
     }
     
     inline void set_lbl(block lbl) {
@@ -117,9 +99,9 @@ public:
         int lbl1lsb = get_lsb(get_lbl1());
         
         if (lbl0lsb == lsb) {
-            return m_inv ? 1 : 0;
+            return 0;
         } else if (lbl1lsb == lsb) {
-            return m_inv ? 0 : 1;
+            return 1;
         } else {
             perror("lsb is neither 0 or 1");
             abort();
@@ -131,14 +113,6 @@ public:
             return get_lbl0();
         } else {
             return get_lbl1();
-        }
-    }
-    
-    block get_orig_lbl_w_smtc(int smtc) {
-        if (smtc == 0) {
-            return get_orig_lbl0();
-        } else {
-            return get_orig_lbl1();
         }
     }
     
@@ -160,7 +134,7 @@ public:
             abort();
         }
     }
-    
+
     void set_lbl_w_smtc(block lbl, int smtc) {
         if (smtc != 0 && smtc != 1) {
             perror("Invalid semantic.");
@@ -173,14 +147,14 @@ public:
             set_lbl1(lbl);
         }
     }
-
+    
     int recover_smtc() {
         if (block_eq(m_gw->m_lbl, get_lbl0())) {
-            // return 0 ^ get_inv();
+            m_gw->m_val = 0;
             return 0;
             
         } else if (block_eq(m_gw->m_lbl, get_lbl1())) {
-            // return 1 ^ get_inv();
+            m_gw->m_val = 1;
             return 1;
         } else {
             perror("Invalid label, neither label0 nor label 1");
@@ -195,20 +169,23 @@ public:
 
 class GarbledGate : public Gate {
 public:
-    bool m_is_xor;
     GWI *m_in0;
     GWI *m_in1;
     GWI *m_out;
     block m_egtt[4];
+    int m_func;
     
     GarbledGate() {}
     
-    GarbledGate(bool is_xor, GWI* in0, GWI* in1, GWI* out):
-    m_is_xor(is_xor),  m_in0(in0),  m_in1(in1),  m_out(out) {
+    GarbledGate(int func, GWI* in0, GWI* in1, GWI* out): m_func(func), m_in0(in0),  m_in1(in1),  m_out(out) {
     }
     
-    GarbledGate(bool is_xor, GWI* in0, GWI* in1, GWI* out, block egtt[4]): m_is_xor(is_xor), m_in0(in0), m_in1(in1), m_out(out) {
+    GarbledGate(int func, GWI* in0, GWI* in1, GWI* out, block egtt[4]): m_func(func), m_in0(in0), m_in1(in1), m_out(out) {
         memcpy(m_egtt, egtt, 4 * sizeof(block));
+    }
+    
+    inline int get_id() {
+        return m_out->m_gw->m_id;
     }
 
     ~GarbledGate() {}
@@ -219,6 +196,8 @@ public:
     IdGWIMap                    m_gwi_map;
     IdGGMap                     m_gg_map;
     block                       m_R;
+    GWI*                        m_gwi_one;
+    GWI*                        m_gwi_zero;
     
     GWI* get_gwi(int id) {
         auto it = m_gwi_map.find(id);
@@ -279,8 +258,6 @@ public:
         }
     }
     
-    int get_orig_lbl(int id, int val, block& lbl);
-    
     void init() {
         srand_sse((int)time(0));
         m_R = random_block();
@@ -316,8 +293,15 @@ public:
         
         init();
         
+        m_gwi_one = new GWI(m_wi_one);
+        m_gwi_one->garble(m_R);
+        add_gwi(m_gwi_one);
+        
+        m_gwi_zero = new GWI(m_wi_zero);
+        m_gwi_zero->garble(m_R);
+        add_gwi(m_gwi_zero);
+        
         for (auto it = m_in_id_set.begin(); it != m_in_id_set.end(); ++it) {
-            
             wi = get_wi(*it);
             gwi = new GWI(wi);
             gwi->garble(m_R);
@@ -342,13 +326,42 @@ public:
             if (func == funcXOR) {
                 
                 lbl0 = xor_block(gin0->get_lbl0(), gin1->get_lbl0());
-                gout->set_lbl0(lbl0);
-                
                 lbl1 = xor_block(lbl0, m_R);
-                gout->set_lbl1(lbl1);
+                
+                int smtc = eval(func, gin0->m_inv ? 1 : 0, gin1->m_inv ? 1 : 0);
+                gout->set_lbl_w_smtc(lbl0, smtc);
+                gout->set_lbl_w_smtc(lbl1, smtc ^ 1);
                 add_gwi(gout);
                 
-                gg = new GG(1, gin0, gin1, gout);
+                gg = new GG(func, gin0, gin1, gout);
+                
+#ifdef GASH_DEBUG
+                {
+                    
+                    cout << "Garbling an XOR gate" << endl;
+                    
+                    cout << INDENTx1 << "Wire in0 id: " << gin0->get_id() << endl;
+                    cout << INDENTx1 << "Wire in0 lbl0: " << block2hex(gin0->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire in0 lbl1: " << block2hex(gin0->get_lbl1())
+                    << endl;
+                    cout << endl;
+                    
+                    cout << INDENTx1 << "Wire in1 id: " << gin1->get_id() << endl;
+                    cout << INDENTx1 << "Wire in1 lbl0: " << block2hex(gin1->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire in1 lbl1: " << block2hex(gin1->get_lbl1())
+                    << endl;
+                    cout << endl;
+                    
+                    cout << INDENTx1 << "Wire out id: " << gout->get_id() << endl;
+                    cout << INDENTx1 << "Wire out lbl0: " << block2hex(gout->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire out lbl1: " << block2hex(gout->get_lbl1())
+                    << endl;
+                    cout << endl;
+                }
+#endif
                 
             } else {
                 
@@ -361,7 +374,8 @@ public:
                 tweak = new_tweak(g->get_id());
                 
                 // Get the semantic of the first row of egtt
-                first_row_smtc = eval(func, gin0->get_smtc_w_lsb(0), gin1->get_smtc_w_lsb(0));
+                first_row_smtc = eval(func, gin0->m_inv ? gin0->get_smtc_w_lsb(0) ^ 1 : gin0->get_smtc_w_lsb(0),
+                                            gin1->m_inv ? gin1->get_smtc_w_lsb(0) ^ 1 : gin1->get_smtc_w_lsb(0));
                 
                 // Encrypt the label
                 lbl = encrypt(gin0->get_lbl_w_lsb(0), gin1->get_lbl_w_lsb(0), tweak, ZERO,
@@ -370,33 +384,64 @@ public:
                 gout->set_lbl_w_smtc(lbl, first_row_smtc);
                 gout->set_lbl_w_smtc(xor_block(lbl, m_R), first_row_smtc ^ 1);
                 
-                lbl0 = gout->get_lbl_w_smtc(0);
-                lbl1 = gout->get_lbl_w_smtc(1);
-                
                 // Add output wire to circuit
                 add_gwi(gout);
+                
+#ifdef GASH_DEBUG
+                {
+                    
+                    cout << "Garbling an AND/OR gate" << endl;
+                    
+                    cout << INDENTx1 << "Wire in0 id: " << gin0->get_id() << endl;
+                    cout << INDENTx1 << "Wire in0 lbl0: " << block2hex(gin0->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire in0 lbl1: " << block2hex(gin0->get_lbl1())
+                    << endl;
+                    cout << endl;
+                    
+                    cout << INDENTx1 << "Wire in1 id: " << gin1->get_id() << endl;
+                    cout << INDENTx1 << "Wire in1 lbl0: " << block2hex(gin1->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire in1 lbl1: " << block2hex(gin1->get_lbl1())
+                    << endl;
+                    cout << endl;
+                    
+                    cout << INDENTx1 << "Wire out id: " << gout->get_id() << endl;
+                    cout << INDENTx1 << "Wire out lbl0: " << block2hex(gout->get_lbl0())
+                    << endl;
+                    cout << INDENTx1 << "Wire out lbl1: " << block2hex(gout->get_lbl1())
+                    << endl;
+                    cout << endl;
+                }
+#endif
                 
                 // Write label to encrypted garbled truth table
                 egtt[1] = encrypt(gin0->get_lbl_w_lsb(1),
                                  gin1->get_lbl_w_lsb(0),
                                  tweak,
-                                 gout->get_lbl_w_smtc(eval(func, gin0->get_smtc_w_lsb(1), gin1->get_smtc_w_lsb(0))),
+                                 gout->get_lbl_w_smtc(eval(func,
+                                                           gin0->m_inv ? gin0->get_smtc_w_lsb(1) ^ 1: gin0->get_smtc_w_lsb(1),
+                                                           gin1->m_inv ? gin1->get_smtc_w_lsb(0) ^ 1: gin1->get_smtc_w_lsb(0))),
                                  AESkey);
                 
                 egtt[2] = encrypt(gin0->get_lbl_w_lsb(0),
-                                 gin1->get_lbl_w_lsb(1),
-                                 tweak,
-                                 gout->get_lbl_w_smtc(eval(func, gin0->get_smtc_w_lsb(0), gin1->get_smtc_w_lsb(1))),
-                                 AESkey);
+                                  gin1->get_lbl_w_lsb(1),
+                                  tweak,
+                                  gout->get_lbl_w_smtc(eval(func,
+                                                            gin0->m_inv ? gin0->get_smtc_w_lsb(0) ^ 1: gin0->get_smtc_w_lsb(0),
+                                                            gin1->m_inv ? gin1->get_smtc_w_lsb(1) ^ 1: gin1->get_smtc_w_lsb(1))),
+                                  AESkey);
                 
                 egtt[3] = encrypt(gin0->get_lbl_w_lsb(1),
-                                 gin1->get_lbl_w_lsb(1),
-                                 tweak,
-                                 gout->get_lbl_w_smtc(eval(func, gin0->get_smtc_w_lsb(1), gin1->get_smtc_w_lsb(1))),
-                                 AESkey);
+                                  gin1->get_lbl_w_lsb(1),
+                                  tweak,
+                                  gout->get_lbl_w_smtc(eval(func,
+                                                            gin0->m_inv ? gin0->get_smtc_w_lsb(1) ^ 1: gin0->get_smtc_w_lsb(1),
+                                                            gin1->m_inv ? gin1->get_smtc_w_lsb(1) ^ 1: gin1->get_smtc_w_lsb(1))),
+                                  AESkey);
                 
                 // Create the garbled gate with garbled truth table
-                gg = new GG(0, gin0, gin1, gout, egtt);
+                gg = new GG(func, gin0, gin1, gout, egtt);
             }
             
             // Add garbled gate to the garbled circuit
@@ -432,9 +477,21 @@ public:
             gout = gg->m_out;
             
             // XOR gate
-            if (gg->m_is_xor) {
+            if (gg->m_func == funcXOR) {
                 
                 lbl = xor_block(gin0->get_lbl(), gin1->get_lbl());
+
+#ifdef GASH_DEBUG
+                {
+                    cout << "Evaluating an XOR gate" << endl;
+                    cout << INDENTx1 << "Wire in0 id:" << gin0->m_wire->m_id << endl;
+                    cout << INDENTx1 << "Wire in0 lbl:" << block2hex(gin0->get_lbl()) << endl;
+                    cout << endl;
+                    cout << INDENTx1 << "Wire in1 id:" << gin1->m_wire->m_id << endl;
+                    cout << INDENTx1 << "Wire in1 lbl:" << block2hex(gin1->get_lbl()) << endl;
+                    cout << endl;
+                }
+#endif
                 
             } else {
                 // Non-XOR gate
@@ -455,14 +512,133 @@ public:
                                   gg->m_egtt[select],
                                   AESkey);
                 }
+                
+#ifdef GASH_DEBUG
+                {
+                    cout << "Evaluating an AND/OR/IAND gate" << endl;
+                    cout << INDENTx1 << "Wire in0 id:" << gin0->m_wire->m_id << endl;
+                    cout << INDENTx1 << "Wire in0 lbl:" << block2hex(gin0->get_lbl()) << endl;
+                    cout << endl;
+                    cout << INDENTx1 << "Wire in1 id:" << gin1->m_wire->m_id << endl;
+                    cout << INDENTx1 << "Wire in1 lbl:" << block2hex(gin1->get_lbl()) << endl;
+                    cout << endl;
+                }
+#endif
             }
             
             gout->set_lbl(lbl);
+            
+#ifdef GASH_DEBUG
+            {
+                cout << INDENTx1 << "Wire out id:" << gout->m_wire->m_id << endl;
+                cout << INDENTx1 << "Wire out lbl:" << block2hex(gout->get_lbl()) << endl;
+            }
+#endif
         }
     }
     
+    void evaluate_and_check() {
+        block tweak;
+        block lbl;
+        block ZERO = _mm_setzero_si128();
+        
+        GWI* gin0;
+        GWI* gin1;
+        GWI* gout;
+        GG* gg;
+        
+        WI*  win0;
+        WI*  win1;
+        WI*  wout;
+        
+        int id;
+        int select;
+        
+        // Load input labels
+        for (auto it = m_in_id_set.begin(); it != m_in_id_set.end(); ++it) {
+            WI* wi = get_wi(*it);
+            GWI* gwi = get_gwi(*it);
+            gwi->set_lbl(wi->m_wire->m_val == 0 ? gwi->get_lbl0() : gwi->get_lbl1());
+        }
+        m_gwi_one->set_lbl(m_gwi_one->get_lbl1());
+        m_gwi_zero->set_lbl(m_gwi_zero->get_lbl0());
+        
+        for (auto it = m_gg_map.begin(); it != m_gg_map.end(); ++it) {
+            
+            id = it->first;
+            gg = get_gg(id);
+            
+            if (!gg) {
+                perror("Cannot find garbled gate");
+                abort();
+            }
+            
+            gin0 = gg->m_in0;
+            gin1 = gg->m_in1;
+            gout = gg->m_out;
+            
+            // Check if the recovered semantic does match with the expected semantic
+            win0 = get_wi(gin0->m_wire->m_id);
+            win1 = get_wi(gin1->m_wire->m_id);
+            wout = get_wi(gout->m_wire->m_id);
+            assert(win0->m_wire->m_val == 0 || win0->m_wire->m_val == 1);
+            assert(win0->m_wire->m_val == 0 || win0->m_wire->m_val == 1);
+            
+            if (gin0->recover_smtc() != win0->m_wire->m_val) {
+                perror("Gotcha! This wire's recovered semantic is incorrect!");
+                abort();
+            }
+            
+            // XOR gate
+            if (gg->m_func == funcXOR) {
+                
+                lbl = xor_block(gin0->get_lbl(), gin1->get_lbl());
+                
+                
+                
+            } else {
+                // Non-XOR gate
+                
+                select = get_lsb(gin0->get_lbl()) + (get_lsb(gin1->get_lbl()) << 1);
+                tweak = new_tweak(gg->get_id());
+                
+                if (select == 0) {
+                    
+                    // Use the same encryption as in garbling to get the label
+                    lbl = encrypt(gin0->get_lbl(), gin1->get_lbl(), tweak, ZERO, AESkey);
+                    
+                } else {
+                    
+                    lbl = decrypt(gin0->get_lbl(),
+                                  gin1->get_lbl(),
+                                  tweak,
+                                  gg->m_egtt[select],
+                                  AESkey);
+                }
+            
+            }
+            
+            gout->set_lbl(lbl);
+            int recovered_smtc = gout->recover_smtc();
+            if (recovered_smtc != wout->m_wire->m_val) {
+                perror("Gotcha! This wire's recovered semantic is incorrect!");
+                abort();
+            }
+        }
+    }
+    
+    void clear() {
+        Circuit::clear();
+        m_gwi_map.clear();
+        m_gg_map.clear();
+        m_gwi_one = nullptr;
+        m_gwi_zero = nullptr;
+    }
+    
     GarbledCircuit(){}
-    ~GarbledCircuit(){}
+    ~GarbledCircuit(){
+        clear();
+    }
 
 };
 

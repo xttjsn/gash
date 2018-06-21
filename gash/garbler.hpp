@@ -13,6 +13,7 @@
 #include "garbled_circuit.hpp"
 #include "tcp.hpp"
 #include "ot.hpp"
+#include "common.hpp"
 
 class Garbler {
 public:
@@ -20,9 +21,6 @@ public:
     
     IdSet m_self_in_id_set;
     IdSet m_peer_in_id_set;
-    IdValMap m_in_val_map;
-    IdValMap m_out_val_map;
-
     
     /// Network related stuff
     int m_peer_sock;
@@ -30,11 +28,9 @@ public:
     int m_listen_sock;
     string m_self_ip;
     string m_peer_ip;
-    uint16_t m_port;
-    uint16_t m_ot_port;
     
     void init_connection() {
-        tcp_server_init(m_port, m_listen_sock, m_peer_sock);
+        tcp_server_init(PORT_GC, m_listen_sock, m_peer_sock);
     }
     
     void send_egtt() {
@@ -54,7 +50,7 @@ public:
             
             int tag;
             // If it is an xor gate, just tell the peer by sending this magic number
-            if (gg->m_is_xor) {
+            if (gg->m_func == funcXOR) {
                 tag = XORNUM;
                 tcp_send_bytes(m_peer_sock, (char*)&tag, sizeof(int));
                 
@@ -69,6 +65,19 @@ public:
         }
     }
     
+    void check_ids() {
+        for (auto it = m_gc.m_in_id_set.begin(); it != m_gc.m_in_id_set.end(); ++it) {
+            WI* wi = m_gc.get_wi(*it);
+            if (wi->m_wire->m_val == 0 || wi->m_wire->m_val == 1) {
+                m_self_in_id_set.insert(*it);
+            } else {
+                m_peer_in_id_set.insert(*it);
+            }
+        }
+        m_self_in_id_set.insert(m_gc.m_wi_one->m_wire->m_id);
+        m_self_in_id_set.insert(m_gc.m_wi_zero->m_wire->m_id);
+    }
+    
     void send_self_lbls() {
         int size;
         int id;
@@ -81,9 +90,8 @@ public:
         for (auto it = m_self_in_id_set.begin(); it != m_self_in_id_set.end(); ++it) {
             
             id = *it;
-            auto val_it = m_in_val_map.find(id);
-            assert(val_it != m_in_val_map.end());
-            val = val_it->second;
+            GWI* gwi = m_gc.get_gwi(id);
+            int val = gwi->m_wire->m_val;
             assert(val == 0 || val == 1);
             
             m_gc.get_lbl(id, val, lbl);
@@ -91,6 +99,11 @@ public:
             tcp_send_bytes(m_peer_sock, (char*)&id, sizeof(int));
             tcp_send_bytes(m_peer_sock, (char*)&lbl, LABELSIZE);
         }
+        
+        lbl = m_gc.m_gwi_zero->get_lbl0();
+        tcp_send_bytes(m_peer_sock, (char*)&lbl, LABELSIZE);
+        lbl = m_gc.m_gwi_one->get_lbl1();
+        tcp_send_bytes(m_peer_sock, (char*)&lbl, LABELSIZE);
     }
     
     void send_peer_lbls() {
@@ -117,7 +130,7 @@ public:
         
         // Call OTSend
         OTParty otp;
-        otp.OTSend(m_peer_ip, m_ot_port, lbl0vec, lbl1vec);
+        otp.OTSend(m_peer_ip, PORT_OT, lbl0vec, lbl1vec);
         
     }
     
@@ -150,8 +163,8 @@ public:
             }
             
             // Non-constant output
-            m_gc.get_orig_lbl(id, 0, lbl0);
-            m_gc.get_orig_lbl(id, 1, lbl1);
+            lbl0 = m_gc.get_gwi(id)->get_lbl_w_smtc(0);
+            lbl1 = m_gc.get_gwi(id)->get_lbl_w_smtc(1);
             
             tcp_send_bytes(m_peer_sock, (char*)&id, sizeof(int));
             tcp_send_bytes(m_peer_sock, (char*)&lbl0, LABELSIZE);
@@ -173,7 +186,8 @@ public:
         for (int i = 0; i < size; ++i) {
             tcp_recv_bytes(m_peer_sock, (char*)&id, sizeof(int));
             tcp_recv_bytes(m_peer_sock, (char*)&val, sizeof(int));
-            m_out_val_map.emplace(id, val);
+            GWI* gwi = m_gc.get_gwi(id);
+            gwi->m_gw->m_val = val;
         }
     }
     
@@ -181,7 +195,9 @@ public:
         int id;
         for (auto it = m_gc.m_out_id_vec.begin(); it != m_gc.m_out_id_vec.end(); ++it) {
             id = *it;
-            str += std::to_string(m_out_val_map.find(id)->second);
+            GWI* gwi = m_gc.get_gwi(id);
+            int val = gwi->m_gw->m_val;
+            str += std::to_string(val);
         }
         
         string cpy(str);
@@ -193,33 +209,31 @@ public:
         int id;
         for (auto it = m_gc.m_out_id_vec.begin(); it != m_gc.m_out_id_vec.end(); ++it) {
             id = *it;
-            printf("%d:%d\n", id, m_out_val_map.find(id)->second);
+            GWI* gwi = m_gc.get_gwi(id);
+            int val = gwi->m_gw->m_val;
+            printf("%d:%d\n", id, val);
         }
         
     }
 
-    void reset_circ() {
-        m_gc = GC();
-        m_in_val_map.clear();
-        m_out_val_map.clear();
-        m_self_in_id_set = IdSet();
-        m_peer_in_id_set = IdSet();
+    void clear() {
+        m_gc.clear();
+        m_self_in_id_set.clear();
+        m_peer_in_id_set.clear();
+        shutdown(m_listen_sock, SHUT_WR);
+        close(m_listen_sock);
+        shutdown(m_peer_sock, SHUT_WR);
+        close(m_peer_sock);
     }
 
     Garbler() {}
     
-    Garbler(string peer_ip, uint16_t port, uint16_t ot_port) {
+    Garbler(string peer_ip) {
         m_peer_ip = peer_ip;
-        m_port = port;
-        m_ot_port = ot_port;
     }
     
     ~Garbler() {
-        shutdown(m_listen_sock, SHUT_WR);
-        close(m_listen_sock);
-        
-        shutdown(m_peer_sock, SHUT_WR);
-        close(m_peer_sock);
+        clear();
     }
 };
 

@@ -22,15 +22,15 @@ extern "C" {
     const char* GetOutputString(CCircuit*);
     CDivCircuit* CreateCDivCircuit(int bitsize, int denom, int nume);
     void BuildDivCircuit(CDivCircuit*);
-    
+    void CrossCheck();
     const char* LoadCircuitFunc(const char* circ, int bitsize);
     void SetCircuitFunc(const char* circ_func);
-    void StartGarbler();
+    void StartGarbler(const char* evaluator_ip);
     void StartEvaluator(const char* garbler_ip);
     const char* GetGarblerRawOutput();
     const char* GetEvaluatorRawOutput();
-    const char* GetGarblerOutput();
-    const char* GetEvaluatorOutput();
+    void ResetGarbler();
+    void ResetEvaluator();
     
     
 #ifdef __cplusplus

@@ -16,7 +16,54 @@
 #include <set>
 #include <string>
 #include <gmpxx.h>
+#include <algorithm>
 #include "util.hpp"
+#include "common.hpp"
+
+/* Arithmetic operations */
+#define AOP_PLUS 0x00
+#define AOP_SUB 0x01
+#define AOP_UMINUS 0x02
+#define AOP_MUL 0x03
+#define AOP_DIV 0x04
+
+/// If advanced arithmetic is enabled
+#ifdef __ADV_ARITH__
+
+#define AOP_SQR 0x05
+#define AOP_SQRT 0x06
+
+/// If piece wise linear approximation is enabled
+#ifdef __PWS_LIN_APPRX__
+
+#define AOP_LOG2 0x07
+#define AOP_LOG10 0x08
+
+#endif
+#endif
+
+/* Bitwise operations */
+#define BOP_OR 0x10
+#define BOP_AND 0x11
+#define BOP_XOR 0x12
+#define BOP_INV 0x13
+#define BOP_SHL 0x14
+#define BOP_SHR 0x15
+
+/* Comparison operations */
+#define COP_LA 0x20 // Larger than
+#define COP_LE 0x21 // Less than
+#define COP_LAE 0x22 // Larger than or equal to
+#define COP_LEE 0x23 // Less or equal to
+#define COP_EQ 0x24 // Equal
+#define COP_NEQ 0x25 // Not equal
+
+/* Gate type */
+#define opIAND 1
+#define opAND 8
+#define opOR 14
+#define opXOR 6
+#define opDFF 17
 
 using std::vector;
 using std::map;
@@ -28,7 +75,7 @@ class WireInstance;
 class Gate;
 class Circuit;
 typedef WireInstance WI;
-typedef vector<WI*> Bundle;
+
 
 
 /**
@@ -78,6 +125,42 @@ public:
     }
 };
 
+class Bundle {
+public:
+    vector<WI*> m_wis;
+    /// true if this bundle is derived from a constant value.
+    /// Default false.
+    /// If true, then during assignment, it is allowed to use only part
+    /// of the bundle
+    bool          m_isconst = false;
+    
+    Bundle() {}
+    
+    Bundle(vector<WI*>& wires) : m_wis(wires) {}
+    Bundle(WI* w) { m_wis.push_back(w); }
+    void push_back(WI* w) { m_wis.push_back(w); }
+    WI*& operator[](int i) { return m_wis[i]; }
+    void push_front(WI* w) { m_wis.insert(m_wis.begin(), w); }
+    WI* back() { return m_wis.back(); }
+    int size() { return m_wis.size(); }
+    int copyfrom(Bundle& src, int start, int src_start, int size) {
+        if (size > this->size() - start) {
+            perror("This bundle has not enough room to copy from another bundle.");
+            abort();
+        }
+        if (src.size() - src_start < size) {
+            perror("The source bundle has not enough wires.");
+            abort();
+        }
+        for (int i = 0; i < size; ++i) {
+            m_wis[i + start] = src[i + src_start];
+        }
+        return 0;
+    }
+    void clear() { m_wis.clear(); }
+
+};
+
 class Gate {
 public:
     int m_func;
@@ -95,9 +178,6 @@ public:
     }
 };
 
-
-
-
 class Circuit {
 public:
     Bundle        m_in;
@@ -109,9 +189,34 @@ public:
     IdSet         m_in_id_set;
     IdVec         m_out_id_vec;
     
+    WI*           m_wi_one;
+    WI*           m_wi_zero;
+    
     int           m_wcount;
     
-    Circuit() {}
+    Circuit() {
+        m_wi_one = nextwi();
+        m_wi_one->m_wire->m_val = 1;
+        m_wi_zero = nextwi();
+        m_wi_zero->m_wire->m_val = 0;
+    }
+    
+    void clear() {
+        m_in.clear();
+        m_out.clear();
+        m_wi_map.clear();
+        m_gate_map.clear();
+        m_wi_inv_map.clear();
+        m_in_id_set.clear();
+        m_out_id_vec.clear();
+        m_wcount = 0;
+        delete m_wi_one;
+        delete m_wi_zero;
+        m_wi_one = nextwi();
+        m_wi_one->m_wire->m_val = 1;
+        m_wi_zero = nextwi();
+        m_wi_zero->m_wire->m_val = 0;
+    }
     
     inline WI* get_wi(int id) {
         if (m_wi_map.find(id) == m_wi_map.end())
@@ -191,15 +296,11 @@ public:
     }
     
     inline WI* zerowi() {
-        WI* wi = nextwi();
-        wi->m_wire->m_val = 0;
-        return wi;
+        return m_wi_zero;
     }
     
     inline WI* onewi() {
-        WI* wi = nextwi();
-        wi->m_wire->m_val = 1;
-        return wi;
+        return m_wi_one;
     }
     
     void execute() {
@@ -260,6 +361,7 @@ public:
             w_inv->m_wire->m_val = 1 ^ a->m_wire->m_val;
             m_wi_inv_map.emplace(w_inv->m_wire->m_id, a->m_wire->m_id);
             m_wi_inv_map.emplace(a->m_wire->m_id, w_inv->m_wire->m_id);
+            m_in_id_set.insert(w_inv->m_wire->m_id);
             return w_inv;
         }
         else {
@@ -296,63 +398,22 @@ public:
         return w_sum;
     }
     
-    WI* evalc_LA(Bundle& a, Bundle& b) {
-        assert(a.size() == b.size());
-        assert(a.size() > 1);
-        
-        Bundle xors;
-        for (int i = 0; i < a.size(); ++i) {
-            WI* w = evalw_XOR(a[i], b[i]);
-            WI* w_inv = evalw_INV(w);
-            xors.push_back(w_inv);
-        }
-        
-        WI* w_inv_a = evalw_INV(a.back());
-        WI* w_ret = evalw_AND(w_inv_a, b.back());
-        
-        WI* w_used_xor = onewi();
-        WI* w_iand_a_b = evalw_IAND(a.back(), b.back());
-        WI* w_and_a_b  = evalw_AND(a.back(), b.back());
-        
-        for (int i = 1; i < a.size(); ++i) {
-            WI* w_inv_b = evalw_INV(b[a.size() - i - 1]);
-            WI* w_and_a_ib = evalw_AND(a[a.size() - i - 1], w_inv_b);
-            WI* w_and_a_ib_xor = evalw_AND(w_and_a_ib, w_used_xor);
-            WI* w_irow = evalw_AND(w_and_a_ib_xor, w_iand_a_b);
-            w_ret = evalw_OR(w_ret, w_irow);
-            
-            WI* w_inv_a = evalw_INV(a[a.size() - i - 1]);
-            WI* w_and_ia_b = evalw_AND(b[a.size() - i - 1], w_inv_a);
-            WI* w_and_ia_b_xor = evalw_AND(w_and_ia_b, w_used_xor);
-            WI* w_jrow = evalw_AND(w_and_ia_b_xor, w_and_a_b);
-            w_ret = evalw_OR(w_ret, w_jrow);
-            
-            w_used_xor = evalw_AND(w_used_xor, xors[a.size() - i - 1]);
-        }
-        return w_ret;
-    }
-    
-    WI* evalc_EQ(Bundle& a, Bundle& b) {
-        assert(a.size() == b.size());
-        WI* w_ret = onewi();
-        for (int i = 0; i < a.size(); ++i) {
-            WI* w = evalw_XOR(a[i], b[i]);
-            WI* w_inv = evalw_INV(w);
-            w_ret = evalw_AND(w_inv, w_ret);
-        }
-        return w_ret;
-    }
-    
-    WI* evalc_LAE(Bundle& a, Bundle& b) {
-        WI* w_la = evalc_LA(a, b);
-        WI* w_eq = evalc_EQ(a, b);
-        WI* w_lae = evalw_OR(w_la, w_eq);
-        return w_lae;
-    }
-    
     Bundle* evala_ADD(Bundle& a, Bundle& b) {
         assert(a.size() == b.size());
         WI* w_cin = zerowi();
+        Bundle* b_out = new Bundle();
+        for (int i = 0; i < a.size(); ++i) {
+            WI* w_a = a[i];
+            WI* w_b = b[i];
+            WI* w_sum = evalw_FADD(w_a, w_b, w_cin);
+            b_out->push_back(w_sum);
+        }
+        return b_out;
+    }
+    
+    Bundle* evala_ADD_raw(Bundle& a, Bundle& b, WI*& w_cin) {
+        assert(a.size() == b.size());
+        w_cin = zerowi();
         Bundle* b_out = new Bundle();
         for (int i = 0; i < a.size(); ++i) {
             WI* w_a = a[i];
@@ -384,6 +445,48 @@ public:
         Bundle* b_out = evala_ADD(a, *b_neg);
         delete b_neg;
         return b_out;
+    }
+    
+    Bundle* evala_MUL(Bundle& a, Bundle& b) {
+        Bundle *prev_res;
+        Bundle res;
+        Bundle* out;
+        Bundle tmp0;
+        Bundle tmp1;
+        
+        WI* cin;
+        int len = a.size();
+        for (int i = 0; i < len; ++i) {
+            // One level of multiplication
+            for (int j = 0; j < len; ++j) {
+                WI* w = nextwi();
+                write_gate(funcAND, a[i], b[j], w);
+                res.push_back(w);
+            }
+            
+            // If this is not the first level
+            if (prev_res->size() > 0) {
+                for (int k = 0; k < i; ++k) {
+                    tmp0.push_back(zerowi());
+                }
+                for (int k = 0; k < res.size(); ++k) {
+                    tmp0.push_back(res[k]);
+                }
+                
+                prev_res = evala_ADD_raw(*prev_res, tmp0, cin);
+                (*prev_res)[prev_res->size() - 2] = cin;
+                
+            } else {
+                *prev_res = res;
+                (*prev_res)[prev_res->size() - 2] = zerowi();
+            }
+            res.clear();
+            tmp0.clear();
+            tmp1.clear();
+        }
+        
+        out = new Bundle(*prev_res);
+        return out;
     }
     
     Bundle* evala_DVG(Bundle& a, Bundle& b, WI*& r) {
@@ -450,7 +553,7 @@ public:
             delete sub_res;
             WI* r;
             sub_res = evala_DVG(*tmp, *active_b, r);
-            out->insert(out->begin(), r);
+            out->push_front(r);
             tmp->clear();
         }
         
@@ -470,6 +573,199 @@ public:
         return out;
         
     }
+    
+    Bundle* evalb_AND(Bundle& a, Bundle& b) {
+        GASSERT(a.size() == b.size());
+        int len = a.size();
+        Bundle* out = new Bundle();
+        WI* w;
+        
+        // Evaluate AND for each bit
+        for (int i = 0; i < len; ++i) {
+            w = evalw_AND(a[i], b[i]);
+            out->push_back(w);
+        }
+        return out;
+    }
+    
+    Bundle* evalb_OR(Bundle& a, Bundle& b) {
+        GASSERT(a.size() == b.size());
+        int len = a.size();
+        Bundle* out = new Bundle();
+        WI* w;
+        // Evaluate OR for each bit
+        for (int i = 0; i < len; ++i) {
+            w = evalw_OR(a[i], b[i]);
+            out->push_back(w);
+        }
+        return out;
+    }
+    
+    Bundle* evalb_XOR(Bundle& a, Bundle& b) {
+        GASSERT(a.size() == b.size());
+        int len = a.size();
+        Bundle* out = new Bundle();
+        WI* w;
+        // Evaluate XOR for each bit
+        for (int i = 0; i < len; ++i) {
+            w = evalw_XOR(a[i], b[i]);
+            out->push_back(w);
+        }
+        return out;
+    }
+    
+    Bundle* evalb_INV(Bundle& a) {
+        int len = (int)a.size();
+        Bundle* out = new Bundle();
+        WI* w;
+        // Evaluate INV for each bit
+        for (int i = 0; i < len; ++i) {
+            w = evalw_INV(a[i]);
+            out->push_back(w);
+        }
+        return out;
+    }
+    
+    Bundle* evalb_SHL(Bundle& a, int n) {
+        Bundle* out = new Bundle();
+        // First, fill min(n, in.size()) zero wries to `out`
+        for (int i = 0; i < std::min(n, (int)a.size()); ++i) {
+            out->push_back(zerowi());
+        }
+        // Then, copy in.size() - n wires to out
+        for (int i = 0; i < a.size() - n; ++i) {
+            out->push_back(a[i]);
+        }
+        
+        return out;
+    }
+    
+    Bundle* evalb_SHR(Bundle& a, int n) {
+        Bundle* out = new Bundle();
+        // First, copy in.size() - n wires to `out`
+        for (int i = 0; i < a.size() - n; ++i) {
+            out->push_back(a[i]);
+        }
+        
+        // Then, fill min(n, in.size()) zero wires to `out`
+        for (int i = 0; i < std::min(n, (int)a.size()); ++i) {
+            out->push_back(zerowi());
+        }
+        
+        return out;
+    }
+    
+    
+    WI* evalc_LA(Bundle& a, Bundle& b) {
+        assert(a.size() == b.size());
+        assert(a.size() > 1);
+        
+        Bundle xors;
+        for (int i = 0; i < a.size(); ++i) {
+            WI* w = evalw_XOR(a[i], b[i]);
+            WI* w_inv = evalw_INV(w);
+            xors.push_back(w_inv);
+        }
+        
+        WI* w_inv_a = evalw_INV(a.back());
+        WI* w_ret = evalw_AND(w_inv_a, b.back());
+        
+        WI* w_used_xor = onewi();
+        WI* w_iand_a_b = evalw_IAND(a.back(), b.back());
+        WI* w_and_a_b  = evalw_AND(a.back(), b.back());
+        
+        for (int i = 1; i < a.size(); ++i) {
+            WI* w_inv_b = evalw_INV(b[a.size() - i - 1]);
+            WI* w_and_a_ib = evalw_AND(a[a.size() - i - 1], w_inv_b);
+            WI* w_and_a_ib_xor = evalw_AND(w_and_a_ib, w_used_xor);
+            WI* w_irow = evalw_AND(w_and_a_ib_xor, w_iand_a_b);
+            w_ret = evalw_OR(w_ret, w_irow);
+            
+            WI* w_inv_a = evalw_INV(a[a.size() - i - 1]);
+            WI* w_and_ia_b = evalw_AND(b[a.size() - i - 1], w_inv_a);
+            WI* w_and_ia_b_xor = evalw_AND(w_and_ia_b, w_used_xor);
+            WI* w_jrow = evalw_AND(w_and_ia_b_xor, w_and_a_b);
+            w_ret = evalw_OR(w_ret, w_jrow);
+            
+            w_used_xor = evalw_AND(w_used_xor, xors[a.size() - i - 1]);
+        }
+        return w_ret;
+    }
+    
+    WI* evalc_LE(Bundle& a, Bundle& b) {
+        return evalc_LA(b, a);
+    }
+    
+    WI* evalc_EQ(Bundle& a, Bundle& b) {
+        assert(a.size() == b.size());
+        WI* w_ret = onewi();
+        for (int i = 0; i < a.size(); ++i) {
+            WI* w = evalw_XOR(a[i], b[i]);
+            WI* w_inv = evalw_INV(w);
+            w_ret = evalw_AND(w_inv, w_ret);
+        }
+        return w_ret;
+    }
+    
+    WI* evalc_NEQ(Bundle& a, Bundle& b) {
+        WI* w = evalc_EQ(a, b);
+        return evalw_INV(w);
+    }
+    
+    WI* evalc_LAE(Bundle& a, Bundle& b) {
+        WI* w_la = evalc_LA(a, b);
+        WI* w_eq = evalc_EQ(a, b);
+        WI* w_lae = evalw_OR(w_la, w_eq);
+        return w_lae;
+    }
+    
+    WI* evalc_LEE(Bundle& a, Bundle& b) {
+        WI* w_la = evalc_LA(b, a);
+        WI* w_eq = evalc_EQ(b, a);
+        WI* w_lae = evalw_OR(w_la, w_eq);
+        return w_lae;
+    }
+    
+    Bundle* evalo_if(WI* cond, Bundle& then_res, Bundle& else_res)
+    {
+        // out = (then_res & cond) | (else_res & cond')
+        GASSERT(then_res.size() == else_res.size());
+        int len = then_res.size();
+        Bundle left;
+        Bundle right;
+        Bundle* out = new Bundle();
+        WI* w;
+        WI* cond_inv;
+        
+        for (int i = 0; i < len; ++i) {
+            w = evalw_AND(cond, then_res[i]);
+            left.push_back(w);
+        }
+        for (int i = 0; i < len; ++i) {
+            cond_inv = evalw_INV(cond);
+            w = evalw_AND(cond_inv, else_res[i]);
+            right.push_back(w);
+        }
+        for (int i = 0; i < len; ++i) {
+            w = evalw_OR(left[i], right[i]);
+            out->push_back(w);
+        }
+        return out;
+    }
+    
+    Bundle* num2bundle_n(int64_t v, int n)
+    {
+        int i = 0;
+        Bundle* out = new Bundle();
+        while (i < 64 && i < n) {
+            out->push_back(getbit(v, i) == 1 ? onewi() : zerowi());
+            i++;
+        }
+        out->m_isconst = true;
+        return out;
+    }
+    
+    
 };
 
 
