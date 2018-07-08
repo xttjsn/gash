@@ -640,6 +640,12 @@
                                                 <action selector="performMiniaturize:" target="Ady-hI-5gd" id="VwT-WD-YPe"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="LeNet" id="Y9C-jU-FQX">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <segue destination="dIs-cg-xi5" kind="show" id="Ofl-Tv-n1E"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Zoom" id="R4o-n2-Eq4">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
@@ -687,7 +693,7 @@
                     <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                        <rect key="contentRect" x="196" y="328" width="464" height="182"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
@@ -699,12 +705,67 @@
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="250"/>
+            <point key="canvasLocation" x="67" y="294"/>
         </scene>
-        <!--View Controller-->
+        <!--Window Controller-->
+        <scene sceneID="2cl-pm-OWT">
+            <objects>
+                <windowController id="dIs-cg-xi5" sceneMemberID="viewController">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="54L-yt-OlI">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="1734" y="133" width="480" height="270"/>
+                        <rect key="screenRect" x="1440" y="-180" width="1920" height="1057"/>
+                        <connections>
+                            <outlet property="delegate" destination="dIs-cg-xi5" id="tJb-hO-LsR"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="WNr-ac-rg1" kind="relationship" relationship="window.shadowedContentViewController" id="nFI-MD-3Aj"/>
+                    </connections>
+                </windowController>
+                <customObject id="JDp-tV-tdP" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="767" y="215"/>
+        </scene>
+        <!--Le Net View Controller-->
+        <scene sceneID="EHZ-TQ-oob">
+            <objects>
+                <viewController id="WNr-ac-rg1" customClass="LeNetViewController" customModule="gash" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="YQP-Ad-Ax5">
+                        <rect key="frame" x="0.0" y="0.0" width="760" height="411"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YEP-Xm-OQq">
+                                <rect key="frame" x="59" y="329" width="122" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Start Training" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="iLE-dC-EG0">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WbR-cW-DZp">
+                                <rect key="frame" x="59" y="256" width="169" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Start Div Benchmark " bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="FuP-67-Bbl">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="StartBenchMark:" target="WNr-ac-rg1" id="ncF-iG-Oyf"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                </viewController>
+                <customObject id="SSE-mi-RhD" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1489" y="165.5"/>
+        </scene>
+        <!--Circuit Executor View Controller-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="gash" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="XfG-lQ-9wD" customClass="CircuitExecutorViewController" customModule="gash" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="1335" height="583"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1052,14 +1113,14 @@
                                 <rect key="frame" x="679" y="374" width="341" height="135"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <clipView key="contentView" ambiguous="YES" id="J32-3e-TWE">
-                                    <rect key="frame" x="1" y="1" width="324" height="133"/>
+                                    <rect key="frame" x="1" y="1" width="339" height="133"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView ambiguous="YES" importsGraphics="NO" verticallyResizable="YES" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="Phq-Os-Wky">
-                                            <rect key="frame" x="0.0" y="0.0" width="324" height="133"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="339" height="133"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="324" height="133"/>
+                                            <size key="minSize" width="339" height="133"/>
                                             <size key="maxSize" width="463" height="10000000"/>
                                             <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                             <connections>
@@ -1074,7 +1135,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="68I-l3-xLV">
-                                    <rect key="frame" x="325" y="1" width="15" height="133"/>
+                                    <rect key="frame" x="324" y="1" width="16" height="133"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>

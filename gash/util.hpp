@@ -22,10 +22,9 @@
 #define XORNUM 1997
 #define NONXORNUM 2009
 #define TimeIt(expr, event_name)                       \
-    expr;
-//    timer.tic(event_name);                             \
-//    expr;                                              \
-//    timer.toc()
+    timer.tic(event_name);                             \
+    expr;                                              \
+    timer.toc()
 
 
 using std::string;

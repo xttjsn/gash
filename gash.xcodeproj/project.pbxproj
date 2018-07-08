@@ -15,6 +15,7 @@
 		F33A4DC420DB16E700AEE9ED /* sym.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F37DA55E20DADB9F005EC8BA /* sym.cpp */; };
 		F33A4DC520DB16E700AEE9ED /* lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = F33D2D4520D839E100E5F494 /* lexer.c */; };
 		F33A4DC620DB16E700AEE9ED /* parser.tab.c in Sources */ = {isa = PBXBuildFile; fileRef = F33D2D4020D839CD00E5F494 /* parser.tab.c */; };
+		F33A4DC820DB404B00AEE9ED /* LeNetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33A4DC720DB404B00AEE9ED /* LeNetViewController.swift */; };
 		F33D23D420D6F35F00E5F494 /* Circuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D120D6F35F00E5F494 /* Circuit.swift */; };
 		F33D23D520D6F35F00E5F494 /* DivCircuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D220D6F35F00E5F494 /* DivCircuit.swift */; };
 		F33D23D620D6F35F00E5F494 /* StreamReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F33D23D320D6F35F00E5F494 /* StreamReader.swift */; };
@@ -25,11 +26,14 @@
 		F37DA56920DADCD3005EC8BA /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F37DA55920DADB9E005EC8BA /* util.cpp */; settings = {COMPILER_FLAGS = "-std=c++11"; }; };
 		F37DA56A20DADCF0005EC8BA /* tcp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F33D2D4E20D84F8B00E5F494 /* tcp.cpp */; settings = {COMPILER_FLAGS = "-std=c++11"; }; };
 		F3D404E420D6F19800FCFF08 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404E320D6F19800FCFF08 /* AppDelegate.swift */; };
-		F3D404E620D6F19800FCFF08 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404E520D6F19800FCFF08 /* ViewController.swift */; };
+		F3D404E620D6F19800FCFF08 /* CircuitExecutorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404E520D6F19800FCFF08 /* CircuitExecutorViewController.swift */; };
 		F3D404E820D6F19900FCFF08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3D404E720D6F19900FCFF08 /* Assets.xcassets */; };
 		F3D404EB20D6F19900FCFF08 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F3D404E920D6F19900FCFF08 /* Main.storyboard */; };
 		F3D404F720D6F19A00FCFF08 /* gashTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D404F620D6F19A00FCFF08 /* gashTests.swift */; };
 		F3D4050220D6F19A00FCFF08 /* gashUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D4050120D6F19A00FCFF08 /* gashUITests.swift */; };
+		F3D902B020DBFDDE00E7CE11 /* func.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3D902AF20DBFDDE00E7CE11 /* func.cpp */; };
+		F3D902C020DC241C00E7CE11 /* ss_exp_gen.py in Resources */ = {isa = PBXBuildFile; fileRef = F3D902BF20DC241C00E7CE11 /* ss_exp_gen.py */; };
+		F3D902C820DC3DC000E7CE11 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3D902C720DC3DC000E7CE11 /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +53,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F3D902C320DC3DC000E7CE11 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		37AA3D7374097AAEB3EF69EB /* Pods_gash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		66E6FA363A380BFB44197B63 /* Pods_gashUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_gashUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +75,9 @@
 		C1EF319033E428DC1DBC9E9E /* Pods-gash.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gash.debug.xcconfig"; path = "Pods/Target Support Files/Pods-gash/Pods-gash.debug.xcconfig"; sourceTree = "<group>"; };
 		CF6EF4A9C36FBA0E17D173CA /* Pods-gashTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-gashTests/Pods-gashTests.release.xcconfig"; sourceTree = "<group>"; };
 		EAAA7792318BEC698D1101EC /* Pods-gashUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gashUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-gashUITests/Pods-gashUITests.release.xcconfig"; sourceTree = "<group>"; };
+		F33A4DC720DB404B00AEE9ED /* LeNetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeNetViewController.swift; sourceTree = "<group>"; };
+		F33A4DC920DB466700AEE9ED /* ss.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ss.cpp; sourceTree = "<group>"; };
+		F33A4DCA20DB466700AEE9ED /* ss.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ss.hpp; sourceTree = "<group>"; };
 		F33D23D120D6F35F00E5F494 /* Circuit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Circuit.swift; sourceTree = "<group>"; };
 		F33D23D220D6F35F00E5F494 /* DivCircuit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DivCircuit.swift; sourceTree = "<group>"; };
 		F33D23D320D6F35F00E5F494 /* StreamReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamReader.swift; sourceTree = "<group>"; };
@@ -192,7 +211,7 @@
 		F37DA56320DADBA0005EC8BA /* util.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = util.hpp; sourceTree = "<group>"; };
 		F3D404E020D6F19800FCFF08 /* gash.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gash.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3D404E320D6F19800FCFF08 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		F3D404E520D6F19800FCFF08 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		F3D404E520D6F19800FCFF08 /* CircuitExecutorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircuitExecutorViewController.swift; sourceTree = "<group>"; };
 		F3D404E720D6F19900FCFF08 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F3D404EA20D6F19900FCFF08 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F3D404EC20D6F19900FCFF08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -203,6 +222,14 @@
 		F3D404FD20D6F19A00FCFF08 /* gashUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gashUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3D4050120D6F19A00FCFF08 /* gashUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gashUITests.swift; sourceTree = "<group>"; };
 		F3D4050320D6F19A00FCFF08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F3D902AF20DBFDDE00E7CE11 /* func.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = func.cpp; sourceTree = "<group>"; };
+		F3D902B220DBFE5A00E7CE11 /* seclenet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = seclenet.hpp; sourceTree = "<group>"; };
+		F3D902B620DC01CF00E7CE11 /* seclenet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = seclenet.cpp; path = ../../../Dropbox/tmp/seclenet/seclenet.cpp; sourceTree = "<group>"; };
+		F3D902BA20DC030100E7CE11 /* seclenet_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = seclenet_main.cpp; sourceTree = "<group>"; };
+		F3D902BB20DC030100E7CE11 /* seclenet_main.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = seclenet_main.hpp; sourceTree = "<group>"; };
+		F3D902BF20DC241C00E7CE11 /* ss_exp_gen.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = ss_exp_gen.py; sourceTree = "<group>"; };
+		F3D902C520DC3DC000E7CE11 /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3D902C720DC3DC000E7CE11 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,6 +256,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				EFC2EE0BC23D957D4964DC8B /* Pods_gashUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F3D902C220DC3DC000E7CE11 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,6 +440,7 @@
 				F3D404E220D6F19800FCFF08 /* gash */,
 				F3D404F520D6F19A00FCFF08 /* gashTests */,
 				F3D4050020D6F19A00FCFF08 /* gashUITests */,
+				F3D902C620DC3DC000E7CE11 /* benchmark */,
 				F3D404E120D6F19800FCFF08 /* Products */,
 				C8C247EDE53002C790262FFE /* Pods */,
 				3883300510762525A837B3BE /* Frameworks */,
@@ -418,6 +453,7 @@
 				F3D404E020D6F19800FCFF08 /* gash.app */,
 				F3D404F220D6F19A00FCFF08 /* gashTests.xctest */,
 				F3D404FD20D6F19A00FCFF08 /* gashUITests.xctest */,
+				F3D902C520DC3DC000E7CE11 /* benchmark */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -426,6 +462,12 @@
 			isa = PBXGroup;
 			children = (
 				F33D2C9F20D6F50C00E5F494 /* OTExtension */,
+				F33A4DC920DB466700AEE9ED /* ss.cpp */,
+				F33A4DCA20DB466700AEE9ED /* ss.hpp */,
+				F3D902B220DBFE5A00E7CE11 /* seclenet.hpp */,
+				F3D902B620DC01CF00E7CE11 /* seclenet.cpp */,
+				F3D902BA20DC030100E7CE11 /* seclenet_main.cpp */,
+				F3D902BB20DC030100E7CE11 /* seclenet_main.hpp */,
 				F37DA55A20DADB9E005EC8BA /* aes.cpp */,
 				F37DA55F20DADBA0005EC8BA /* aes.hpp */,
 				F37DA55620DADB9E005EC8BA /* circuit.hpp */,
@@ -433,6 +475,7 @@
 				F37DA56120DADBA0005EC8BA /* div_circuit.hpp */,
 				F37DA55320DADB9D005EC8BA /* evaluator.hpp */,
 				F37DA55420DADB9D005EC8BA /* func.hpp */,
+				F3D902AF20DBFDDE00E7CE11 /* func.cpp */,
 				F37DA55720DADB9E005EC8BA /* garbled_circuit.hpp */,
 				F37DA55820DADB9E005EC8BA /* garbler.hpp */,
 				F37DA55C20DADB9F005EC8BA /* lang.cpp */,
@@ -455,11 +498,13 @@
 				F33D23D220D6F35F00E5F494 /* DivCircuit.swift */,
 				F33D23D320D6F35F00E5F494 /* StreamReader.swift */,
 				F3D404E320D6F19800FCFF08 /* AppDelegate.swift */,
-				F3D404E520D6F19800FCFF08 /* ViewController.swift */,
+				F3D404E520D6F19800FCFF08 /* CircuitExecutorViewController.swift */,
+				F33A4DC720DB404B00AEE9ED /* LeNetViewController.swift */,
 				F3D404E720D6F19900FCFF08 /* Assets.xcassets */,
 				F3D404E920D6F19900FCFF08 /* Main.storyboard */,
 				F3D404EC20D6F19900FCFF08 /* Info.plist */,
 				F3D404ED20D6F19900FCFF08 /* gash.entitlements */,
+				F3D902BF20DC241C00E7CE11 /* ss_exp_gen.py */,
 			);
 			path = gash;
 			sourceTree = "<group>";
@@ -480,6 +525,14 @@
 				F3D4050320D6F19A00FCFF08 /* Info.plist */,
 			);
 			path = gashUITests;
+			sourceTree = "<group>";
+		};
+		F3D902C620DC3DC000E7CE11 /* benchmark */ = {
+			isa = PBXGroup;
+			children = (
+				F3D902C720DC3DC000E7CE11 /* main.cpp */,
+			);
+			path = benchmark;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -545,6 +598,23 @@
 			productReference = F3D404FD20D6F19A00FCFF08 /* gashUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		F3D902C420DC3DC000E7CE11 /* benchmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F3D902C920DC3DC000E7CE11 /* Build configuration list for PBXNativeTarget "benchmark" */;
+			buildPhases = (
+				F3D902C120DC3DC000E7CE11 /* Sources */,
+				F3D902C220DC3DC000E7CE11 /* Frameworks */,
+				F3D902C320DC3DC000E7CE11 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = benchmark;
+			productName = benchmark;
+			productReference = F3D902C520DC3DC000E7CE11 /* benchmark */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -567,6 +637,9 @@
 						CreatedOnToolsVersion = 9.4;
 						TestTargetID = F3D404DF20D6F19800FCFF08;
 					};
+					F3D902C420DC3DC000E7CE11 = {
+						CreatedOnToolsVersion = 9.4;
+					};
 				};
 			};
 			buildConfigurationList = F3D404DB20D6F19800FCFF08 /* Build configuration list for PBXProject "gash" */;
@@ -585,6 +658,7 @@
 				F3D404DF20D6F19800FCFF08 /* gash */,
 				F3D404F120D6F19A00FCFF08 /* gashTests */,
 				F3D404FC20D6F19A00FCFF08 /* gashUITests */,
+				F3D902C420DC3DC000E7CE11 /* benchmark */,
 			);
 		};
 /* End PBXProject section */
@@ -597,6 +671,7 @@
 				F33D2D5620D853C100E5F494 /* BuildOTExtension.sh in Resources */,
 				F3D404E820D6F19900FCFF08 /* Assets.xcassets in Resources */,
 				F3D404EB20D6F19900FCFF08 /* Main.storyboard in Resources */,
+				F3D902C020DC241C00E7CE11 /* ss_exp_gen.py in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -748,13 +823,15 @@
 				F33A4DC520DB16E700AEE9ED /* lexer.c in Sources */,
 				F33A4DC620DB16E700AEE9ED /* parser.tab.c in Sources */,
 				F33A4DC220DB16C800AEE9ED /* aes.cpp in Sources */,
+				F3D902B020DBFDDE00E7CE11 /* func.cpp in Sources */,
+				F33A4DC820DB404B00AEE9ED /* LeNetViewController.swift in Sources */,
 				F37DA56A20DADCF0005EC8BA /* tcp.cpp in Sources */,
 				F37DA56920DADCD3005EC8BA /* util.cpp in Sources */,
 				F33D23D620D6F35F00E5F494 /* StreamReader.swift in Sources */,
 				F33D23D420D6F35F00E5F494 /* Circuit.swift in Sources */,
 				F33D23D520D6F35F00E5F494 /* DivCircuit.swift in Sources */,
 				F33D23DA20D6F38300E5F494 /* gash_swift_api.cpp in Sources */,
-				F3D404E620D6F19800FCFF08 /* ViewController.swift in Sources */,
+				F3D404E620D6F19800FCFF08 /* CircuitExecutorViewController.swift in Sources */,
 				F3D404E420D6F19800FCFF08 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -772,6 +849,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3D4050220D6F19A00FCFF08 /* gashUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F3D902C120DC3DC000E7CE11 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F3D902C820DC3DC000E7CE11 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -969,6 +1054,7 @@
 					"-lssl",
 					"-lcrypto",
 					"-lgmpxx",
+					"-lbenchmark",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conggroup.gash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1033,6 +1119,7 @@
 					"-lssl",
 					"-lcrypto",
 					"-lgmpxx",
+					"-lbenchmark",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.conggroup.gash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1128,6 +1215,24 @@
 			};
 			name = Release;
 		};
+		F3D902CA20DC3DC000E7CE11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = U6V3P7868L;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F3D902CB20DC3DC000E7CE11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = U6V3P7868L;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1163,6 +1268,15 @@
 			buildConfigurations = (
 				F3D4050D20D6F19A00FCFF08 /* Debug */,
 				F3D4050E20D6F19A00FCFF08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F3D902C920DC3DC000E7CE11 /* Build configuration list for PBXNativeTarget "benchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F3D902CA20DC3DC000E7CE11 /* Debug */,
+				F3D902CB20DC3DC000E7CE11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

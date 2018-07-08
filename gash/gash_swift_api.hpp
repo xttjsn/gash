@@ -31,6 +31,10 @@ extern "C" {
     const char* GetEvaluatorRawOutput();
     void ResetGarbler();
     void ResetEvaluator();
+    void StartClient();
+    void StartP0();
+    void StartP1();
+    void StartBenchmark();
     
     
 #ifdef __cplusplus

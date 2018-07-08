@@ -6,6 +6,7 @@
 //  Copyright © 2018 Xiaoting Tang. All rights reserved.
 //
 
+#include <benchmark/benchmark.h>
 #include "gash_swift_api.hpp"
 #include "tcp.hpp"
 #include "circuit.hpp"
@@ -16,7 +17,8 @@
 #include "func.hpp"
 #include "util.hpp"
 #include "lang.hpp"
-
+//#include "seclenet.hpp"
+//#include "seclenet_main.hpp"
 
 static Garbler m_garbler;
 static Evaluator m_evaluator;
@@ -85,6 +87,7 @@ void StartGarbler(const char* evaluator_ip) {
     TimeIt(m_garbler.send_output_map(), "Send output map");
     TimeIt(m_garbler.recv_output(), "Receive output");
     parse_clean();
+    timer.report();
 }
 
 void StartEvaluator(const char* garbler_ip) {
@@ -107,6 +110,7 @@ void StartEvaluator(const char* garbler_ip) {
     TimeIt(m_evaluator.recover_output(), "Recovering output");
     TimeIt(m_evaluator.send_output(), "Send output");
     parse_clean();
+    timer.report();
 }
 
 const char* GetGarblerRawOutput() {
@@ -164,3 +168,79 @@ void CrossCheck() {
     parse_clean();
     m_evaluator.clear();
 }
+
+static void BM_DIV(benchmark::State& state) {
+    string g_circuit = "func div (int64 a, int64 b) { "
+    "    int64 ret = a / b;        "
+    "    return ret; }             "
+    "   #definput a 120            ";
+    string e_circuit =  "func div (int64 a, int64 b) { "
+    "    int64 ret = a / b;        "
+    "    return ret; }             "
+    "   #definput b 12             ";
+    
+    if (fork() != 0) {
+        extern FILE* yyin;
+        const char* src = g_circuit.c_str();
+        yyin = std::tmpfile();
+        std::fputs(src, yyin);
+        std::rewind(yyin);
+        set_garbler(&m_garbler);
+        m_garbler.m_peer_ip = string("127.0.0.1");
+        TimeIt(yyparse(), "Parsing");
+        m_garbler.check_ids();
+        TimeIt(m_garbler.m_gc.garble(), "Garbling circuit");
+        TimeIt(m_garbler.init_connection(), "Init connection");
+        TimeIt(m_garbler.send_egtt(), "Send encrypted garbled truth tables");
+        TimeIt(m_garbler.send_self_lbls(), "Send self labels");
+        TimeIt(m_garbler.send_peer_lbls(), "Send peer labels");
+        TimeIt(m_garbler.send_output_map(), "Send output map");
+        TimeIt(m_garbler.recv_output(), "Receive output");
+        parse_clean();
+        timer.report();
+    } else {
+        sleep(2);
+        extern FILE* yyin;
+        const char* src = e_circuit.c_str();
+        yyin = std::tmpfile();
+        std::fputs(src, yyin);
+        std::rewind(yyin);
+        set_evaluator(&m_evaluator);
+        m_evaluator.m_peer_ip = "127.0.0.1";
+        TimeIt(yyparse(), "Parsing");
+        m_evaluator.check_ids();
+        TimeIt(m_evaluator.build_garble_circuit(), "Build garbled circuit");
+        TimeIt(m_evaluator.init_connection(), "Init connection");
+        TimeIt(m_evaluator.recv_egtt(), "Send encrypted garbled truth tables");
+        TimeIt(m_evaluator.recv_peer_lbls(), "Send self labels");
+        TimeIt(m_evaluator.recv_self_lbls(), "Send peer labels");
+        TimeIt(m_evaluator.recv_output_map(), "Send output map");
+        TimeIt(m_evaluator.m_gc.evaluate(), "Evaluating");
+        TimeIt(m_evaluator.recover_output(), "Recovering output");
+        TimeIt(m_evaluator.send_output(), "Send output");
+        parse_clean();
+        timer.report();
+    }
+}
+
+void StartBenchmark() {
+    int one = 1;
+    char* argv = "program";
+    ::benchmark::Initialize(&one, &argv);
+    if (::benchmark::ReportUnrecognizedArguments(one, &argv)) return;
+    ::benchmark::RunSpecifiedBenchmarks();
+}
+
+BENCHMARK(BM_DIV);
+
+//void StartClient() {
+//    seclenet_main();
+//}
+//
+//void StartP0() {
+//    seclenet_p0_main();
+//}
+//
+//void StartP1() {
+//    seclenet_p1_main();
+//}
