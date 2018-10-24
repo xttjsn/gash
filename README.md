@@ -10,6 +10,96 @@ Graph](http://fmv.jku.at/aiger/format-20070427.pdf)-AIG circuit syntax).
 Then, GASH garbles the circuit described by the `circ` file (if the machine is
 garbler), connects to peer, and perform Yao's protocol.
 
+###Write code in `gash-lang`
+
+`gash-lang` is a simple language with syntax similar to C. It consists of two parts, a main
+function, and a few directives.
+
+```
+func FuncName(Type name, ...) {
+
+}
+#Directives
+...
+```
+
+What gash will do is first compile the function into a boolean circuit, and use the directives as
+hints to execute the circuits in Yao's GC framework. The directives include
+- `#definput Symbol Value`. Sets the value of `Symbol` to `Value`. `Value` will be truncated if the
+symbol size is less than that of `Value`.
+- `#defip Ip`. Sets the *peer*'s ip address. The peer of the garbler is the evaluator, and vice
+versa. It is usually better for the evaluator to connect to the garbler.
+- `#defrole Role`. Sets the role of the current program, the value could be `GARBLER` or `EVALUATOR`.
+- `#defport Port`. Sets the peer's port used by the GC framework.
+- `#defotport Port`. Sets the peer's port used by Oblivious Transfer.
+
+####Data Type
+Gash currently has 1 generic data types `intX`, where `1<=X<=64`. All integers are signed, thus the
+largest number we can represent is `1<<63`.
+
+###Control Flow
+Gash has a rather restricted control flow than C and other high-level programming language. This
+is because Gash is not turing complete. Every program/circuit that gash generates finishes in a
+finite number of steps. Here are the two restrictions of gash compared to C.
+
+- No `while` and `for` loop.
+- No `else if`.
+
+However, there are (trivial) ways to achieve `for` loop with finite steps and `else if` in certain
+conditions. If you want to write  
+```
+    for (int i = 0; i < 10; i++) {
+        <doSomething i>
+    }
+```
+where `<doSomething i>` is the code that you want to executes in the loop, parameterized by `i`. You
+can write it in `gash-lang` as such.
+```
+        <doSomething 0>
+        <doSomething 1>
+        ...
+        <doSomething 9>
+        <doSomething 10>
+```
+
+If you want to write
+```
+    if (<condition 0>) {
+        <doSomething 0>    
+    } else if (<condition 1>) {
+        <doSomething 1>
+    }
+    ...
+    else if (<condition n-1>) {
+        <doSomething n-1>
+    } else  {
+        <doSomething n>
+    }
+```
+
+You should nest the `else if`s by writing it as follows.
+```
+    if (<condition 0>) {
+        <doSomething 0>
+    } else {
+        if (<condition 1>) {
+            <doSomething 1>
+        } else {
+            ...
+                ...
+                    ...
+                        if (<condition n-1>) {
+                            <doSomething n-1>
+                        } else {
+                            <doSomething n>
+                        }
+                    ...
+                ...
+            ...    
+        }
+    }
+```
+
 ## Example - Millionaire problem
 
 Alice holds her secret value `a` and Bob holds the secret value `b`, they want
