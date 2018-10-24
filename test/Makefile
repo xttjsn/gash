@@ -1,6 +1,6 @@
 CLANG-FORMAT            := clang-format
 
-all: api
+all: api cmpl grbl tcp ot exec res 
 
 cmpl:
 	@ cd cmpl && make
