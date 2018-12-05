@@ -30,7 +30,7 @@ libgash_lang.a: $(OBJS) $(parser_OBJ) $(lexer_OBJ)
 
 gashlang: $(OBJS) $(parser_OBJ) $(lexer_OBJ) main.o
 	@ echo "    Building gashlang"
-	@ $(CXX) $^ -o $@ $(GC_LIB) $(LDFLAGS)
+	@ $(CXX) $^ -o $@ $(GC_LIB) ../build/lib/libmiracl.a $(LDFLAGS)
 	@ mkdir -p ../build/bin && cp ./gashlang ../build/bin
 
 $(parser_HEAD) $(parser_CSRC): $(parser_SRC)
